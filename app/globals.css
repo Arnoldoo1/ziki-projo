@@ -252,6 +252,328 @@
   background-size: 44px 44px;
 }
 
+
+/* ------------------------------------------------------------------ */
+/* Ziki Workshop — a paper, ink, and tiny-robot edition                */
+/* ------------------------------------------------------------------ */
+
+.workshop {
+  --w-bg: #fbf1df;
+  --w-bg-2: #f6e6cc;
+  --w-card: #fffdf7;
+  --w-ink: #2b2118;
+  --w-ink-soft: #6d5b49;
+  --w-line: #e3cfae;
+  --w-coral: #ef6b4a;
+  --w-coral-soft: #fbd9cf;
+  --w-teal: #2a8c7e;
+  --w-teal-soft: #d6efe9;
+  --w-butter: #f2c14e;
+  --w-butter-soft: #fbeec4;
+  --w-sky: #8ecae6;
+  --w-sky-soft: #dceff8;
+  --w-lilac: #b9a7e6;
+  --w-lilac-soft: #ece5fa;
+  --w-shadow: #2b2118;
+  background-color: var(--w-bg);
+  color: var(--w-ink);
+  font-family: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+}
+
+.workshop-night {
+  --w-bg: #211a2b;
+  --w-bg-2: #2b2237;
+  --w-card: #30263d;
+  --w-ink: #f8eddc;
+  --w-ink-soft: #cdbda9;
+  --w-line: #4b3d5c;
+  --w-coral: #ff8a6b;
+  --w-coral-soft: #4a2a28;
+  --w-teal: #5bc7b5;
+  --w-teal-soft: #1f3c39;
+  --w-butter: #f6d06b;
+  --w-butter-soft: #453916;
+  --w-sky: #9ed8ef;
+  --w-sky-soft: #203743;
+  --w-lilac: #cbb8f5;
+  --w-lilac-soft: #352c4a;
+  --w-shadow: #0f0a15;
+}
+
+.w-display {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-optical-sizing: auto;
+}
+
+.w-grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image: radial-gradient(rgba(43, 33, 24, 0.13) 0.6px, transparent 0.6px);
+  background-size: 7px 7px;
+  mix-blend-mode: multiply;
+}
+
+.workshop-night.w-grain::before {
+  opacity: 0.25;
+  mix-blend-mode: screen;
+}
+
+.w-card {
+  background: var(--w-card);
+  border: 2px solid var(--w-ink);
+  border-radius: 20px 26px 18px 24px / 24px 18px 26px 20px;
+  box-shadow: 5px 5px 0 var(--w-shadow);
+}
+
+.w-card-lift {
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+.w-card-lift:hover {
+  transform: translate(-2px, -3px) rotate(-0.35deg);
+  box-shadow: 8px 9px 0 var(--w-shadow);
+}
+
+.w-sticker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 2px solid var(--w-ink);
+  border-radius: 999px;
+  box-shadow: 2px 2px 0 var(--w-shadow);
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.w-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2.5rem;
+  padding: 0 1rem;
+  border: 2px solid var(--w-ink);
+  border-radius: 999px;
+  box-shadow: 3px 3px 0 var(--w-shadow);
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+}
+.w-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--w-shadow);
+}
+.w-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--w-shadow);
+}
+.w-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+}
+.w-btn-coral {
+  background: var(--w-coral);
+  color: #fffdf7;
+}
+.w-btn-butter {
+  background: var(--w-butter);
+  color: #2b2118;
+}
+.w-btn-teal {
+  background: var(--w-teal);
+  color: #fffdf7;
+}
+.w-btn-paper {
+  background: var(--w-card);
+  color: var(--w-ink);
+}
+.w-btn-ghost {
+  background: transparent;
+  box-shadow: none;
+  border-color: transparent;
+}
+.w-btn-ghost:hover {
+  background: var(--w-bg-2);
+  box-shadow: none;
+  transform: none;
+}
+
+.w-tape {
+  position: absolute;
+  width: 74px;
+  height: 20px;
+  background: color-mix(in srgb, var(--w-butter) 78%, transparent);
+  border-left: 1px dashed color-mix(in srgb, var(--w-ink) 25%, transparent);
+  border-right: 1px dashed color-mix(in srgb, var(--w-ink) 25%, transparent);
+  transform: rotate(-4deg);
+  opacity: 0.9;
+}
+
+.w-pin {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--w-ink);
+  border-radius: 999px;
+  background: var(--w-coral);
+  box-shadow: inset -2px -3px 0 rgba(43, 33, 24, 0.18), 1px 2px 0 var(--w-shadow);
+}
+
+.w-dashed {
+  border-top: 2px dashed var(--w-line);
+}
+
+.w-squiggle {
+  text-decoration: underline wavy var(--w-coral);
+  text-decoration-thickness: 3px;
+  text-underline-offset: 7px;
+}
+
+.w-float {
+  animation: w-float 5s ease-in-out infinite;
+}
+.w-float-slow {
+  animation: w-float 8s ease-in-out infinite;
+}
+.w-drift {
+  animation: w-drift 12s ease-in-out infinite;
+}
+.w-steam {
+  animation: w-steam 3.2s ease-in-out infinite;
+}
+.w-wiggle:hover {
+  animation: w-wiggle 320ms ease-in-out 2;
+}
+.w-spin-slow {
+  animation: w-spin 34s linear infinite;
+  transform-origin: center;
+}
+
+.w-stamp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  border: 3px double currentColor;
+  border-radius: 999px;
+  padding: 0.4rem 0.75rem;
+  color: var(--w-teal);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transform: rotate(-7deg);
+  animation: w-stamp-in 380ms cubic-bezier(0.2, 1.4, 0.4, 1) both;
+  background: color-mix(in srgb, var(--w-teal-soft) 70%, transparent);
+}
+
+.w-confetti-bit {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: 8px;
+  height: 12px;
+  background: var(--bit-color);
+  border: 1px solid color-mix(in srgb, var(--w-ink) 35%, transparent);
+  transform: translate(-50%, -50%) rotate(var(--bit-rotate));
+  animation: w-confetti 900ms ease-out forwards;
+}
+
+.w-underline-doodle {
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 12'%3E%3Cpath d='M2 8c34-7 66 5 100-1s72-4 136 1' fill='none' stroke='%23ef6b4a' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 100% 0.5rem;
+  padding-bottom: 0.4rem;
+}
+
+.w-scrollbar::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+.w-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--w-line);
+  border-radius: 999px;
+}
+
+@keyframes w-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes w-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-7px) rotate(1deg); }
+}
+@keyframes w-drift {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(16px); }
+}
+@keyframes w-steam {
+  0% { opacity: 0; transform: translateY(4px) scaleX(0.8); }
+  35% { opacity: 0.7; }
+  100% { opacity: 0; transform: translateY(-12px) scaleX(1.15); }
+}
+@keyframes w-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-1.1deg); }
+  75% { transform: rotate(1.1deg); }
+}
+@keyframes w-stamp-in {
+  0% { opacity: 0; transform: scale(1.9) rotate(-16deg); }
+  65% { opacity: 1; transform: scale(0.94) rotate(-5deg); }
+  100% { opacity: 1; transform: scale(1) rotate(-7deg); }
+}
+@keyframes w-confetti {
+  0% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--bit-rotate)); }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--bit-x)), calc(-50% + var(--bit-y))) rotate(calc(var(--bit-rotate) + 260deg));
+  }
+}
+
+
+/* Keep the global toast out of the workshop's way, and make it feel like a note. */
+body:has(.workshop) div[aria-live="polite"] {
+  left: auto;
+  right: 1rem;
+  bottom: 1rem;
+  align-items: flex-end;
+  padding: 0 1rem;
+}
+body:has(.workshop) div[aria-live="polite"] > div {
+  max-width: 340px;
+  border: 2px solid #2b2118;
+  border-radius: 16px 20px 14px 18px / 18px 14px 20px 16px;
+  background: #fffdf7;
+  color: #2b2118;
+  box-shadow: 4px 4px 0 #2b2118;
+  font-family: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 700;
+}
+body:has(.workshop) div[aria-live="polite"] > div:nth-last-child(n + 3) {
+  display: none;
+}
+body:has(.workshop) div[aria-live="polite"] > div button {
+  border: 2px solid #2b2118;
+  background: #f2c14e;
+  color: #2b2118;
+  box-shadow: 2px 2px 0 #2b2118;
+}
+@media (max-width: 639px) {
+  body:has(.workshop) div[aria-live="polite"] {
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: 0.75rem;
+    align-items: stretch;
+    padding: 0;
+  }
+}
+
 /* Presenter tour: a visible ring around the part being explained. */
 .tour-spotlight {
   outline: 2px solid #2e6fef;

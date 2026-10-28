@@ -708,6 +708,10 @@ export default function LandingPage() {
             <Link href="/issues" className="hover:text-zk-text">Issues</Link>
             <Link href="/handshake" className="hover:text-zk-text">Handshake</Link>
             <Link href="/improvement" className="hover:text-zk-text">Design brief</Link>
+            <Link href="/workshop" className="inline-flex items-center gap-1 font-bold text-zk-accent hover:text-zk-text">
+              Whimsical workshop
+              <span aria-hidden="true">✦</span>
+            </Link>
             <Link href="/login" className="hover:text-zk-text">Sign in</Link>
             <span>© 2026 Ziki</span>
           </div>
