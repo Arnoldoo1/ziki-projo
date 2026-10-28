@@ -1,0 +1,264 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --zk-bg: #f5f7fc;
+  --zk-surface: #ffffff;
+  --zk-text: #15121f;
+  --zk-text2: #3e4a63;
+  --zk-muted: #5f6577;
+  --zk-border: #e3e8f2;
+  --zk-divider: #eef1f7;
+  --zk-tint: #eaf2fe;
+  --zk-row-sel: #f3f8ff;
+  --zk-chip: #f0f2f7;
+  --zk-seg: #eef1f6;
+  --zk-chip2: #e2e7f0;
+  --zk-accent: #1f5fd9;
+  --zk-ok-bg: #e3f6ec;
+  --zk-ok-fg: #146c43;
+  --zk-bad-bg: #fde8e4;
+  --zk-bad-fg: #a3261a;
+  --zk-bad-bd: #f4b3a8;
+  --zk-warn-bg: #fdf3d7;
+  --zk-warn-fg: #7a4e00;
+  --zk-warn-bd: #f0cd72;
+  --zk-info-bg: #e7f0ff;
+  --zk-info-fg: #1d4fb8;
+  --zk-sec-bg: #fdecef;
+  --zk-sec-fg: #b4233f;
+  --zk-shadow: 0 18px 40px rgba(11, 23, 51, 0.1), 0 2px 6px rgba(57, 120, 246, 0.1);
+  color-scheme: light;
+}
+
+.dark {
+  --zk-bg: #070f22;
+  --zk-surface: #0e1a33;
+  --zk-text: #e8eef9;
+  --zk-text2: #b7c3da;
+  --zk-muted: #93a0b8;
+  --zk-border: #22324f;
+  --zk-divider: #1a2844;
+  --zk-tint: #15284a;
+  --zk-row-sel: #13254a;
+  --zk-chip: #1b2a47;
+  --zk-seg: #0a1530;
+  --zk-chip2: #26375a;
+  --zk-accent: #8fc9ff;
+  --zk-ok-bg: #0f3326;
+  --zk-ok-fg: #6ee7a8;
+  --zk-bad-bg: #3a1517;
+  --zk-bad-fg: #fca5a0;
+  --zk-bad-bd: #6b2a27;
+  --zk-warn-bg: #3a2c0c;
+  --zk-warn-fg: #f6cf6b;
+  --zk-warn-bd: #6b5216;
+  --zk-info-bg: #14294f;
+  --zk-info-fg: #9cc2ff;
+  --zk-sec-bg: #3a1424;
+  --zk-sec-fg: #f9a8c0;
+  --zk-shadow: 0 18px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(57, 120, 246, 0.25);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-zk-bg: var(--zk-bg);
+  --color-zk-surface: var(--zk-surface);
+  --color-zk-text: var(--zk-text);
+  --color-zk-text2: var(--zk-text2);
+  --color-zk-muted: var(--zk-muted);
+  --color-zk-border: var(--zk-border);
+  --color-zk-divider: var(--zk-divider);
+  --color-zk-tint: var(--zk-tint);
+  --color-zk-rows: var(--zk-row-sel);
+  --color-zk-chip: var(--zk-chip);
+  --color-zk-seg: var(--zk-seg);
+  --color-zk-chip2: var(--zk-chip2);
+  --color-zk-accent: var(--zk-accent);
+  --color-zk-ok-bg: var(--zk-ok-bg);
+  --color-zk-ok-fg: var(--zk-ok-fg);
+  --color-zk-bad-bg: var(--zk-bad-bg);
+  --color-zk-bad-fg: var(--zk-bad-fg);
+  --color-zk-bad-bd: var(--zk-bad-bd);
+  --color-zk-warn-bg: var(--zk-warn-bg);
+  --color-zk-warn-fg: var(--zk-warn-fg);
+  --color-zk-warn-bd: var(--zk-warn-bd);
+  --color-zk-info-bg: var(--zk-info-bg);
+  --color-zk-info-fg: var(--zk-info-fg);
+  --color-zk-sec-bg: var(--zk-sec-bg);
+  --color-zk-sec-fg: var(--zk-sec-fg);
+
+  --color-deep-ocean: #0b1733;
+  --color-sidebar-navy: #0c1938;
+  --color-blue-slate: #263b63;
+  --color-electric-blue: #3978f6;
+  --color-electric-blue-strong: #2e6fef;
+  --color-sky-tint: #8fc9ff;
+  --color-porcelain: #f5f7fc;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+@layer base {
+  * {
+    border-color: var(--zk-border);
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background: var(--zk-bg);
+    color: var(--zk-text);
+    font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection {
+    background: #8fc9ff;
+    color: #0b1733;
+  }
+  :focus-visible {
+    outline: 2px solid #3978f6;
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  }
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-electric-blue focus-visible:ring-offset-2 focus-visible:ring-offset-zk-surface;
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  .surface-card {
+    background: var(--zk-surface);
+    border: 1px solid var(--zk-border);
+    border-radius: 20px;
+  }
+}
+
+/* ---------- Motion ---------- */
+@keyframes zk-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes zk-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes zk-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes zk-pulse-dot {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(57, 120, 246, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 5px rgba(57, 120, 246, 0);
+  }
+}
+@keyframes zk-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+@keyframes zk-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes zk-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+@keyframes zk-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-rise {
+  animation: zk-rise 0.42s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.animate-fade {
+  animation: zk-fade 0.3s ease both;
+}
+.animate-pop {
+  animation: zk-pop 0.28s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.animate-toast {
+  animation: zk-toast-in 0.3s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.pulse-dot {
+  animation: zk-pulse-dot 2.4s ease-in-out infinite;
+}
+.spin {
+  animation: zk-spin 1s linear infinite;
+}
+.typing-dot {
+  animation: zk-blink 1.2s ease-in-out infinite;
+}
+.shimmer {
+  background-image: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgba(143, 201, 255, 0.28) 50%,
+    transparent 80%
+  );
+  background-size: 200% 100%;
+  animation: zk-shimmer 1.6s linear infinite;
+}
+
+/* Grid used by the marketing hero */
+.zk-grid-bg {
+  background-image: linear-gradient(rgba(143, 201, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(143, 201, 255, 0.07) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
