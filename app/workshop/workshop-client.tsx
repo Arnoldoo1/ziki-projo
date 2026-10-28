@@ -311,6 +311,16 @@ export function WorkshopClient() {
                     </button>
                   );
                 })}
+                {needs.length === 0 && motion.length === 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => reset()}
+                    className="w-btn w-btn-butter min-h-10 text-[11px] sm:ml-auto"
+                  >
+                    <Sparkle width={12} height={12} />
+                    Refill the drawers
+                  </button>
+                ) : null}
               </div>
 
               <div className="mt-4 space-y-4">
