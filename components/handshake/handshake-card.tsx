@@ -554,6 +554,7 @@ function HoldingBar({ handshake, now }: { handshake: Handshake; now: number }) {
 
 function Receipt({ handshake, now }: { handshake: Handshake; now: number }) {
   const { nudge } = useHandshake();
+  const [payloadOpen, setPayloadOpen] = useState(false);
   const decision = handshake.decision;
   if (!decision) return null;
 
@@ -581,6 +582,19 @@ function Receipt({ handshake, now }: { handshake: Handshake; now: number }) {
 
   const declined = decision.kind === "declined";
   const auto = decision.kind === "auto";
+  const payload = {
+    handshake_id: handshake.id,
+    issue: `#${handshake.issueNumber}`,
+    agent: handshake.agentName,
+    decision: decision.kind,
+    conditions: decision.conditions ?? [],
+    reason: decision.reasons?.length ? decision.reasons : undefined,
+    note: decision.note ?? undefined,
+    grant_id: decision.grantId ?? undefined,
+    dispatch: declined ? null : `${handshake.nextAction.method} ${handshake.nextAction.path}`,
+    receipt_id: `rcpt_${handshake.id}`,
+    decided_at: new Date(decision.at).toISOString(),
+  };
   return (
     <div
       className={`rounded-xl border p-3 ${
@@ -601,9 +615,15 @@ function Receipt({ handshake, now }: { handshake: Handshake; now: number }) {
               : "Approved by you"}
           <span className="font-medium text-zk-muted">· {clock(decision.at)}</span>
         </p>
-        <span className="text-[10px] font-semibold uppercase tracking-wide text-zk-muted">
-          Decision receipt
-        </span>
+        <button
+          type="button"
+          onClick={() => setPayloadOpen((v) => !v)}
+          aria-expanded={payloadOpen}
+          className="focus-ring inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-wide text-zk-muted transition-colors hover:bg-zk-surface hover:text-zk-text"
+        >
+          <Icon name="file" size={10} />
+          Agent payload
+        </button>
       </div>
 
       {decision.conditions?.length ? (
@@ -631,6 +651,20 @@ function Receipt({ handshake, now }: { handshake: Handshake; now: number }) {
             : `${handshake.nextAction.method} ${handshake.nextAction.path} → ${handshake.successResponse}`}
         </p>
       </div>
+
+      {payloadOpen ? (
+        <div className="mt-2 rounded-lg border border-zk-border bg-zk-bg/70 p-2">
+          <div className="flex flex-wrap items-center justify-between gap-1">
+            <p className="text-[9.5px] font-extrabold uppercase tracking-[0.08em] text-zk-muted">
+              What the agent receives
+            </p>
+            <span className="text-[9px] text-zk-muted">structured · idempotent</span>
+          </div>
+          <pre className="mt-1.5 max-h-52 overflow-auto whitespace-pre-wrap break-words font-mono text-[10px] leading-4 text-zk-text2">
+            {JSON.stringify(payload, null, 2)}
+          </pre>
+        </div>
+      ) : null}
 
       <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-[10px] text-zk-muted">
         <span>
@@ -779,7 +813,7 @@ export function HandshakeCard({
             <HoldingBar handshake={handshake} now={now} />
           </div>
         ) : handshake.phase === "pending" && !compact ? (
-          <div className="mt-3 border-t border-zk-divider pt-3">
+          <div className="mt-3 border-t border-zk-divider pt-3" data-tour="choices">
             <div className="mb-2.5 rounded-xl bg-zk-tint/50 px-3 py-2">
               <p className="text-[9.5px] font-extrabold uppercase tracking-[0.09em] text-zk-accent">
                 Your call

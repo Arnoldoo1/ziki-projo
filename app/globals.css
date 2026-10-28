@@ -252,6 +252,14 @@
   background-size: 44px 44px;
 }
 
+/* Presenter tour: a visible ring around the part being explained. */
+.tour-spotlight {
+  outline: 2px solid #2e6fef;
+  outline-offset: 5px;
+  border-radius: 18px;
+  box-shadow: 0 0 0 7px rgba(46, 111, 239, 0.1);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

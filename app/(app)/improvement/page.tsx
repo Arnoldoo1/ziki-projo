@@ -11,6 +11,7 @@ export const metadata: Metadata = {
 };
 
 const toc = [
+  { id: "pilot", label: "The pilot ask" },
   { id: "summary", label: "Executive summary" },
   { id: "problem", label: "The problem" },
   { id: "protocol", label: "What Ziki has" },
@@ -250,6 +251,55 @@ export default function ImprovementPage() {
           </div>
         ))}
       </div>
+
+      {/* The acceptance ask */}
+      <section
+        id="pilot"
+        className="scroll-mt-24 rounded-[22px] border border-zk-border bg-zk-tint/40 p-4 sm:p-5"
+      >
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="text-[10.5px] font-extrabold uppercase tracking-[0.14em] text-zk-accent">
+              The ask
+            </p>
+            <h2 className="mt-1 font-display text-[24px] font-extrabold leading-tight tracking-[-0.03em] text-zk-text sm:text-[28px]">
+              Approve a two-week, feature-flagged pilot.
+            </h2>
+            <p className="mt-1 max-w-2xl text-[12.5px] leading-5 text-zk-text2">
+              Start with the two lowest-risk intents — bids and test verdicts — in one workspace.
+              Keep the legacy inbox behind a flag as the control path. Ship the decision object,
+              the undo window, receipts, and one narrow grant type.
+            </p>
+          </div>
+          <Link href="/handshake?tour=1" className={buttonClass("primary")}>
+            <Icon name="play" size={12} />
+            Run the 60-second tour
+          </Link>
+        </div>
+        <div className="mt-3 grid gap-2.5 sm:grid-cols-3">
+          {[
+            {
+              label: "Scope",
+              body: "One workspace. Bids and verdicts only. Existing Ziki endpoints, behind a flag on the decision surface.",
+            },
+            {
+              label: "Success gate",
+              body: "≥80% of asks evidence-complete, median time-to-decision down 30%, zero dispatch after undo, zero high-risk auto-approvals.",
+            },
+            {
+              label: "Rollback",
+              body: "One flag restores the legacy inbox. Receipts and audit history stay readable; no data migration.",
+            },
+          ].map((item) => (
+            <div key={item.label} className="rounded-xl border border-zk-border bg-zk-surface p-3">
+              <p className="text-[9.5px] font-extrabold uppercase tracking-[0.08em] text-zk-accent">
+                {item.label}
+              </p>
+              <p className="mt-1 text-[11px] leading-5 text-zk-text2">{item.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <div className="grid items-start gap-6 lg:grid-cols-[210px_minmax(0,1fr)]">
         {/* TOC */}

@@ -124,6 +124,8 @@ The live prototype renders six things before a decision:
 
 Supporting detail lives in an expandable panel; nothing required for consent is hidden there except the granular evidence and file list. Identity, risk, the ask, the next action, the clock, and the three choices are always visible.
 
+A receipt has two views. The human sees the decision in plain language; **Agent payload** reveals the structured object the agent receives — decision, conditions, dispatch, grant, timestamp, and an immutable receipt id. The agent does not have to parse a paragraph to know what was allowed.
+
 ---
 
 ## 6. State machine
@@ -271,6 +273,15 @@ Approval rate is a vanity metric on its own. The loop is working when humans dec
 
 A healthy system should show fewer reconstruction reads (time-to-decision down), fewer “approve then revert” incidents, and a rising share of low-risk work handled by narrow grants — while high-risk decisions stay manual.
 
+### Pilot proposal
+
+The acceptance ask is deliberately small: a two-week, feature-flagged pilot in one workspace.
+
+- **Scope.** Bids and test verdicts only, over Ziki’s existing endpoints, with the legacy inbox kept as the control path.
+- **Success gate.** At least 80% of asks are evidence-complete; median time-to-decision falls 30%; no action dispatches after an undo; no high-risk action is auto-approved.
+- **Rollback.** One flag restores the legacy inbox. Receipts and audit history stay readable; no data migration.
+- **Why it is safe to try.** The decision surface is additive. Agent runtimes keep calling the same endpoints, and every action still passes through the same permission boundary.
+
 ---
 
 ## 13. Implementation notes
@@ -279,7 +290,9 @@ A healthy system should show fewer reconstruction reads (time-to-decision down),
 
 - Client reducer with a shared 1-second clock.
 - `localStorage` persistence, seeded asks, receipts, and one standing grant.
-- Demo controls to fast-forward open offers and reset data.
+- A guided presenter tour from the inbox, or directly at `/handshake?tour=1`.
+- Structured **Agent payload** on every receipt, showing what the agent receives.
+- Demo controls to simulate a granted ask, fast-forward open offers, and reset data.
 - No real API calls; the UI labels this explicitly.
 
 ### Production next

@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useHandshake } from "@/components/providers";
 import { HandshakeCard } from "@/components/handshake/handshake-card";
 import { TrustDrawer } from "@/components/handshake/trust-drawer";
+import { Tour, type TourStep } from "@/components/handshake/tour";
 import { Icon } from "@/components/icons";
 import { Chip, EmptyState, buttonClass } from "@/components/ui";
 import {
@@ -76,6 +77,7 @@ export default function HandshakePage() {
   const [filter, setFilter] = useState<HandshakeKind | "all">("all");
   const [trustOpen, setTrustOpen] = useState(false);
   const [demoOpen, setDemoOpen] = useState(false);
+  const [tourOpen, setTourOpen] = useState(false);
   const demoRef = useRef<HTMLDivElement>(null);
   const tabRefs = useRef<Record<Tab, HTMLButtonElement | null>>({ needs: null, motion: null, receipts: null });
 
@@ -101,6 +103,18 @@ export default function HandshakePage() {
     return () => window.clearTimeout(timer);
     // Only run once, when the store hydrates.
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated]);
+
+  // A shared presentation link can open the guide directly.
+  useEffect(() => {
+    if (!hydrated) return;
+    if (new URLSearchParams(window.location.search).get("tour") !== "1") return;
+    const timer = window.setTimeout(() => {
+      setFilter("all");
+      setTab("needs");
+      setTourOpen(true);
+    }, 120);
+    return () => window.clearTimeout(timer);
   }, [hydrated]);
 
   const needs = useMemo(
@@ -132,6 +146,50 @@ export default function HandshakePage() {
     motion: motion.length,
     receipts: receipts.length,
   };
+
+  const tourSteps = useMemo<TourStep[]>(
+    () => [
+      {
+        title: "A queue of decisions, not messages",
+        body: "This replaces Ziki’s free-text escalation inbox. “Needs you” holds every open ask and anything inside its undo window. “In motion” means an agent is revising. “Receipts” is the permanent record.",
+        target: "summary",
+      },
+      {
+        title: "Every ask is a small contract",
+        body: "Typed intent, the exact next API call, a plan, evidence, blast radius, and what is explicitly not included. The human never has to reconstruct intent from prose before saying yes.",
+        target: "ask",
+      },
+      {
+        title: "Three real choices",
+        body: "Approve with conditions, ask for a revision, or decline with a reason. “Not yet” is a first-class answer, so the agent can come back with better evidence instead of failing silently.",
+        target: "choices",
+      },
+      {
+        title: "A receipt both sides can use",
+        body: "Every decision writes a receipt. Open “Agent payload” to see what the agent receives: a structured decision, conditions, dispatch, and an immutable receipt id — not a paragraph it has to interpret.",
+        target: "receipt",
+        onEnter: () => {
+          setFilter("all");
+          setTab("receipts");
+        },
+      },
+      {
+        title: "Trust is a dial, not a leap",
+        body: "A standing grant covers one agent, one action type, one risk ceiling, for seven days. High-risk merges and credentials always ask. Revoking a grant never rewrites a past decision.",
+        target: "trust",
+        onEnter: () => {
+          setFilter("all");
+          setTab("needs");
+        },
+      },
+      {
+        title: "The acceptance case",
+        body: "Handshake is additive: it uses Ziki’s existing escalation, bid, verdict, and merge endpoints behind a feature flag. The pilot asks for two weeks, one workspace, and four success gates.",
+        link: { href: "/improvement#pilot", label: "Read the pilot" },
+      },
+    ],
+    [setTab],
+  );
 
   const onTabKey = (event: React.KeyboardEvent, current: Tab) => {
     if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
@@ -187,7 +245,23 @@ export default function HandshakePage() {
         <div className="flex items-center gap-2">
           <button
             type="button"
+            onClick={() => {
+              setFilter("all");
+              setTab("needs");
+              setTourOpen(true);
+            }}
+            aria-label="Start the presenter tour"
+            title="Guided 60-second walkthrough"
+            className={buttonClass("secondary")}
+          >
+            <Icon name="play" size={13} />
+            <span className="hidden sm:inline">Present</span>
+            <span className="sm:hidden">Tour</span>
+          </button>
+          <button
+            type="button"
             onClick={() => setTrustOpen(true)}
+            data-tour="trust"
             className={buttonClass("secondary")}
           >
             <Icon name="shield" size={15} />
@@ -299,7 +373,7 @@ export default function HandshakePage() {
       </div>
 
       {/* Summary */}
-      <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4" data-tour="summary">
         <SummaryStat label="Needs you" value={needs.length} hint="open or held" tone="blue" icon="clock" />
         <SummaryStat
           label="In motion"
@@ -446,13 +520,17 @@ export default function HandshakePage() {
               )
             ) : tab === "receipts" ? (
               <div className="grid gap-3.5 lg:grid-cols-2">
-                {visible.map((handshake) => (
-                  <HandshakeCard key={handshake.id} handshake={handshake} />
+                {visible.map((handshake, index) => (
+                  <div key={handshake.id} data-tour={index === 0 ? "receipt" : undefined}>
+                    <HandshakeCard handshake={handshake} />
+                  </div>
                 ))}
               </div>
             ) : (
-              visible.map((handshake) => (
-                <HandshakeCard key={handshake.id} handshake={handshake} />
+              visible.map((handshake, index) => (
+                <div key={handshake.id} data-tour={index === 0 ? "ask" : undefined}>
+                  <HandshakeCard handshake={handshake} />
+                </div>
               ))
             )}
           </div>
@@ -643,6 +721,12 @@ export default function HandshakePage() {
       </div>
 
       <TrustDrawer open={trustOpen} onClose={() => setTrustOpen(false)} />
+      <Tour
+        key={tourOpen ? "tour-open" : "tour-closed"}
+        open={tourOpen}
+        onClose={() => setTourOpen(false)}
+        steps={tourSteps}
+      />
     </div>
   );
 }

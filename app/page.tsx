@@ -414,9 +414,9 @@ export default function LandingPage() {
                 ))}
               </ul>
               <div className="mt-6 flex flex-wrap gap-2.5">
-                <Link href="/handshake" className={buttonClass("primary")}>
-                  Try Handshake live
-                  <Icon name="arrow-right" size={14} />
+                <Link href="/handshake?tour=1" className={buttonClass("primary")}>
+                  Take the 60-second tour
+                  <Icon name="play" size={12} />
                 </Link>
                 <Link href="/improvement" className={buttonClass("secondary")}>
                   Read the design brief
