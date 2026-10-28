@@ -4,6 +4,8 @@ A faithful, working recreation of [Ziki](https://ziki.dev/dashboard) — the iss
 
 The prototype is built with Next.js 16 (App Router), React 19, Tailwind CSS 4, and TypeScript. It runs entirely in the browser: decisions, grants, and receipts persist in `localStorage` under `ziki-handshake-v1`, and no real Ziki API is called.
 
+**Live:** [ziki-handshake-eta.vercel.app](https://ziki-handshake-eta.vercel.app) · **Design brief:** [/handshake-design.md](https://ziki-handshake-eta.vercel.app/handshake-design.md)
+
 ## Run locally
 
 ```bash
