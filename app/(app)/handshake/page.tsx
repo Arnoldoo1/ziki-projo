@@ -43,7 +43,7 @@ function SummaryStat({
   value: string | number;
   hint: string;
   tone: "blue" | "green" | "amber" | "slate";
-  icon: "clock" | "check-circle" | "shield" | "alert";
+  icon: "clock" | "check-circle" | "shield" | "alert" | "refresh";
 }) {
   const tones = {
     blue: "bg-zk-tint text-zk-accent",
@@ -116,9 +116,10 @@ export default function HandshakePage() {
     [handshakes],
   );
 
-  const autoCount = handshakes.filter((h) => h.decision?.kind === "auto").length;
+  const autoCount = handshakes.filter(
+    (h) => h.decision?.kind === "auto" && h.phase === "approved",
+  ).length;
   const expiredCount = handshakes.filter((h) => h.phase === "expired").length;
-  const inLoop = handshakes.filter((h) => h.phase === "holding" || h.phase === "revising").length;
   const decided = handshakes.filter(
     (h) => h.decision && h.decision.kind !== "expired",
   ).length;
@@ -301,11 +302,11 @@ export default function HandshakePage() {
       <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
         <SummaryStat label="Needs you" value={needs.length} hint="open or held" tone="blue" icon="clock" />
         <SummaryStat
-          label="In the loop"
-          value={inLoop}
-          hint="holding or revising"
+          label="In motion"
+          value={motion.length}
+          hint="agent revising"
           tone="amber"
-          icon="alert"
+          icon="refresh"
         />
         <SummaryStat
           label="Auto-approved"

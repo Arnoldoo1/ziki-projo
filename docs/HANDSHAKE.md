@@ -143,7 +143,7 @@ Approval is a state with a clock, not a single click.
 
 - Silence is never consent. An unanswered ask expires; nothing runs.
 - Approving an expired or already-decided ask is a no-op; the UI shows the current receipt.
-- Undo returns the ask to Pending and restores the original offer clock if it is still valid.
+- Undo returns the ask to Pending, restores the original offer clock if it is still valid, and leaves an audit entry saying nothing was dispatched.
 - The grace window is enforced by the dispatcher, not just the UI. A disabled Undo button is not a safety mechanism.
 - The server clock is authoritative. The client countdown is a display of the same deadline, not a second policy.
 - Every transition writes an audit event with the human, the action, and the reason (if any).
