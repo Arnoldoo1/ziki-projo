@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useHandshake, useToast } from "@/components/providers";
 import { Icon } from "@/components/icons";
 import { issues, agents, workspace, type Issue } from "@/lib/mock";
-import { kindMeta, riskMeta } from "@/lib/handshake";
+import { isGrantActive, kindMeta, riskMeta } from "@/lib/handshake";
 import { WorkshopAsk } from "@/components/workshop/ask-card";
 import { IssueDrawer, IssueNote } from "@/components/workshop/issue-note";
 import {
@@ -37,12 +37,14 @@ const tabs: { id: Tab; label: string; empty: string }[] = [
 ];
 
 export function WorkshopClient() {
-  const { handshakes, grants, hydrated, simulateGrant, reset, revokeGrant } = useHandshake();
+  const { handshakes, grants, hydrated, simulateGrant, reset, revokeGrant, renewGrant, now } =
+    useHandshake();
   const toast = useToast();
   const [tab, setTab] = useState<Tab>("needs");
   const [night, setNight] = useState(false);
   const [openIssue, setOpenIssue] = useState<Issue | null>(null);
   const [votes, setVotes] = useState<Record<number, { count: number; voted: boolean }>>({});
+  const activeGrants = grants.filter((grant) => isGrantActive(grant, now));
 
   const needs = handshakes.filter((item) => item.phase === "pending" || item.phase === "holding");
   const motion = handshakes.filter((item) => item.phase === "revising");
@@ -355,7 +357,7 @@ export function WorkshopClient() {
                 <div className="flex items-center justify-between gap-2">
                   <h3 className="w-display text-[19px] font-bold">The keyring</h3>
                   <span className="w-sticker px-2 py-0.5 text-[9px]" style={{ background: "var(--w-butter-soft)" }}>
-                    {grants.length} key{grants.length === 1 ? "" : "s"}
+                    {activeGrants.length} of {grants.length} key{grants.length === 1 ? "" : "s"} live
                   </span>
                 </div>
                 <p className="mt-1 text-[10.5px] leading-5" style={{ color: "var(--w-ink-soft)" }}>
@@ -367,28 +369,43 @@ export function WorkshopClient() {
                   </p>
                 ) : (
                   <ul className="mt-2 space-y-2">
-                    {grants.map((grant) => (
-                      <li key={grant.id} className="flex items-center gap-2 rounded-lg p-2" style={{ background: "var(--w-bg)" }}>
-                        <KeyDoodle className="h-4 w-8 shrink-0" />
-                        <span className="min-w-0 flex-1">
-                          <span className="block truncate text-[10.5px] font-extrabold">
-                            {grant.agentName} · {kindMeta[grant.kind].short}
+                    {grants.map((grant) => {
+                      const active = isGrantActive(grant, now);
+                      return (
+                        <li key={grant.id} className="flex items-center gap-2 rounded-lg p-2" style={{ background: "var(--w-bg)" }}>
+                          <KeyDoodle className="h-4 w-8 shrink-0" />
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate text-[10.5px] font-extrabold">
+                              {grant.agentName} · {kindMeta[grant.kind].short}
+                            </span>
+                            <span className="block text-[9px] font-bold" style={{ color: "var(--w-ink-soft)" }}>
+                              up to {riskMeta[grant.maxRisk].label.toLowerCase()} ·{" "}
+                              {active
+                                ? `ends ${new Date(grant.expiresAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}`
+                                : "expired, not matching"}
+                            </span>
                           </span>
-                          <span className="block text-[9px] font-bold" style={{ color: "var(--w-ink-soft)" }}>
-                            up to {riskMeta[grant.maxRisk].label.toLowerCase()} · ends{" "}
-                            {new Date(grant.expiresAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
-                          </span>
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => revokeGrant(grant.id)}
-                          className="text-[9px] font-extrabold underline decoration-dotted underline-offset-2"
-                          style={{ color: "var(--w-coral)" }}
-                        >
-                          cut
-                        </button>
-                      </li>
-                    ))}
+                          {!active ? (
+                            <button
+                              type="button"
+                              onClick={() => renewGrant(grant.id)}
+                              className="text-[9px] font-extrabold underline decoration-dotted underline-offset-2"
+                              style={{ color: "var(--w-teal)" }}
+                            >
+                              renew
+                            </button>
+                          ) : null}
+                          <button
+                            type="button"
+                            onClick={() => revokeGrant(grant.id)}
+                            className="text-[9px] font-extrabold underline decoration-dotted underline-offset-2"
+                            style={{ color: "var(--w-coral)" }}
+                          >
+                            cut
+                          </button>
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
                 <button

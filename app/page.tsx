@@ -38,7 +38,7 @@ const features: { icon: IconName; title: string; body: string; tag: string }[] =
   {
     icon: "target",
     title: "Trust you grant, never assume",
-    body: "Opt into standing grants one action class at a time. They expire in seven days and never cover high-risk work.",
+    body: "Opt into standing grants one action class at a time. They expire after seven days, renew in one click, and never cover high-risk work.",
     tag: "Progressive trust",
   },
   {
@@ -594,11 +594,13 @@ export default function LandingPage() {
               </h2>
               <p className="mt-3 text-[14px] leading-6 text-zk-muted">
                 A standing grant is a narrow, expiring permission: one agent, one action type, one
-                risk ceiling. It can never cover a merge, production access, or credentials.
+                risk ceiling. It can never cover a merge, production access, or credentials — and
+                once it lapses it stops matching until you renew it by hand.
               </p>
               <div className="mt-5 space-y-2">
                 {[
-                  "Grants expire after seven days.",
+                  "Grants expire after seven days; renewing one takes a click.",
+                  "An expired grant never approves anything.",
                   "Revoking a grant never rewrites a past decision.",
                   "Every auto-approval writes the same receipt as a manual one.",
                   "Silence is never consent — an unanswered ask expires.",

@@ -13,6 +13,7 @@ import {
 } from "react";
 import {
   handshakeReducer,
+  isGrantActive,
   seedState,
   type HandshakeState,
   type HandshakeAction,
@@ -33,6 +34,8 @@ type Store = HandshakeState & {
   requestChanges: (id: string, reasons: string[], note?: string) => void;
   nudge: (id: string) => void;
   revokeGrant: (id: string) => void;
+  renewGrant: (id: string) => void;
+  expireGrants: () => void;
   simulateGrant: () => void;
   expireAll: () => void;
   reset: () => void;
@@ -164,11 +167,23 @@ export function Providers({ children }: { children: ReactNode }) {
         run({ type: "revoke_grant", id, now: 0 });
         toast("Standing grant revoked", { tone: "info" });
       },
+      renewGrant: (id) => {
+        run({ type: "renew_grant", id, now: 0 });
+        toast("Standing grant renewed for 7 days", { tone: "ok" });
+      },
+      expireGrants: () => {
+        run({ type: "expire_grants", now: 0 });
+        toast("Demo: standing grants expired. Expired keys never auto-approve.", { tone: "info" });
+      },
       simulateGrant: () => {
-        if (state.grants.length === 0) {
-          toast("Create a standing grant first — approve a low-risk ask with “Remember this”", {
-            tone: "info",
-          });
+        const at = Date.now();
+        if (!state.grants.some((grant) => isGrantActive(grant, at))) {
+          toast(
+            state.grants.length > 0
+              ? "Every standing grant has expired — renew one in Trust to let it match"
+              : "Create a standing grant first — approve a low-risk ask with “Remember this”",
+            { tone: "info" },
+          );
           return;
         }
         run({ type: "simulate_grant", now: 0 });

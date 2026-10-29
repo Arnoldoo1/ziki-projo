@@ -10,6 +10,7 @@ import { Icon } from "@/components/icons";
 import { Chip, EmptyState, buttonClass } from "@/components/ui";
 import {
   clock,
+  isGrantActive,
   kindMeta,
   riskMeta,
   timeAgo,
@@ -73,6 +74,7 @@ function SummaryStat({
 export default function HandshakePage() {
   const store = useHandshake();
   const { handshakes, grants, events, now, hydrated } = store;
+  const activeGrants = useMemo(() => grants.filter((grant) => isGrantActive(grant, now)), [grants, now]);
   const [tab, setTab] = useState<Tab>("needs");
   const [filter, setFilter] = useState<HandshakeKind | "all">("all");
   const [trustOpen, setTrustOpen] = useState(false);
@@ -266,9 +268,9 @@ export default function HandshakePage() {
           >
             <Icon name="shield" size={15} />
             Trust
-            {grants.length > 0 ? (
+            {activeGrants.length > 0 ? (
               <span className="rounded-full bg-zk-tint px-1.5 text-[10px] font-extrabold text-zk-accent">
-                {grants.length}
+                {activeGrants.length}
               </span>
             ) : null}
           </button>
@@ -308,7 +310,26 @@ export default function HandshakePage() {
                       Simulate a granted ask
                     </span>
                     <span className="block text-[10.5px] leading-4 text-zk-muted">
-                      A matching ask starts in 12 seconds unless you undo. Needs a standing grant.
+                      A matching ask starts in 12 seconds unless you undo. Needs an active grant.
+                    </span>
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    store.expireGrants();
+                    setDemoOpen(false);
+                  }}
+                  className="flex w-full items-start gap-2 rounded-xl px-2 py-2 text-left hover:bg-zk-chip"
+                >
+                  <Icon name="key" size={15} className="mt-0.5 text-zk-warn-fg" />
+                  <span>
+                    <span className="block text-[12px] font-bold text-zk-text">
+                      Fast-forward grant expiry
+                    </span>
+                    <span className="block text-[10.5px] leading-4 text-zk-muted">
+                      Expire every key now. Expired grants never auto-approve until renewed.
                     </span>
                   </span>
                 </button>
@@ -673,35 +694,45 @@ export default function HandshakePage() {
           <section className="rounded-[20px] border border-zk-border bg-zk-surface p-4">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-bold text-zk-text">Standing grants</h2>
-              <Chip tone={grants.length ? "accent" : "muted"}>{grants.length}</Chip>
+              <Chip tone={activeGrants.length ? "accent" : "muted"}>{activeGrants.length} active</Chip>
             </div>
-            {grants.length === 0 ? (
+            {activeGrants.length === 0 ? (
               <p className="mt-2 text-[11px] leading-4 text-zk-muted">
                 Nothing is automatic. Every ask will keep coming to you.
               </p>
-            ) : (
+            ) : null}
+            {grants.length > 0 ? (
               <ul className="mt-2 space-y-2">
-                {grants.map((grant) => (
-                  <li key={grant.id} className="flex items-center gap-2">
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-zk-tint text-zk-accent">
-                      <Icon name="shield" size={13} />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[11px] font-bold text-zk-text">
-                        {grant.agentName} · {kindMeta[grant.kind].short}
+                {grants.map((grant) => {
+                  const active = isGrantActive(grant, now);
+                  return (
+                    <li key={grant.id} className="flex items-center gap-2">
+                      <span
+                        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
+                          active ? "bg-zk-tint text-zk-accent" : "bg-zk-chip text-zk-muted"
+                        }`}
+                      >
+                        <Icon name="shield" size={13} />
                       </span>
-                      <span className="block text-[10px] text-zk-muted">
-                        up to {riskMeta[grant.maxRisk].label.toLowerCase()} ·{" "}
-                        {new Date(grant.expiresAt).toLocaleDateString("en-GB", {
-                          day: "numeric",
-                          month: "short",
-                        })}
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-[11px] font-bold text-zk-text">
+                          {grant.agentName} · {kindMeta[grant.kind].short}
+                        </span>
+                        <span className="block text-[10px] text-zk-muted">
+                          up to {riskMeta[grant.maxRisk].label.toLowerCase()} ·{" "}
+                          {active
+                            ? new Date(grant.expiresAt).toLocaleDateString("en-GB", {
+                                day: "numeric",
+                                month: "short",
+                              })
+                            : "expired · renew in Trust"}
+                        </span>
                       </span>
-                    </span>
-                  </li>
-                ))}
+                    </li>
+                  );
+                })}
               </ul>
-            )}
+            ) : null}
             <button
               type="button"
               onClick={() => setTrustOpen(true)}

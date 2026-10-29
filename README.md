@@ -51,7 +51,7 @@ Handshake turns each pending action into a typed decision object with:
 - approve with conditions, ask for a revision, or decline with a reason,
 - a 10-second holding window with undo before dispatch,
 - a receipt for every decision, including auto-approvals,
-- optional standing grants scoped to one agent, one action kind, one risk ceiling, and seven days — with high-risk actions always asking.
+- optional standing grants scoped to one agent, one action kind, one risk ceiling, and seven days (renewable), with high-risk actions always asking.
 
 Try the loop at `/handshake`: approve a card, undo it, ask for a change, decline with a reason, fast-forward expiry from the Demo menu, or grant trust and see the receipt.
 

@@ -4,10 +4,10 @@ import { useEffect, useRef } from "react";
 import { Icon } from "@/components/icons";
 import { useHandshake } from "@/components/providers";
 import { Chip, buttonClass } from "@/components/ui";
-import { kindMeta, riskMeta, timeAgo } from "@/lib/handshake";
+import { kindMeta, isGrantActive, riskMeta, timeAgo } from "@/lib/handshake";
 
 export function TrustDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { grants, revokeGrant, reset, now } = useHandshake();
+  const { grants, revokeGrant, renewGrant, reset, now } = useHandshake();
   const panelRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const restoreRef = useRef<HTMLElement | null>(null);
@@ -103,8 +103,16 @@ export function TrustDrawer({ open, onClose }: { open: boolean; onClose: () => v
 
           <div className="mt-5 flex items-center justify-between">
             <h3 className="text-sm font-bold text-zk-text">Standing grants</h3>
-            <Chip tone={grants.length ? "accent" : "muted"}>{grants.length}</Chip>
+            <Chip tone={grants.some((grant) => isGrantActive(grant, now)) ? "accent" : "muted"}>
+              {grants.filter((grant) => isGrantActive(grant, now)).length} active
+            </Chip>
           </div>
+
+          {grants.length > 0 && !grants.some((grant) => isGrantActive(grant, now)) ? (
+            <p className="mt-2 rounded-lg bg-zk-warn-bg/70 px-2.5 py-2 text-[10.5px] font-medium leading-4 text-zk-warn-fg">
+              Every grant has expired. Nothing is automatic until you renew one.
+            </p>
+          ) : null}
 
           {grants.length === 0 ? (
             <div className="mt-2 rounded-xl border border-dashed border-zk-border p-5 text-center">
@@ -115,50 +123,75 @@ export function TrustDrawer({ open, onClose }: { open: boolean; onClose: () => v
             </div>
           ) : (
             <ul className="mt-2 space-y-2">
-              {grants.map((grant) => (
-                <li key={grant.id} className="rounded-xl border border-zk-border bg-zk-surface p-3">
-                  <div className="flex items-start gap-2.5">
-                    <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zk-tint text-zk-accent">
-                      <Icon
-                        name={
-                          grant.kind === "bid"
-                            ? "zap"
-                            : grant.kind === "merge"
-                              ? "merge"
-                              : grant.kind === "scope_change"
-                                ? "scale"
-                                : grant.kind === "credential"
-                                  ? "key"
-                                  : "test"
-                        }
-                        size={15}
-                      />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-[12px] font-bold text-zk-text">
-                        {kindMeta[grant.kind].label} · {grant.agentName}
-                      </p>
-                      <p className="mt-0.5 text-[11px] text-zk-muted">
-                        Covers {riskMeta[grant.maxRisk].label.toLowerCase()} and below · expires{" "}
-                        {new Date(grant.expiresAt).toLocaleDateString("en-GB", {
-                          day: "numeric",
-                          month: "short",
-                        })}
-                      </p>
-                      <p className="mt-0.5 text-[10px] text-zk-muted">
-                        Created {timeAgo(grant.createdAt, now)}
-                      </p>
+              {grants.map((grant) => {
+                const active = isGrantActive(grant, now);
+                const expiry = new Date(grant.expiresAt).toLocaleDateString("en-GB", {
+                  day: "numeric",
+                  month: "short",
+                });
+                return (
+                  <li
+                    key={grant.id}
+                    className={`rounded-xl border p-3 ${
+                      active ? "border-zk-border bg-zk-surface" : "border-zk-border/70 bg-zk-bg/60"
+                    }`}
+                  >
+                    <div className="flex items-start gap-2.5">
+                      <span
+                        className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
+                          active ? "bg-zk-tint text-zk-accent" : "bg-zk-chip text-zk-muted"
+                        }`}
+                      >
+                        <Icon
+                          name={
+                            grant.kind === "bid"
+                              ? "zap"
+                              : grant.kind === "merge"
+                                ? "merge"
+                                : grant.kind === "scope_change"
+                                  ? "scale"
+                                  : grant.kind === "credential"
+                                    ? "key"
+                                    : "test"
+                          }
+                          size={15}
+                        />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="flex flex-wrap items-center gap-1.5 text-[12px] font-bold text-zk-text">
+                          {kindMeta[grant.kind].label} · {grant.agentName}
+                          <Chip tone={active ? "ok" : "muted"}>{active ? "Active" : "Expired"}</Chip>
+                        </p>
+                        <p className="mt-0.5 text-[11px] text-zk-muted">
+                          Covers {riskMeta[grant.maxRisk].label.toLowerCase()} and below ·{" "}
+                          {active ? `expires ${expiry}` : `expired ${expiry} · no longer matches`}
+                        </p>
+                        <p className="mt-0.5 text-[10px] text-zk-muted">
+                          Created {timeAgo(grant.createdAt, now)}
+                        </p>
+                      </div>
+                      <div className="flex shrink-0 flex-col gap-1.5">
+                        {active ? null : (
+                          <button
+                            type="button"
+                            onClick={() => renewGrant(grant.id)}
+                            className={buttonClass("primary", "sm")}
+                          >
+                            Renew
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => revokeGrant(grant.id)}
+                          className={buttonClass("secondary", "sm")}
+                        >
+                          Revoke
+                        </button>
+                      </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => revokeGrant(grant.id)}
-                      className={buttonClass("secondary", "sm")}
-                    >
-                      Revoke
-                    </button>
-                  </div>
-                </li>
-              ))}
+                  </li>
+                );
+              })}
             </ul>
           )}
 

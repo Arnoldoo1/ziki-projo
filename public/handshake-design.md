@@ -179,8 +179,8 @@ The answer to approval fatigue is not “auto-approve everything.” It is a lad
 
 ### Hard guardrails
 
-- High-risk actions (merge, credentials, production) can never be covered by a grant.
-- Grants expire after seven days by default.
+- High-risk actions (merge, credentials, production) can never be covered by a grant — the state machine refuses to create one.
+- Grants expire after seven days. An expired grant is kept for the audit trail but can never match an ask until it is renewed by hand.
 - Revoking a grant never rewrites a past decision.
 - Every auto-approval is visible in Receipts and Trust.
 - The grant is scoped by agent, action kind, and risk ceiling — never “all actions from all agents.”
