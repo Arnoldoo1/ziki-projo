@@ -1,0 +1,2325 @@
+From d8e9ff2d1d2923bfc421818cc4eb4a0cdf005bdd Mon Sep 17 00:00:00 2001
+From: Arnold Nyamongo <arnoldnyams@gmail.com>
+Date: Thu, 29 Oct 2026 09:11:59 +0000
+Subject: [PATCH] Give the landing and sign-in pages a whimsical Glow Arcade
+ skin
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+A magical, playful direction for the pages a new player meets first,
+without disturbing the rest of the site.
+
+- twilight gradient hero with drifting glowing orbs, twinkling stars and a
+  soft star-field
+- bubbly self-hosted Baloo 2 display face for the huge headline, with a
+  glowing wavy-ribbon highlight behind “Good games.”
+- chunky 3-D arcade buttons with press depth, hover bounce, glow and
+  sparkles for Play now / Create free account and the card CTAs
+- Today's Tournament and Daily Challenge become tilted glass cards with a
+  slowly pulsing conic-gradient border, breathing shadow and floating
+  cover thumbnails
+- star-wand custom cursor with a spark trail and gentle pointer tilt on the
+  glass cards, both disabled for touch and prefers-reduced-motion
+- the sign-in route gets the same treatment (glass card, gradient headline,
+  arcade Google button) and a matching modal; auto-opening the modal on
+  arrival is gone so the page itself is the destination
+- Baloo 2 loaded through next/font/local; README documents the direction
+
+All styles are scoped under .whimsy in app/whimsy.css.
+---
+ README.md                       |    6 +
+ app/(site)/page.tsx             |  101 ++-
+ app/fonts/baloo2-variable.woff2 |  Bin 0 -> 33056 bytes
+ app/layout.tsx                  |   11 +-
+ app/whimsy.css                  | 1026 +++++++++++++++++++++++++++++++
+ components/AuthModal.tsx        |    7 +-
+ components/HomePromos.tsx       |   12 +-
+ components/SignInPrompt.tsx     |   67 +-
+ components/WhimsyLayer.tsx      |  173 ++++++
+ components/WhimsyOrbs.tsx       |   83 +++
+ 10 files changed, 1435 insertions(+), 51 deletions(-)
+ create mode 100644 app/fonts/baloo2-variable.woff2
+ create mode 100644 app/whimsy.css
+ create mode 100644 components/WhimsyLayer.tsx
+ create mode 100644 components/WhimsyOrbs.tsx
+
+diff --git a/README.md b/README.md
+index 0a88d38..ff4c026 100644
+--- a/README.md
++++ b/README.md
+@@ -10,6 +10,12 @@ A working recreation of [start.ng](https://start.ng), Nigeria's home for browser
+ - **Docs rendered from the original:** https://startng-three.vercel.app/docs
+ - **Plain-text docs for AI:** https://startng-three.vercel.app/docs.md
+ 
++## The Glow Arcade
++
++The landing page (`/`) and the sign-in route (`/signin`) carry a second, playful skin called **The Glow Arcade**: a twilight gradient with drifting orbs and stars, a bubbly self-hosted display face, a glowing ribbon highlight behind “Good games.”, chunky 3-D arcade buttons with sparkle hovers, and a tilted glass tournament card with a slowly pulsing gradient border. A star-wand cursor leaves a spark trail and the glass cards tilt gently toward the pointer. Everything respects `prefers-reduced-motion` and falls back to the native cursor on touch devices.
++
++The rest of the site is untouched: the skin is scoped under `.whimsy` in `app/whimsy.css`, the behaviour lives in `components/WhimsyLayer.tsx` (cursor and tilt) and `components/WhimsyOrbs.tsx` (orbs and stars), and the Baloo 2 variable font is loaded with `next/font/local`.
++
+ ## What is included
+ 
+ - The full 189-game catalogue, 33 categories and 39 independent creators.
+diff --git a/app/(site)/page.tsx b/app/(site)/page.tsx
+index 3aff7f0..7423a37 100644
+--- a/app/(site)/page.tsx
++++ b/app/(site)/page.tsx
+@@ -1,6 +1,8 @@
+ import Link from 'next/link';
+ import { CategoryTile, GameCard, CreatorCard } from '@/components/Cards';
+ import { HomePromos } from '@/components/HomePromos';
++import { WhimsyLayer } from '@/components/WhimsyLayer';
++import { WhimsyOrbs } from '@/components/WhimsyOrbs';
+ import { categories, creators, games } from '@/lib/site';
+ import { CharacterAvatar } from '@/components/CharacterAvatar';
+ import { DEFAULT_CHARACTER } from '@/lib/character';
+@@ -17,22 +19,91 @@ export default function HomePage() {
+   const az = [...games].sort((a, b) => a.title.localeCompare(b.title));
+ 
+   return (
+-    <main>
+-      <section className="container hero">
+-        <p className="eyebrow">Big imagination. Played everywhere.</p>
+-        <h1>Good vibes.<br /><mark>Good games.</mark></h1>
+-        <p className="lead">
+-          Games made by builders in the community.<br />
+-          Each one lives at its own start.ng address.<br />
+-          Pick one and play right in your browser.
+-        </p>
+-        <div className="actions">
+-          <a className="btn" href="#games">Play now</a>
+-          <Link className="ghost" href="/signin">Create free account</Link>
+-        </div>
+-      </section>
++    <main className="whimsy whimsy-home">
++      <WhimsyLayer />
++      <div className="whimsy-hero-band">
++        <WhimsyOrbs />
++        <section className="container hero whimsy-hero">
++          <p className="eyebrow">
++            <span className="whimsy-eyebrow-star" aria-hidden="true">✦</span>
++            Big imagination. Played everywhere.
++          </p>
++          <h1 className="whimsy-title">
++            <span className="whimsy-title-line">Good vibes.</span>
++            <mark className="whimsy-highlight">
++              <svg viewBox="0 0 640 200" preserveAspectRatio="none" aria-hidden="true" focusable="false">
++                <defs>
++                  <linearGradient id="whimsy-stroke" x1="0" y1="0" x2="1" y2="0.35">
++                    <stop offset="0%" stopColor="#ffd84d" />
++                    <stop offset="34%" stopColor="#ff9f1c" />
++                    <stop offset="64%" stopColor="#ff6ec7" />
++                    <stop offset="100%" stopColor="#8b5cf6" />
++                  </linearGradient>
++                  <linearGradient id="whimsy-sheen" x1="0" y1="0" x2="1" y2="0">
++                    <stop offset="0%" stopColor="#fffbe0" stopOpacity="0" />
++                    <stop offset="50%" stopColor="#fffbe0" stopOpacity="0.95" />
++                    <stop offset="100%" stopColor="#fffbe0" stopOpacity="0" />
++                  </linearGradient>
++                  <filter id="whimsy-glow" x="-30%" y="-70%" width="160%" height="240%">
++                    <feGaussianBlur stdDeviation="15" result="blur" />
++                    <feMerge>
++                      <feMergeNode in="blur" />
++                      <feMergeNode in="SourceGraphic" />
++                    </feMerge>
++                  </filter>
++                </defs>
++                <path
++                  d="M22 128C110 66 214 158 322 108S512 154 618 92"
++                  fill="none"
++                  stroke="url(#whimsy-stroke)"
++                  strokeWidth="54"
++                  strokeLinecap="round"
++                  opacity="0.92"
++                  filter="url(#whimsy-glow)"
++                />
++                <path
++                  d="M28 144C118 84 216 172 324 122S514 166 616 104"
++                  fill="none"
++                  stroke="#ff8fd8"
++                  strokeWidth="13"
++                  strokeLinecap="round"
++                  opacity="0.35"
++                />
++                <path
++                  className="whimsy-stroke-sheen"
++                  d="M22 128C110 66 214 158 322 108S512 154 618 92"
++                  fill="none"
++                  stroke="url(#whimsy-sheen)"
++                  strokeWidth="9"
++                  strokeLinecap="round"
++                  opacity="0.8"
++                />
++              </svg>
++              <span className="whimsy-highlight-text">Good games.</span>
++            </mark>
++            <span className="whimsy-title-spark s1" aria-hidden="true">✦</span>
++            <span className="whimsy-title-spark s2" aria-hidden="true">✧</span>
++          </h1>
++          <p className="lead">
++            Games made by builders in the community.<br />
++            Each one lives at its own start.ng address.<br />
++            Pick one and play right in your browser.
++          </p>
++          <div className="actions whimsy-actions">
++            <a className="btn whimsy-btn whimsy-btn--sun" href="#games">
++              Play now
++              <span className="whimsy-btn-spark" aria-hidden="true">✦</span>
++            </a>
++            <Link className="ghost whimsy-btn whimsy-btn--moon" href="/signin">
++              Create free account
++              <span className="whimsy-btn-spark" aria-hidden="true">✧</span>
++            </Link>
++          </div>
++          <p className="whimsy-hero-note">189 free games · no download · your character in every one</p>
++        </section>
+ 
+-      <HomePromos />
++        <HomePromos />
++      </div>
+ 
+       <section className="container tags-picks" aria-labelledby="pick-category">
+         <div className="section-head">
+diff --git a/app/fonts/baloo2-variable.woff2 b/app/fonts/baloo2-variable.woff2
+new file mode 100644
+index 0000000000000000000000000000000000000000..85022a79402c75f8b852ed477911cd3caea00e92
+GIT binary patch
+literal 33056
+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
+BhH?M^
+
+literal 0
+HcmV?d00001
+
+diff --git a/app/layout.tsx b/app/layout.tsx
+index a72d40f..507cbfd 100644
+--- a/app/layout.tsx
++++ b/app/layout.tsx
+@@ -1,7 +1,16 @@
+ import type { Metadata } from 'next';
++import localFont from 'next/font/local';
+ import './globals.css';
++import './whimsy.css';
+ import { AppProvider } from '@/components/AppProvider';
+ 
++const baloo = localFont({
++  src: './fonts/baloo2-variable.woff2',
++  variable: '--font-baloo',
++  display: 'swap',
++  weight: '400 800',
++});
++
+ export const metadata: Metadata = {
+   title: 'start.ng · Good vibes. Good games.',
+   description: "Nigeria's home for free browser games. Play Naija-themed web games, no download. Built by the HNG community.",
+@@ -18,7 +27,7 @@ export const metadata: Metadata = {
+ 
+ export default function RootLayout({ children }: { children: React.ReactNode }) {
+   return (
+-    <html lang="en">
++    <html lang="en" className={baloo.variable}>
+       <body>
+         <AppProvider>{children}</AppProvider>
+       </body>
+diff --git a/app/whimsy.css b/app/whimsy.css
+new file mode 100644
+index 0000000..b0e1b47
+--- /dev/null
++++ b/app/whimsy.css
+@@ -0,0 +1,1026 @@
++/* ==========================================================================
++   The Glow Arcade — a whimsical skin for the start.ng landing and sign-in.
++   Everything is scoped under .whimsy so the rest of the site is untouched.
++   ========================================================================== */
++
++
++.whimsy {
++  --w-night: #170b33;
++  --w-night-2: #241050;
++  --w-night-3: #33125f;
++  --w-cream: #fff8ee;
++  --w-sun: #ffd84d;
++  --w-sun-deep: #ff9f1c;
++  --w-pink: #ff6ec7;
++  --w-violet: #8b5cf6;
++  --w-cyan: #5ee7ff;
++  --w-lilac: #ded4ff;
++  --w-display: var(--font-baloo), "Baloo 2", ui-rounded, "Trebuchet MS", system-ui, sans-serif;
++}
++
++/* ---------- the twilight band ---------- */
++.whimsy .whimsy-hero-band {
++  position: relative;
++  isolation: isolate;
++  overflow: hidden;
++  color: #f9f4ff;
++  border-radius: 0 0 44px 44px;
++  padding-bottom: 10px;
++  background:
++    radial-gradient(1100px 520px at 50% -10%, rgba(139, 92, 246, 0.6), transparent 70%),
++    radial-gradient(780px 420px at 8% 16%, rgba(255, 110, 199, 0.28), transparent 66%),
++    radial-gradient(900px 520px at 92% 10%, rgba(94, 231, 255, 0.24), transparent 68%),
++    linear-gradient(180deg, #170b33 0%, #241050 52%, #33125f 100%);
++  box-shadow: 0 30px 80px rgba(23, 11, 51, 0.28);
++}
++
++.whimsy .whimsy-hero-band::after {
++  content: "";
++  position: absolute;
++  inset: 0;
++  z-index: -1;
++  pointer-events: none;
++  background-image:
++    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.35) 0 1px, transparent 1.5px),
++    radial-gradient(circle at 70% 15%, rgba(255, 255, 255, 0.28) 0 1px, transparent 1.5px),
++    radial-gradient(circle at 42% 72%, rgba(255, 255, 255, 0.22) 0 1px, transparent 1.5px),
++    radial-gradient(circle at 88% 62%, rgba(255, 255, 255, 0.25) 0 1px, transparent 1.5px);
++  background-size: 340px 260px, 420px 300px, 280px 220px, 380px 320px;
++  opacity: 0.55;
++  mask-image: linear-gradient(180deg, #000 55%, transparent 100%);
++}
++
++/* ---------- glowing orbs and stars ---------- */
++.whimsy-sky {
++  position: absolute;
++  inset: 0;
++  z-index: -1;
++  overflow: hidden;
++  pointer-events: none;
++}
++
++.whimsy-orb {
++  position: absolute;
++  left: var(--orb-x);
++  top: var(--orb-y);
++  width: var(--orb-size);
++  height: var(--orb-size);
++  border-radius: 50%;
++  background: radial-gradient(circle at 30% 28%, #ffffff 0%, var(--orb-color) 42%, transparent 72%);
++  filter: blur(var(--orb-blur));
++  opacity: 0.8;
++  mix-blend-mode: screen;
++  animation: whimsy-drift var(--orb-duration) ease-in-out infinite alternate;
++  animation-delay: var(--orb-delay);
++  will-change: transform;
++}
++
++.whimsy-star {
++  position: absolute;
++  left: var(--star-x);
++  top: var(--star-y);
++  width: var(--star-size);
++  height: var(--star-size);
++  border-radius: 50%;
++  background: #ffffff;
++  box-shadow: 0 0 6px #fff, 0 0 14px rgba(255, 226, 122, 0.9);
++  opacity: 0.85;
++  animation: whimsy-twinkle 3.4s ease-in-out infinite alternate;
++  animation-delay: var(--star-delay);
++}
++
++@keyframes whimsy-drift {
++  from { transform: translate3d(0, 0, 0) scale(1); }
++  to { transform: translate3d(22px, -30px, 0) scale(1.14); }
++}
++
++@keyframes whimsy-twinkle {
++  0% { opacity: 0.15; transform: scale(0.7); }
++  55% { opacity: 0.95; transform: scale(1.05); }
++  100% { opacity: 0.4; transform: scale(0.85); }
++}
++
++/* ---------- hero ---------- */
++.whimsy .hero {
++  position: relative;
++  z-index: 2;
++  max-width: 1080px;
++  padding: 78px 24px 26px;
++}
++
++.whimsy .hero .eyebrow {
++  display: inline-flex;
++  align-items: center;
++  gap: 9px;
++  margin: 0 0 24px;
++  padding: 8px 16px;
++  border-radius: 999px;
++  border: 1px solid rgba(255, 255, 255, 0.26);
++  background: rgba(255, 255, 255, 0.07);
++  color: #ffe9b0;
++  font-family: var(--w-display);
++  font-size: 0.82rem;
++  font-weight: 700;
++  letter-spacing: 0.14em;
++  text-transform: uppercase;
++  backdrop-filter: blur(8px);
++  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
++}
++
++.whimsy .hero .eyebrow .whimsy-eyebrow-star {
++  display: inline-block;
++  font-size: 0.95rem;
++  color: var(--w-sun);
++  animation: whimsy-spin 6s linear infinite;
++}
++
++.whimsy .whimsy-title {
++  position: relative;
++  display: flex;
++  flex-direction: column;
++  align-items: center;
++  gap: 0.02em;
++  margin: 0 0 26px;
++  font-family: var(--w-display);
++  font-size: clamp(3.1rem, 9.6vw, 7rem);
++  font-weight: 800;
++  line-height: 0.94;
++  letter-spacing: -0.015em;
++}
++
++.whimsy .whimsy-title-line {
++  color: #fffdf6;
++  text-shadow: 0 6px 34px rgba(139, 92, 246, 0.55), 0 1px 0 rgba(255, 255, 255, 0.4);
++}
++
++.whimsy .whimsy-highlight {
++  position: relative;
++  display: inline-block;
++  isolation: isolate;
++  padding: 0 0.06em;
++  background: none;
++  color: inherit;
++  white-space: nowrap;
++}
++
++.whimsy .whimsy-highlight svg {
++  position: absolute;
++  left: -7%;
++  top: -24%;
++  width: 114%;
++  height: 148%;
++  z-index: -1;
++  overflow: visible;
++  pointer-events: none;
++}
++
++.whimsy .whimsy-highlight-text {
++  position: relative;
++  display: inline-block;
++  color: var(--w-sun);
++  filter: drop-shadow(0 0 22px rgba(255, 110, 199, 0.55)) drop-shadow(0 0 46px rgba(255, 216, 77, 0.28));
++}
++
++@supports ((-webkit-background-clip: text) or (background-clip: text)) {
++  .whimsy .whimsy-highlight-text {
++    background-image: linear-gradient(102deg, #fffbe0 0%, #ffe27a 26%, #ffd84d 44%, #ff8fd8 74%, #8be9ff 100%);
++    -webkit-background-clip: text;
++    background-clip: text;
++    -webkit-text-fill-color: transparent;
++    color: transparent;
++  }
++}
++
++.whimsy .whimsy-stroke-sheen {
++  stroke-dasharray: 24 62;
++  animation: whimsy-sheen 3.8s linear infinite;
++}
++
++.whimsy .whimsy-title-spark {
++  position: absolute;
++  font-size: clamp(1.1rem, 2.2vw, 1.9rem);
++  color: var(--w-cyan);
++  text-shadow: 0 0 18px rgba(94, 231, 255, 0.9);
++  animation: whimsy-twinkle 2.6s ease-in-out infinite alternate;
++  pointer-events: none;
++}
++
++.whimsy .whimsy-title-spark.s1 { top: 4%; right: 18%; animation-delay: -0.6s; }
++.whimsy .whimsy-title-spark.s2 { bottom: 6%; left: 15%; color: var(--w-pink); text-shadow: 0 0 18px rgba(255, 110, 199, 0.9); animation-delay: -1.4s; }
++
++@keyframes whimsy-sheen {
++  to { stroke-dashoffset: -172; }
++}
++
++@keyframes whimsy-spin {
++  to { transform: rotate(360deg); }
++}
++
++.whimsy .hero .lead {
++  max-width: 660px;
++  margin: 0 auto 32px;
++  color: var(--w-lilac);
++  font-size: clamp(1rem, 1.6vw, 1.16rem);
++  line-height: 1.75;
++  text-shadow: 0 2px 16px rgba(23, 11, 51, 0.5);
++}
++
++.whimsy .hero .lead a {
++  color: #fff;
++  text-decoration-color: var(--w-sun);
++}
++
++/* ---------- chunky arcade buttons ---------- */
++.whimsy .whimsy-actions {
++  align-items: center;
++  gap: 18px;
++}
++
++.whimsy .whimsy-btn {
++  position: relative;
++  min-height: 58px;
++  padding: 15px 30px;
++  border: 2.5px solid #1b0b33;
++  border-radius: 999px;
++  font-family: var(--w-display);
++  font-size: 1.12rem;
++  font-weight: 800;
++  letter-spacing: 0;
++  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, filter 0.18s ease;
++  will-change: transform;
++}
++
++.whimsy .whimsy-btn--sun {
++  background: linear-gradient(180deg, #fff6bd 0%, #ffd84d 42%, #ffb020 100%);
++  color: #2a1146;
++  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
++  box-shadow:
++    0 7px 0 #b45309,
++    0 16px 30px rgba(255, 159, 28, 0.42),
++    inset 0 3px 0 rgba(255, 255, 255, 0.85),
++    inset 0 -4px 0 rgba(180, 83, 9, 0.35);
++}
++
++.whimsy .whimsy-btn--moon {
++  background: linear-gradient(180deg, #b9a2ff 0%, #8b5cf6 46%, #6d28d9 100%);
++  color: #ffffff;
++  box-shadow:
++    0 7px 0 #2e1065,
++    0 16px 30px rgba(109, 40, 217, 0.48),
++    inset 0 3px 0 rgba(255, 255, 255, 0.5),
++    inset 0 -4px 0 rgba(46, 16, 101, 0.45);
++}
++
++.whimsy .whimsy-btn:hover {
++  animation: whimsy-bounce 0.62s cubic-bezier(0.34, 1.56, 0.64, 1);
++  transform: translateY(-4px) scale(1.04);
++}
++
++.whimsy .whimsy-btn--sun:hover {
++  box-shadow:
++    0 10px 0 #b45309,
++    0 22px 40px rgba(255, 159, 28, 0.5),
++    0 0 34px rgba(255, 216, 77, 0.65),
++    inset 0 3px 0 rgba(255, 255, 255, 0.9),
++    inset 0 -4px 0 rgba(180, 83, 9, 0.3);
++}
++
++.whimsy .whimsy-btn--moon:hover {
++  box-shadow:
++    0 10px 0 #2e1065,
++    0 22px 40px rgba(109, 40, 217, 0.5),
++    0 0 34px rgba(139, 92, 246, 0.7),
++    inset 0 3px 0 rgba(255, 255, 255, 0.55),
++    inset 0 -4px 0 rgba(46, 16, 101, 0.4);
++}
++
++.whimsy .whimsy-btn:active {
++  animation: none;
++  transform: translateY(4px) scale(0.99);
++  box-shadow: 0 2px 0 #2e1065, 0 6px 14px rgba(23, 11, 51, 0.3), inset 0 2px 6px rgba(23, 11, 51, 0.25);
++}
++
++.whimsy .whimsy-btn:focus-visible {
++  outline: 3px solid var(--w-cyan);
++  outline-offset: 4px;
++}
++
++.whimsy .whimsy-btn-spark {
++  display: inline-block;
++  margin-left: 6px;
++  font-size: 1.05em;
++  transition: transform 0.3s ease;
++}
++
++.whimsy .whimsy-btn:hover .whimsy-btn-spark {
++  animation: whimsy-spin 1.1s linear infinite;
++}
++
++.whimsy .whimsy-btn::before,
++.whimsy .whimsy-btn::after {
++  content: "\2726";
++  position: absolute;
++  font-size: 0.9rem;
++  color: #fffbe0;
++  text-shadow: 0 0 10px rgba(255, 216, 77, 0.95);
++  opacity: 0;
++  pointer-events: none;
++}
++
++.whimsy .whimsy-btn::before { left: -12px; top: -12px; }
++.whimsy .whimsy-btn::after { right: -10px; bottom: -10px; color: #8be9ff; text-shadow: 0 0 10px rgba(94, 231, 255, 0.95); }
++
++.whimsy .whimsy-btn:hover::before { animation: whimsy-sparkle-pop 0.9s ease-out infinite; }
++.whimsy .whimsy-btn:hover::after { animation: whimsy-sparkle-pop 0.9s ease-out 0.35s infinite; }
++
++.whimsy .whimsy-btn--sm {
++  min-height: 46px;
++  padding: 10px 22px;
++  font-size: 0.98rem;
++}
++
++.whimsy .whimsy-hero-note {
++  margin: 22px 0 0;
++  color: #a99bdc;
++  font-size: 0.74rem;
++  font-weight: 600;
++  letter-spacing: 0.14em;
++  text-transform: uppercase;
++}
++
++@keyframes whimsy-bounce {
++  0% { transform: translateY(0) scale(1); }
++  35% { transform: translateY(-9px) scale(1.06); }
++  60% { transform: translateY(-2px) scale(1.03); }
++  100% { transform: translateY(-4px) scale(1.04); }
++}
++
++@keyframes whimsy-sparkle-pop {
++  0% { opacity: 0; transform: scale(0.5) rotate(0deg); }
++  35% { opacity: 1; transform: scale(1.15) rotate(25deg); }
++  100% { opacity: 0; transform: scale(0.4) rotate(70deg) translateY(-8px); }
++}
++
++/* ---------- floating glass cards ---------- */
++@property --whimsy-angle {
++  syntax: "<angle>";
++  inherits: false;
++  initial-value: 0deg;
++}
++
++.whimsy .home-row {
++  position: relative;
++  z-index: 2;
++  display: grid;
++  gap: 18px;
++  padding-bottom: 42px;
++}
++
++.whimsy .promo {
++  border-radius: 26px;
++  padding: 26px 28px;
++}
++
++.whimsy .promo.tourney {
++  position: relative;
++  isolation: isolate;
++  color: #ffffff;
++  border: 1px solid rgba(255, 255, 255, 0.34);
++  background: linear-gradient(140deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.06) 55%, rgba(255, 255, 255, 0.14) 100%);
++  backdrop-filter: blur(20px) saturate(150%);
++  -webkit-backdrop-filter: blur(20px) saturate(150%);
++  box-shadow:
++    0 28px 64px rgba(8, 3, 24, 0.5),
++    inset 0 1px 0 rgba(255, 255, 255, 0.55),
++    inset 0 -1px 0 rgba(255, 255, 255, 0.12);
++  rotate: -1.1deg;
++  animation: whimsy-levitate 7.5s ease-in-out infinite;
++}
++
++.whimsy .promo.tourney::before {
++  content: "";
++  position: absolute;
++  inset: -2px;
++  z-index: -1;
++  border-radius: 28px;
++  padding: 2px;
++  background: conic-gradient(
++    from var(--whimsy-angle),
++    #ffd84d, #ff6ec7, #8b5cf6, #5ee7ff, #ffd84d
++  );
++  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
++  -webkit-mask-composite: xor;
++  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
++  mask-composite: exclude;
++  animation: whimsy-border-spin 9s linear infinite;
++  filter: drop-shadow(0 0 16px rgba(255, 110, 199, 0.8));
++}
++
++.whimsy .promo.tourney::after {
++  content: "";
++  position: absolute;
++  inset: -22px;
++  z-index: -2;
++  border-radius: 40px;
++  background: radial-gradient(60% 60% at 50% 50%, transparent 42%, rgba(255, 110, 199, 0.34) 66%, rgba(139, 92, 246, 0.18) 80%, transparent 92%);
++  filter: blur(26px);
++  animation: whimsy-aura 4.4s ease-in-out infinite;
++  pointer-events: none;
++}
++
++.whimsy .promo.promo-challenge {
++  color: #ffffff;
++  rotate: 0.8deg;
++  border: 1px solid rgba(255, 255, 255, 0.26);
++  background: linear-gradient(140deg, rgba(255, 255, 255, 0.17) 0%, rgba(255, 255, 255, 0.05) 62%, rgba(255, 255, 255, 0.1) 100%);
++  backdrop-filter: blur(16px) saturate(140%);
++  -webkit-backdrop-filter: blur(16px) saturate(140%);
++  box-shadow: 0 22px 50px rgba(8, 3, 24, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4);
++  animation: whimsy-levitate-soft 8.5s ease-in-out -2.4s infinite;
++}
++
++.whimsy .promo.tourney .kicker,
++.whimsy .promo.promo-challenge .kicker {
++  color: #ffe9b0;
++  font-family: var(--w-display);
++  font-size: 0.78rem;
++  font-weight: 700;
++  letter-spacing: 0.1em;
++}
++
++.whimsy .promo .kicker b {
++  color: #fffdf6;
++}
++
++.whimsy .promo.tourney h2,
++.whimsy .promo.promo-challenge h2 {
++  font-family: var(--w-display);
++  font-size: clamp(1.4rem, 3vw, 1.75rem);
++  font-weight: 800;
++  letter-spacing: -0.01em;
++  color: #fffdf6;
++  text-shadow: 0 3px 18px rgba(23, 11, 51, 0.45);
++}
++
++.whimsy .promo.tourney p,
++.whimsy .promo.promo-challenge p {
++  color: #e9e0ff;
++}
++
++.whimsy .promo .promo-countdown {
++  color: #c9baf5;
++}
++
++.whimsy .promo-covers .mini-cover {
++  border: 2px solid rgba(255, 255, 255, 0.72);
++  border-radius: 12px;
++  box-shadow: 0 10px 24px rgba(8, 3, 24, 0.45);
++  animation: whimsy-float 5.5s ease-in-out infinite;
++}
++
++.whimsy .promo-covers .mini-cover:nth-child(1) { rotate: -7deg; animation-delay: -0.2s; }
++.whimsy .promo-covers .mini-cover:nth-child(2) { rotate: 4deg; animation-delay: -1.1s; }
++.whimsy .promo-covers .mini-cover:nth-child(3) { rotate: -3deg; animation-delay: -2.2s; }
++.whimsy .promo-covers .mini-cover:nth-child(4) { rotate: 6deg; animation-delay: -3.1s; }
++.whimsy .promo-covers .mini-cover:nth-child(5) { rotate: -5deg; animation-delay: -4s; }
++
++.whimsy .promo-challenge .challenge-art {
++  border: 2px solid rgba(255, 255, 255, 0.55);
++  border-radius: 14px;
++  box-shadow: 0 14px 30px rgba(8, 3, 24, 0.45);
++  rotate: 2deg;
++}
++
++/* pointer tilt, driven by WhimsyLayer */
++.whimsy [data-tilt] {
++  transform: perspective(1000px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) translateY(var(--tilt-lift, 0px));
++  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.3, 1);
++}
++
++.whimsy [data-tilt].is-tilting {
++  transition-duration: 0.08s;
++}
++
++@keyframes whimsy-float {
++  0%, 100% { translate: 0 0; }
++  50% { translate: 0 -10px; }
++}
++
++@keyframes whimsy-border-spin {
++  to { --whimsy-angle: 360deg; }
++}
++
++@keyframes whimsy-aura {
++  0%, 100% { opacity: 0.55; transform: scale(0.98); }
++  50% { opacity: 0.95; transform: scale(1.04); }
++}
++
++/* ---------- the wand cursor ---------- */
++.has-whimsy-cursor,
++.has-whimsy-cursor body,
++.has-whimsy-cursor a,
++.has-whimsy-cursor button,
++.has-whimsy-cursor summary,
++.has-whimsy-cursor label {
++  cursor: none;
++}
++
++.has-whimsy-cursor input,
++.has-whimsy-cursor textarea,
++.has-whimsy-cursor select {
++  cursor: auto;
++}
++
++.whimsy-cursor {
++  position: fixed;
++  left: 0;
++  top: 0;
++  z-index: 9999;
++  width: 30px;
++  height: 30px;
++  /* the star floats above-left of the hotspot, like a wand tip */
++  margin: -30px 0 0 -30px;
++  pointer-events: none;
++  opacity: 0;
++  transition: opacity 0.25s ease;
++  will-change: transform;
++}
++
++.whimsy-cursor svg {
++  width: 100%;
++  height: 100%;
++  filter: drop-shadow(0 0 9px rgba(255, 226, 122, 0.95)) drop-shadow(0 0 22px rgba(255, 110, 199, 0.6));
++  animation: whimsy-cursor-turn 7s ease-in-out infinite;
++}
++
++.whimsy-cursor.is-clicking svg {
++  animation: whimsy-cursor-pop 0.35s ease-out;
++}
++
++.whimsy-trail {
++  position: fixed;
++  inset: 0;
++  z-index: 9998;
++  overflow: hidden;
++  pointer-events: none;
++}
++
++.whimsy-trail-spark {
++  position: absolute;
++  left: 0;
++  top: 0;
++  width: var(--spark-size);
++  height: var(--spark-size);
++  margin: calc(var(--spark-size) / -2) 0 0 calc(var(--spark-size) / -2);
++  background: var(--spark-color);
++  clip-path: polygon(50% 0%, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0% 50%, 38% 38%);
++  filter: drop-shadow(0 0 6px var(--spark-color));
++  animation: whimsy-trail-fade 0.8s ease-out forwards;
++}
++
++@keyframes whimsy-cursor-turn {
++  0%, 100% { transform: rotate(-4deg) scale(1); }
++  50% { transform: rotate(4deg) scale(1.08); }
++}
++
++@keyframes whimsy-cursor-pop {
++  0% { transform: scale(1); }
++  45% { transform: scale(1.45) rotate(20deg); }
++  100% { transform: scale(1); }
++}
++
++@keyframes whimsy-trail-fade {
++  0% {
++    opacity: 0.95;
++    transform: translate3d(var(--spark-x), var(--spark-y), 0) scale(1) rotate(0deg);
++  }
++  100% {
++    opacity: 0;
++    transform: translate3d(calc(var(--spark-x) + var(--spark-dx)), calc(var(--spark-y) + var(--spark-dy)), 0) scale(0.15) rotate(var(--spark-spin));
++  }
++}
++
++/* ---------- the sign-in page ---------- */
++.whimsy.whimsy-signin {
++  position: relative;
++  isolation: isolate;
++  overflow: hidden;
++  display: block;
++  min-height: 82vh;
++  padding: 0;
++  color: #f9f4ff;
++  border-radius: 0 0 44px 44px;
++  background:
++    radial-gradient(1000px 560px at 50% -10%, rgba(139, 92, 246, 0.6), transparent 70%),
++    radial-gradient(720px 460px at 8% 20%, rgba(255, 110, 199, 0.3), transparent 66%),
++    radial-gradient(820px 500px at 94% 14%, rgba(94, 231, 255, 0.26), transparent 68%),
++    linear-gradient(180deg, #170b33 0%, #241050 56%, #33125f 100%);
++  box-shadow: 0 30px 80px rgba(23, 11, 51, 0.28);
++}
++
++.whimsy.whimsy-signin .whimsy-sky {
++  z-index: 0;
++}
++
++.whimsy.whimsy-signin .signin-page {
++  position: relative;
++  z-index: 2;
++  display: grid;
++  place-items: center;
++  min-height: 82vh;
++  padding: 64px 24px 80px;
++}
++
++.whimsy.whimsy-signin .signin-card {
++  position: relative;
++  isolation: isolate;
++  width: min(520px, 100%);
++  padding: 42px 36px;
++  border-radius: 32px;
++  border: 1px solid rgba(255, 255, 255, 0.32);
++  background: linear-gradient(150deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.06) 58%, rgba(255, 255, 255, 0.13) 100%);
++  backdrop-filter: blur(22px) saturate(150%);
++  -webkit-backdrop-filter: blur(22px) saturate(150%);
++  box-shadow:
++    0 32px 70px rgba(8, 3, 24, 0.52),
++    inset 0 1px 0 rgba(255, 255, 255, 0.55),
++    0 0 0 6px rgba(255, 255, 255, 0.04);
++  color: #fffdf6;
++  text-align: center;
++  rotate: -0.6deg;
++  animation: whimsy-levitate-signin 8s ease-in-out infinite;
++}
++
++.whimsy.whimsy-signin .signin-card::before {
++  content: "";
++  position: absolute;
++  inset: -18px;
++  z-index: -1;
++  border-radius: 44px;
++  background: radial-gradient(60% 60% at 50% 50%, transparent 40%, rgba(255, 216, 77, 0.3) 64%, rgba(255, 110, 199, 0.2) 80%, transparent 92%);
++  filter: blur(26px);
++  animation: whimsy-aura 4.4s ease-in-out infinite;
++  pointer-events: none;
++}
++
++.whimsy.whimsy-signin .logo-mark {
++  width: 52px;
++  height: 52px;
++  border-radius: 16px;
++  background: linear-gradient(180deg, #fff6bd, #ffd84d 55%, #ffb020);
++  color: #2a1146;
++  box-shadow: 0 6px 0 #b45309, 0 0 30px rgba(255, 216, 77, 0.5), inset 0 2px 0 rgba(255, 255, 255, 0.8);
++}
++
++.whimsy.whimsy-signin .eyebrow-small {
++  color: #ffe9b0;
++  font-family: var(--w-display);
++  font-size: 0.78rem;
++  letter-spacing: 0.16em;
++}
++
++.whimsy.whimsy-signin .signin-card h1 {
++  margin: 8px 0 12px;
++  font-family: var(--w-display);
++  font-size: clamp(2.1rem, 6vw, 3.1rem);
++  font-weight: 800;
++  line-height: 1.02;
++  letter-spacing: -0.015em;
++  color: #fffdf6;
++  text-shadow: 0 4px 28px rgba(139, 92, 246, 0.65);
++}
++
++.whimsy.whimsy-signin .signin-card h1 .signin-highlight {
++  color: var(--w-sun);
++  filter: drop-shadow(0 0 20px rgba(255, 110, 199, 0.5)) drop-shadow(0 0 40px rgba(255, 216, 77, 0.25));
++}
++
++@supports ((-webkit-background-clip: text) or (background-clip: text)) {
++  .whimsy.whimsy-signin .signin-card h1 .signin-highlight {
++    background-image: linear-gradient(100deg, #fffbe0 0%, #ffe27a 30%, #ffd84d 48%, #ff8fd8 78%, #8be9ff 100%);
++    -webkit-background-clip: text;
++    background-clip: text;
++    -webkit-text-fill-color: transparent;
++    color: transparent;
++  }
++}
++
++.whimsy.whimsy-signin .whimsy-signin-spark {
++  position: absolute;
++  font-size: 1.35rem;
++  color: var(--w-cyan);
++  text-shadow: 0 0 14px rgba(94, 231, 255, 0.9);
++  animation: whimsy-twinkle 2.9s ease-in-out infinite alternate;
++  pointer-events: none;
++}
++
++.whimsy.whimsy-signin .whimsy-signin-spark.s1 {
++  top: 20px;
++  right: 28px;
++}
++
++.whimsy.whimsy-signin .whimsy-signin-spark.s2 {
++  bottom: 30px;
++  left: 24px;
++  color: var(--w-pink);
++  text-shadow: 0 0 14px rgba(255, 110, 199, 0.9);
++  animation-delay: -1.3s;
++}
++
++.whimsy.whimsy-signin .signin-card > p {
++  color: #e4dbff;
++  font-size: 0.96rem;
++}
++
++.whimsy.whimsy-signin .signin-card .whimsy-btn {
++  width: 100%;
++  margin-top: 20px;
++}
++
++.whimsy.whimsy-signin .signin-card .fineprint {
++  color: #b7a8e2;
++}
++
++.whimsy.whimsy-signin .signin-back {
++  color: #cbbdff;
++}
++
++.whimsy.whimsy-signin .signin-back:hover {
++  color: #fff;
++}
++
++/* ---------- the sign-in modal, on the sign-in route only ---------- */
++.whimsy-overlay {
++  background:
++    radial-gradient(720px 480px at 50% 0%, rgba(139, 92, 246, 0.45), transparent 70%),
++    rgba(12, 5, 32, 0.78);
++  backdrop-filter: blur(9px);
++  -webkit-backdrop-filter: blur(9px);
++}
++
++.auth-card.whimsy-modal {
++  background: linear-gradient(155deg, rgba(51, 18, 95, 0.97) 0%, rgba(23, 11, 51, 0.99) 100%);
++  border: 1px solid rgba(255, 255, 255, 0.22);
++  color: #f7f2ff;
++  box-shadow:
++    0 34px 80px rgba(8, 3, 24, 0.7),
++    0 0 0 1px rgba(255, 216, 77, 0.16) inset,
++    0 0 70px rgba(139, 92, 246, 0.35);
++}
++
++.auth-card.whimsy-modal .card-head h3 {
++  font-family: var(--w-display);
++  font-size: 1.75rem;
++  font-weight: 800;
++  color: #fffdf6;
++}
++
++.auth-card.whimsy-modal .eyebrow-small { color: #ffe9b0; }
++.auth-card.whimsy-modal .note,
++.auth-card.whimsy-modal .fineprint { color: #c9baf5; }
++.auth-card.whimsy-modal .close { color: #c9baf5; }
++.auth-card.whimsy-modal .close:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
++
++.auth-card.whimsy-modal .google-btn {
++  min-height: 52px;
++  border: 2.5px solid #1b0b33;
++  border-radius: 999px;
++  background: linear-gradient(180deg, #fff6bd 0%, #ffd84d 42%, #ffb020 100%);
++  color: #2a1146;
++  font-family: var(--w-display);
++  font-size: 1.05rem;
++  font-weight: 800;
++  box-shadow: 0 6px 0 #b45309, 0 14px 26px rgba(255, 159, 28, 0.35), inset 0 3px 0 rgba(255, 255, 255, 0.8);
++  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s;
++}
++
++.auth-card.whimsy-modal .google-btn:hover {
++  opacity: 1;
++  transform: translateY(-3px) scale(1.02);
++  box-shadow: 0 9px 0 #b45309, 0 18px 34px rgba(255, 159, 28, 0.45), 0 0 28px rgba(255, 216, 77, 0.5);
++}
++
++.auth-card.whimsy-modal .or { color: #9f8fd0; }
++
++.auth-card.whimsy-modal .ghost.wide,
++.auth-card.whimsy-modal .auth-actions .ghost {
++  background: rgba(255, 255, 255, 0.08);
++  border: 1px solid rgba(255, 255, 255, 0.26);
++  color: #f7f2ff;
++}
++
++.auth-card.whimsy-modal .ghost.wide:hover,
++.auth-card.whimsy-modal .auth-actions .ghost:hover {
++  border-color: rgba(255, 255, 255, 0.6);
++}
++
++.auth-card.whimsy-modal .character-name label,
++.auth-card.whimsy-modal .builder-group > span { color: #e7defc; }
++
++.auth-card.whimsy-modal .character-name input,
++.auth-card.whimsy-modal .builder-group select {
++  background: rgba(255, 255, 255, 0.08);
++  border-color: rgba(255, 255, 255, 0.22);
++  color: #fffdf6;
++}
++
++.auth-card.whimsy-modal .character-name input:focus,
++.auth-card.whimsy-modal .builder-group select:focus {
++  border-color: var(--w-sun);
++  box-shadow: 0 0 0 3px rgba(255, 216, 77, 0.18);
++}
++
++.auth-card.whimsy-modal .character-name p,
++.auth-card.whimsy-modal .randomise { color: #b7a8e2; }
++
++.auth-card.whimsy-modal .segmented {
++  border-color: rgba(255, 255, 255, 0.22);
++}
++
++.auth-card.whimsy-modal .segmented button {
++  background: rgba(255, 255, 255, 0.06);
++  color: #e7defc;
++}
++
++.auth-card.whimsy-modal .segmented button.on {
++  background: var(--w-sun);
++  color: #2a1146;
++  font-weight: 800;
++}
++
++.auth-card.whimsy-modal .swatches button {
++  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
++}
++
++.auth-card.whimsy-modal .swatches button.on {
++  border-color: #fff;
++  outline: 2px solid var(--w-sun);
++}
++
++.auth-card.whimsy-modal .auth-actions .btn {
++  border: 2.5px solid #1b0b33;
++  border-radius: 999px;
++  background: linear-gradient(180deg, #b9a2ff 0%, #8b5cf6 46%, #6d28d9 100%);
++  color: #fff;
++  font-family: var(--w-display);
++  font-weight: 800;
++  box-shadow: 0 6px 0 #2e1065, inset 0 3px 0 rgba(255, 255, 255, 0.45);
++}
++
++.auth-card.whimsy-modal .auth-actions .btn:hover {
++  background: linear-gradient(180deg, #c9b6ff 0%, #9b6ff8 46%, #7c3aed 100%);
++  transform: translateY(-2px);
++}
++
++.auth-card.whimsy-modal .form-error { color: #ff8fd8; }
++
++/* ---------- responsive ---------- */
++@media (max-width: 760px) {
++  .whimsy .hero {
++    padding: 52px 18px 22px;
++  }
++
++  .whimsy .whimsy-title {
++    font-size: clamp(2.75rem, 12.5vw, 4.6rem);
++  }
++
++  .whimsy .promo,
++  .whimsy .promo.tourney,
++  .whimsy .promo.promo-challenge {
++    padding: 20px 18px;
++  }
++
++  .whimsy .promo-covers {
++    display: flex;
++    flex-wrap: wrap;
++    justify-content: flex-start;
++    margin-top: 14px;
++  }
++
++  .whimsy .promo.tourney {
++    rotate: -0.5deg;
++  }
++
++  .whimsy .promo.promo-challenge {
++    rotate: 0.4deg;
++  }
++
++  .whimsy .home-row {
++    padding-bottom: 30px;
++  }
++}
++
++@media (max-width: 560px) {
++  .whimsy .whimsy-actions {
++    flex-direction: column;
++    align-items: stretch;
++    width: 100%;
++  }
++
++  .whimsy .whimsy-btn {
++    width: 100%;
++  }
++
++  .whimsy .whimsy-title-spark {
++    display: none;
++  }
++
++  .whimsy .hero .eyebrow {
++    gap: 7px;
++    padding: 7px 12px;
++    font-size: 0.66rem;
++    letter-spacing: 0.09em;
++  }
++
++  .whimsy .whimsy-hero-note {
++    font-size: 0.66rem;
++    letter-spacing: 0.1em;
++  }
++
++  .whimsy .promo-covers .mini-cover {
++    width: 56px;
++  }
++
++  .whimsy .whimsy-hero-band,
++  .whimsy.whimsy-signin {
++    border-radius: 0 0 28px 28px;
++  }
++
++  .whimsy.whimsy-signin .signin-card {
++    padding: 30px 22px;
++    rotate: 0deg;
++  }
++}
++
++@media (prefers-reduced-motion: reduce) {
++  .whimsy *,
++  .whimsy *::before,
++  .whimsy *::after {
++    animation-duration: 0.001ms !important;
++    animation-iteration-count: 1 !important;
++    transition-duration: 0.001ms !important;
++  }
++}
++
++
++/* keep the arcade buttons on-brand if the rest of the site is in dark mode */
++:root[data-theme="dark"] .whimsy .whimsy-btn--sun:hover {
++  background: linear-gradient(180deg, #fff6bd 0%, #ffd84d 42%, #ffb020 100%);
++  color: #2a1146;
++}
++
++:root[data-theme="dark"] .whimsy .whimsy-btn--moon:hover {
++  background: linear-gradient(180deg, #b9a2ff 0%, #8b5cf6 46%, #6d28d9 100%);
++  color: #ffffff;
++}
++
++:root[data-theme="dark"] .whimsy .ghost.whimsy-btn--moon:hover {
++  border-color: #1b0b33;
++}
++
++@keyframes whimsy-levitate {
++  0%, 100% {
++    box-shadow:
++      0 28px 64px rgba(8, 3, 24, 0.5),
++      inset 0 1px 0 rgba(255, 255, 255, 0.55),
++      inset 0 -1px 0 rgba(255, 255, 255, 0.12);
++  }
++  50% {
++    box-shadow:
++      0 38px 84px rgba(8, 3, 24, 0.58),
++      0 0 48px rgba(139, 92, 246, 0.22),
++      inset 0 1px 0 rgba(255, 255, 255, 0.55),
++      inset 0 -1px 0 rgba(255, 255, 255, 0.12);
++  }
++}
++
++@keyframes whimsy-levitate-signin {
++  0%, 100% {
++    box-shadow:
++      0 32px 70px rgba(8, 3, 24, 0.52),
++      inset 0 1px 0 rgba(255, 255, 255, 0.55),
++      0 0 0 6px rgba(255, 255, 255, 0.04);
++  }
++  50% {
++    box-shadow:
++      0 42px 88px rgba(8, 3, 24, 0.6),
++      0 0 52px rgba(139, 92, 246, 0.3),
++      inset 0 1px 0 rgba(255, 255, 255, 0.55),
++      0 0 0 6px rgba(255, 255, 255, 0.05);
++  }
++}
++
++@keyframes whimsy-levitate-soft {
++  0%, 100% { box-shadow: 0 22px 50px rgba(8, 3, 24, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4); }
++  50% { box-shadow: 0 30px 64px rgba(8, 3, 24, 0.48), 0 0 34px rgba(255, 110, 199, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.4); }
++}
++
++/* pause the drift as soon as someone reaches for a control */
++.whimsy .promo.tourney:hover,
++.whimsy .promo.tourney:focus-within,
++.whimsy .promo.promo-challenge:hover,
++.whimsy .promo.promo-challenge:focus-within,
++.whimsy.whimsy-signin .signin-card:hover,
++.whimsy.whimsy-signin .signin-card:focus-within {
++  animation-play-state: paused;
++}
+diff --git a/components/AuthModal.tsx b/components/AuthModal.tsx
+index 5c9eb0f..962436f 100644
+--- a/components/AuthModal.tsx
++++ b/components/AuthModal.tsx
+@@ -1,6 +1,7 @@
+ 'use client';
+ 
+ import { useEffect, useState } from 'react';
++import { usePathname } from 'next/navigation';
+ import { useApp } from './AppProvider';
+ import { CharacterAvatar } from './CharacterAvatar';
+ import {
+@@ -16,6 +17,8 @@ import {
+ 
+ export function AuthModal() {
+   const { authOpen, closeAuth, signIn } = useApp();
++  const pathname = usePathname();
++  const whimsy = pathname === '/' || pathname === '/signin';
+   const [step, setStep] = useState<'start' | 'create'>('start');
+   const [name, setName] = useState('');
+   const [character, setCharacter] = useState<Character>(randomCharacter);
+@@ -55,8 +58,8 @@ export function AuthModal() {
+   const set = <K extends keyof Character,>(key: K, value: Character[K]) => setCharacter((c) => ({ ...c, [key]: value }));
+ 
+   return (
+-    <div className="overlay" onClick={closeAuth}>
+-      <div className="auth-card" role="dialog" aria-modal="true" aria-labelledby="sign-in-title" onClick={(e) => e.stopPropagation()}>
++    <div className={`overlay${whimsy ? ' whimsy-overlay' : ''}`} onClick={closeAuth}>
++      <div className={`auth-card${whimsy ? ' whimsy-modal' : ''}`} role="dialog" aria-modal="true" aria-labelledby="sign-in-title" onClick={(e) => e.stopPropagation()}>
+         <div className="card-head">
+           <div>
+             <span className="mono eyebrow-small">{step === 'start' ? 'Your start.ng account' : 'Make it yours'}</span>
+diff --git a/components/HomePromos.tsx b/components/HomePromos.tsx
+index 5c08cf1..112c059 100644
+--- a/components/HomePromos.tsx
++++ b/components/HomePromos.tsx
+@@ -20,13 +20,15 @@ export function HomePromos() {
+ 
+   return (
+     <div className="container home-row">
+-      <section className="promo tourney" aria-labelledby="today-tourney">
++      <section className="promo tourney" aria-labelledby="today-tourney" data-tilt>
+         <div>
+           <p className="kicker"><b>Today&apos;s tournament</b> {ends && <>· Ends in <Countdown endsAt={ends} /></>}</p>
+           <h2 id="today-tourney">5 games. 24 hours. One winner.</h2>
+           <p>Share to enter, then play. {currentTournamentEntered ? 'You are in.' : 'No entry fee.'}</p>
+           <p className="promo-countdown">At 6 PM Nigeria time the day flips and a new set of games appears.</p>
+-          <Link className="btn" href="/tournament">See the tournament</Link>
++          <Link className="btn whimsy-btn whimsy-btn--sun whimsy-btn--sm" href="/tournament">
++            See the tournament <span className="whimsy-btn-spark" aria-hidden="true">✦</span>
++          </Link>
+         </div>
+         <div className="promo-covers" aria-hidden="true">
+           {TOURNAMENT_GAMES.map((slug) => {
+@@ -37,13 +39,13 @@ export function HomePromos() {
+       </section>
+ 
+       {challenge && (
+-        <section className="promo promo-challenge" aria-labelledby="daily-challenge">
++        <section className="promo promo-challenge" aria-labelledby="daily-challenge" data-tilt>
+           <div>
+             <p className="kicker"><b>Daily challenge</b> {challengeEnd && <>· <Countdown endsAt={challengeEnd} /></>}</p>
+             <h2 id="daily-challenge">Reach 59 in {challenge.title}</h2>
+             <p>One goal a day, set from how people really play. {done ? 'You have already beaten it today.' : 'Beat the target to earn a bonus.'}</p>
+-            <Link className="btn" href={`/games/${challenge.slug}/play?challenge=1`} onClick={() => { if (!done) notify('Good luck. 59 is the number.'); }}>
+-              {done ? 'Play again' : 'Take the challenge'}
++            <Link className="btn whimsy-btn whimsy-btn--moon whimsy-btn--sm" href={`/games/${challenge.slug}/play?challenge=1`} onClick={() => { if (!done) notify('Good luck. 59 is the number.'); }}>
++              {done ? 'Play again' : 'Take the challenge'} <span className="whimsy-btn-spark" aria-hidden="true">✧</span>
+             </Link>
+           </div>
+           <Link className="challenge-art" href={`/games/${challenge.slug}`} aria-label={`${challenge.title} cover`}>
+diff --git a/components/SignInPrompt.tsx b/components/SignInPrompt.tsx
+index 9bbfe1b..dbb049c 100644
+--- a/components/SignInPrompt.tsx
++++ b/components/SignInPrompt.tsx
+@@ -1,31 +1,33 @@
+ 'use client';
+ 
+ import Link from 'next/link';
+-import { useEffect } from 'react';
+ import { useApp } from '@/components/AppProvider';
+ import { CharacterAvatar } from '@/components/CharacterAvatar';
++import { WhimsyLayer } from '@/components/WhimsyLayer';
++import { WhimsyOrbs } from '@/components/WhimsyOrbs';
+ 
+ export function SignInPrompt() {
+   const { user, openAuth, authOpen } = useApp();
+ 
+-  useEffect(() => {
+-    if (!user) {
+-      const t = setTimeout(() => openAuth(), 350);
+-      return () => clearTimeout(t);
+-    }
+-  }, [user, openAuth]);
+-
+   if (user) {
+     return (
+-      <main className="container signin-page">
+-        <div className="signin-card">
+-          <CharacterAvatar character={user.character} size={96} />
+-          <p className="eyebrow-small">Already signed in</p>
+-          <h1>Welcome back, {user.name}.</h1>
+-          <p>Your character, favourites and scores are on this device.</p>
+-          <div className="actions">
+-            <Link className="btn" href="/profile">Your profile</Link>
+-            <Link className="ghost" href="/games">Play a game</Link>
++      <main className="whimsy whimsy-signin">
++        <WhimsyOrbs />
++        <WhimsyLayer />
++        <div className="container signin-page">
++          <div className="signin-card" data-tilt>
++            <CharacterAvatar character={user.character} size={96} />
++            <p className="eyebrow-small">Already signed in</p>
++            <h1>Welcome back, {user.name}.</h1>
++            <p>Your character, favourites and scores are on this device.</p>
++            <div className="actions">
++              <Link className="btn whimsy-btn whimsy-btn--sun" href="/profile">
++                Your profile <span className="whimsy-btn-spark" aria-hidden="true">✦</span>
++              </Link>
++              <Link className="ghost whimsy-btn whimsy-btn--moon" href="/games">
++                Play a game <span className="whimsy-btn-spark" aria-hidden="true">✧</span>
++              </Link>
++            </div>
+           </div>
+         </div>
+       </main>
+@@ -33,17 +35,26 @@ export function SignInPrompt() {
+   }
+ 
+   return (
+-    <main className="container signin-page">
+-      <div className="signin-card">
+-        <span className="logo-mark" aria-hidden="true" style={{ width: 44, height: 44, borderRadius: 12, margin: '0 auto 14px' }}>
+-          <svg viewBox="0 0 24 24" width="24" height="24"><path d="M8 5.5v13l10-6.5z" fill="currentColor" /></svg>
+-        </span>
+-        <p className="eyebrow-small">Your start.ng account</p>
+-        <h1>One character. Every game.</h1>
+-        <p>Sign in to keep your scores, save favourites, join the daily tournament and bring your character into every game.</p>
+-        <button type="button" className="btn" onClick={openAuth} style={{ width: '100%' }}>{authOpen ? 'Sign-in window open…' : 'Continue with Google'}</button>
+-        <p className="fineprint">No password to remember. This demo keeps your account in your browser.</p>
+-        <Link className="signin-back" href="/games">Just here to play? Browse all games →</Link>
++    <main className="whimsy whimsy-signin">
++      <WhimsyOrbs />
++      <WhimsyLayer />
++      <div className="container signin-page">
++        <div className="signin-card" data-tilt>
++          <span className="whimsy-signin-spark s1" aria-hidden="true">✦</span>
++          <span className="whimsy-signin-spark s2" aria-hidden="true">✧</span>
++          <span className="logo-mark" aria-hidden="true" style={{ width: 52, height: 52, borderRadius: 16, margin: '0 auto 16px' }}>
++            <svg viewBox="0 0 24 24" width="26" height="26"><path d="M8 5.5v13l10-6.5z" fill="currentColor" /></svg>
++          </span>
++          <p className="eyebrow-small">Your start.ng account</p>
++          <h1>One character.<br /><span className="signin-highlight">Every game.</span></h1>
++          <p>Sign in to keep your scores, save favourites, join the daily tournament and bring your character into every game.</p>
++          <button type="button" className="btn whimsy-btn whimsy-btn--sun" onClick={openAuth} style={{ width: '100%' }}>
++            {authOpen ? 'Sign-in window open…' : 'Continue with Google'}
++            <span className="whimsy-btn-spark" aria-hidden="true">✦</span>
++          </button>
++          <p className="fineprint">No password to remember. This demo keeps your account in your browser.</p>
++          <Link className="signin-back" href="/games">Just here to play? Browse all games →</Link>
++        </div>
+       </div>
+     </main>
+   );
+diff --git a/components/WhimsyLayer.tsx b/components/WhimsyLayer.tsx
+new file mode 100644
+index 0000000..dc2dbbe
+--- /dev/null
++++ b/components/WhimsyLayer.tsx
+@@ -0,0 +1,173 @@
++"use client";
++
++import { useEffect, useRef } from "react";
++
++const SPARK_COLORS = ["#ffe27a", "#ff8fd8", "#8be9ff", "#ffffff", "#c4a1ff"];
++
++function spawnSpark(container: HTMLDivElement, x: number, y: number) {
++  if (container.childElementCount > 22) return;
++  const spark = document.createElement("span");
++  spark.className = "whimsy-trail-spark";
++  spark.style.setProperty("--spark-x", `${x}px`);
++  spark.style.setProperty("--spark-y", `${y}px`);
++  spark.style.setProperty("--spark-dx", `${(Math.random() - 0.5) * 26}px`);
++  spark.style.setProperty("--spark-dy", `${(Math.random() - 0.5) * 22 + 8}px`);
++  spark.style.setProperty("--spark-size", `${5 + Math.random() * 9}px`);
++  spark.style.setProperty("--spark-color", SPARK_COLORS[Math.floor(Math.random() * SPARK_COLORS.length)]);
++  spark.style.setProperty("--spark-spin", `${(Math.random() - 0.5) * 180}deg`);
++  container.appendChild(spark);
++  const remove = () => spark.remove();
++  spark.addEventListener("animationend", remove, { once: true });
++  window.setTimeout(remove, 900);
++}
++
++/**
++ * One shared layer for the whimsical pages: a glowing wand cursor with a
++ * spark trail, plus a gentle pointer tilt on any [data-tilt] element.
++ * Everything is skipped on touch devices and for reduced-motion visitors.
++ */
++export function WhimsyLayer() {
++  const cursorRef = useRef<HTMLDivElement>(null);
++  const trailRef = useRef<HTMLDivElement>(null);
++
++  useEffect(() => {
++    if (typeof window === "undefined") return;
++    const finePointer = window.matchMedia("(pointer: fine)");
++    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
++    if (!finePointer.matches || reducedMotion.matches) return;
++
++    const root = document.documentElement;
++    root.classList.add("has-whimsy-cursor");
++
++    const cursor = cursorRef.current;
++    const trail = trailRef.current;
++    let frame = 0;
++    let lastSpark = 0;
++    let targetX = window.innerWidth / 2;
++    let targetY = window.innerHeight / 2;
++    let x = targetX;
++    let y = targetY;
++    let visible = false;
++
++    const draw = () => {
++      x += (targetX - x) * 0.22;
++      y += (targetY - y) * 0.22;
++      if (cursor) cursor.style.transform = `translate3d(${x}px, ${y}px, 0)`;
++      frame = window.requestAnimationFrame(draw);
++    };
++
++    const onMove = (event: PointerEvent) => {
++      targetX = event.clientX;
++      targetY = event.clientY;
++      if (!visible) {
++        visible = true;
++        x = targetX;
++        y = targetY;
++        if (cursor) cursor.style.opacity = "1";
++      }
++      const now = performance.now();
++      if (trail && now - lastSpark > 65) {
++        lastSpark = now;
++        spawnSpark(trail, event.clientX, event.clientY);
++      }
++    };
++    const onLeave = () => {
++      if (cursor) cursor.style.opacity = "0";
++      visible = false;
++    };
++    const onDown = () => cursor?.classList.add("is-clicking");
++    const onUp = () => cursor?.classList.remove("is-clicking");
++
++    frame = window.requestAnimationFrame(draw);
++    window.addEventListener("pointermove", onMove, { passive: true });
++    document.addEventListener("pointerleave", onLeave);
++    window.addEventListener("pointerdown", onDown);
++    window.addEventListener("pointerup", onUp);
++
++    /* Tilt every element that opts in, without fighting their own transitions. */
++    const tiltables = Array.from(document.querySelectorAll<HTMLElement>("[data-tilt]"));
++    const tilts = tiltables.map((element) => {
++      let tiltFrame = 0;
++      let latest: PointerEvent | null = null;
++
++      const apply = () => {
++        tiltFrame = 0;
++        if (!latest) return;
++        const rect = element.getBoundingClientRect();
++        if (!rect.width || !rect.height) return;
++        const px = (latest.clientX - rect.left) / rect.width - 0.5;
++        const py = (latest.clientY - rect.top) / rect.height - 0.5;
++        element.style.setProperty("--tilt-x", `${(-py * 7).toFixed(2)}deg`);
++        element.style.setProperty("--tilt-y", `${(px * 9).toFixed(2)}deg`);
++        element.style.setProperty("--tilt-lift", "-5px");
++        element.classList.add("is-tilting");
++      };
++      const onTiltMove = (event: PointerEvent) => {
++        latest = event;
++        if (!tiltFrame) tiltFrame = window.requestAnimationFrame(apply);
++      };
++      const reset = () => {
++        latest = null;
++        element.style.removeProperty("--tilt-x");
++        element.style.removeProperty("--tilt-y");
++        element.style.removeProperty("--tilt-lift");
++        element.classList.remove("is-tilting");
++      };
++
++      element.addEventListener("pointermove", onTiltMove, { passive: true });
++      element.addEventListener("pointerleave", reset);
++      element.addEventListener("blur", reset);
++      return () => {
++        window.cancelAnimationFrame(tiltFrame);
++        element.removeEventListener("pointermove", onTiltMove);
++        element.removeEventListener("pointerleave", reset);
++        element.removeEventListener("blur", reset);
++        reset();
++      };
++    });
++
++    return () => {
++      root.classList.remove("has-whimsy-cursor");
++      window.cancelAnimationFrame(frame);
++      window.removeEventListener("pointermove", onMove);
++      document.removeEventListener("pointerleave", onLeave);
++      window.removeEventListener("pointerdown", onDown);
++      window.removeEventListener("pointerup", onUp);
++      tilts.forEach((cleanup) => cleanup());
++      if (trail) trail.replaceChildren();
++    };
++  }, []);
++
++  return (
++    <>
++      <div ref={trailRef} className="whimsy-trail" aria-hidden="true" />
++      <div ref={cursorRef} className="whimsy-cursor" aria-hidden="true">
++        <svg viewBox="0 0 40 40" width="40" height="40" focusable="false">
++          <defs>
++            <radialGradient id="whimsy-cursor-glow" cx="50%" cy="50%" r="50%">
++              <stop offset="0%" stopColor="#fff8c9" stopOpacity=".95" />
++              <stop offset="55%" stopColor="#ffd84d" stopOpacity=".45" />
++              <stop offset="100%" stopColor="#ff6ec7" stopOpacity="0" />
++            </radialGradient>
++            <linearGradient id="whimsy-cursor-star" x1="0" y1="0" x2="1" y2="1">
++              <stop offset="0%" stopColor="#fffef2" />
++              <stop offset="45%" stopColor="#ffe27a" />
++              <stop offset="100%" stopColor="#ff8fd8" />
++            </linearGradient>
++          </defs>
++          <circle cx="20" cy="20" r="19" fill="url(#whimsy-cursor-glow)" />
++          <path
++            className="whimsy-cursor-star"
++            d="M20 4.5l3.4 9.9 10.1 3.4-10.1 3.4L20 31.1l-3.4-9.9L6.5 17.8l10.1-3.4z"
++            fill="url(#whimsy-cursor-star)"
++            stroke="#2b1152"
++            strokeWidth="1.4"
++            strokeLinejoin="round"
++          />
++          <circle cx="31" cy="9" r="2" fill="#8be9ff" />
++          <circle cx="8" cy="29" r="1.5" fill="#ff8fd8" />
++        </svg>
++      </div>
++    </>
++  );
++}
+diff --git a/components/WhimsyOrbs.tsx b/components/WhimsyOrbs.tsx
+new file mode 100644
+index 0000000..567f560
+--- /dev/null
++++ b/components/WhimsyOrbs.tsx
+@@ -0,0 +1,83 @@
++type Orb = {
++  size: number;
++  x: string;
++  y: string;
++  color: string;
++  duration: string;
++  delay: string;
++  blur: number;
++};
++
++const ORBS: Orb[] = [
++  { size: 150, x: "4%", y: "8%", color: "rgba(255, 216, 77, .55)", duration: "13s", delay: "-2s", blur: 2 },
++  { size: 90, x: "82%", y: "5%", color: "rgba(255, 110, 199, .5)", duration: "11s", delay: "-5s", blur: 1 },
++  { size: 220, x: "68%", y: "42%", color: "rgba(139, 92, 246, .32)", duration: "17s", delay: "-8s", blur: 6 },
++  { size: 60, x: "12%", y: "58%", color: "rgba(94, 231, 255, .55)", duration: "9s", delay: "-1s", blur: 0.5 },
++  { size: 34, x: "30%", y: "20%", color: "rgba(255, 255, 255, .8)", duration: "7s", delay: "-3s", blur: 0 },
++  { size: 110, x: "44%", y: "78%", color: "rgba(255, 110, 199, .3)", duration: "15s", delay: "-6s", blur: 3 },
++  { size: 70, x: "92%", y: "68%", color: "rgba(255, 216, 77, .4)", duration: "12s", delay: "-4s", blur: 1 },
++  { size: 26, x: "58%", y: "10%", color: "rgba(255, 255, 255, .75)", duration: "8s", delay: "-2.5s", blur: 0 },
++  { size: 46, x: "76%", y: "86%", color: "rgba(94, 231, 255, .45)", duration: "10s", delay: "-7s", blur: 0.5 },
++  { size: 20, x: "20%", y: "88%", color: "rgba(255, 232, 168, .8)", duration: "6s", delay: "-1.5s", blur: 0 },
++];
++
++const STARS = [
++  { x: "7%", y: "22%", size: 3, delay: "0s" },
++  { x: "18%", y: "10%", size: 2, delay: "-1.2s" },
++  { x: "26%", y: "44%", size: 2.5, delay: "-2.4s" },
++  { x: "36%", y: "14%", size: 2, delay: "-.6s" },
++  { x: "48%", y: "6%", size: 3, delay: "-3.1s" },
++  { x: "57%", y: "30%", size: 2, delay: "-1.8s" },
++  { x: "66%", y: "18%", size: 2.5, delay: "-4s" },
++  { x: "74%", y: "36%", size: 2, delay: "-2.1s" },
++  { x: "86%", y: "24%", size: 3, delay: "-.9s" },
++  { x: "94%", y: "46%", size: 2, delay: "-3.6s" },
++  { x: "10%", y: "72%", size: 2.5, delay: "-2.8s" },
++  { x: "22%", y: "66%", size: 2, delay: "-4.4s" },
++  { x: "32%", y: "92%", size: 2.5, delay: "-1.4s" },
++  { x: "44%", y: "56%", size: 2, delay: "-.4s" },
++  { x: "54%", y: "84%", size: 2, delay: "-3.3s" },
++  { x: "64%", y: "62%", size: 3, delay: "-2s" },
++  { x: "78%", y: "52%", size: 2, delay: "-4.8s" },
++  { x: "88%", y: "80%", size: 2.5, delay: "-1s" },
++  { x: "96%", y: "12%", size: 2, delay: "-2.6s" },
++  { x: "40%", y: "26%", size: 2, delay: "-5s" },
++];
++
++export function WhimsyOrbs() {
++  return (
++    <div className="whimsy-sky" aria-hidden="true">
++      {ORBS.map((orb, index) => (
++        <span
++          key={`orb-${index}`}
++          className="whimsy-orb"
++          style={
++            {
++              "--orb-size": `${orb.size}px`,
++              "--orb-x": orb.x,
++              "--orb-y": orb.y,
++              "--orb-color": orb.color,
++              "--orb-duration": orb.duration,
++              "--orb-delay": orb.delay,
++              "--orb-blur": `${orb.blur}px`,
++            } as React.CSSProperties
++          }
++        />
++      ))}
++      {STARS.map((star, index) => (
++        <span
++          key={`star-${index}`}
++          className="whimsy-star"
++          style={
++            {
++              "--star-x": star.x,
++              "--star-y": star.y,
++              "--star-size": `${star.size}px`,
++              "--star-delay": star.delay,
++            } as React.CSSProperties
++          }
++        />
++      ))}
++    </div>
++  );
++}
+-- 
+2.39.5
+
