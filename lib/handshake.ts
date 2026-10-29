@@ -80,6 +80,8 @@ export type Grant = {
   maxRisk: Risk;
   createdAt: number;
   expiresAt: number;
+  /** Set once the grant has run out, so the UI can show it without deleting the record. */
+  expiredAt?: number;
 };
 
 export type AuditEvent = {
@@ -145,6 +147,17 @@ export const riskMeta: Record<Risk, { label: string; rank: number; explain: stri
 
 const riskRank: Record<Risk, number> = { low: 1, medium: 2, high: 3 };
 
+/** Standing grants are good for one week, then they must be renewed by hand. */
+export const GRANT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+
+/**
+ * A grant only authorizes work while it is live and below the high-risk
+ * ceiling. Expired grants (and any legacy high-risk grant) never match.
+ */
+export function isGrantActive(grant: Grant, now: number): boolean {
+  return grant.maxRisk !== "high" && grant.expiresAt > now;
+}
+
 const mins = (n: number) => n * 60_000;
 
 function seedHandshake(
@@ -166,7 +179,7 @@ export function seedState(now = Date.now()): HandshakeState {
       agentName: "coddy",
       maxRisk: "low",
       createdAt: now - mins(60 * 24 * 5),
-      expiresAt: now + mins(60 * 24 * 5),
+      expiresAt: now + mins(60 * 24 * 2),
     },
   ];
 
@@ -565,6 +578,8 @@ export type HandshakeAction =
   | { type: "request_changes"; id: string; now: number; reasons: string[]; note?: string }
   | { type: "nudge"; id: string; now: number }
   | { type: "revoke_grant"; id: string; now: number }
+  | { type: "renew_grant"; id: string; now: number }
+  | { type: "expire_grants"; now: number }
   | { type: "simulate_grant"; now: number }
   | { type: "expire_all"; now: number }
   | { type: "tick"; now: number }
@@ -600,25 +615,34 @@ function finalize(state: HandshakeState, h: Handshake, now: number): HandshakeSt
   let events = state.events;
   let h2: Handshake = { ...h, phase: "approved", holdEndsAt: undefined, pendingGrant: undefined };
 
-  if (h.pendingGrant) {
-    const grant: Grant = {
-      id: uid("grant"),
-      kind: h.kind,
-      agentId: h.agentId,
-      agentName: h.agentName,
-      maxRisk: h.risk,
-      createdAt: now,
-      expiresAt: now + mins(60 * 24 * 7),
-    };
-    grants = [grant, ...grants];
-    h2 = { ...h2, decision: { ...h.decision, grantId: grant.id } };
-    events = pushEvent(events, {
-      at: now,
-      tone: "info",
-      title: "Standing grant saved",
-      detail: `Future ${riskMeta[grant.maxRisk].label.toLowerCase()} ${kindMeta[grant.kind].short.toLowerCase()} asks from ${grant.agentName} start automatically for 7 days. Revoke it in Trust.`,
-      handshakeId: h.id,
-    });
+  if (h.pendingGrant && h.risk !== "high") {
+    const existing = grants.find(
+      (g) => g.kind === h.kind && g.agentId === h.agentId && isGrantActive(g, now),
+    );
+    if (existing) {
+      // One live grant per agent and action class: a second “remember this”
+      // refreshes the reference instead of stacking another permission.
+      h2 = { ...h2, decision: { ...h.decision, grantId: existing.id } };
+    } else {
+      const grant: Grant = {
+        id: uid("grant"),
+        kind: h.kind,
+        agentId: h.agentId,
+        agentName: h.agentName,
+        maxRisk: h.risk,
+        createdAt: now,
+        expiresAt: now + GRANT_TTL_MS,
+      };
+      grants = [grant, ...grants];
+      h2 = { ...h2, decision: { ...h.decision, grantId: grant.id } };
+      events = pushEvent(events, {
+        at: now,
+        tone: "info",
+        title: "Standing grant saved",
+        detail: `Future ${riskMeta[grant.maxRisk].label.toLowerCase()} ${kindMeta[grant.kind].short.toLowerCase()} asks from ${grant.agentName} start automatically for 7 days. Revoke or renew it in Trust.`,
+        handshakeId: h.id,
+      });
+    }
   }
 
   const auto = h.decision.kind === "auto";
@@ -659,7 +683,8 @@ export function handshakeReducer(state: HandshakeState, action: HandshakeAction)
           ...h,
           phase: "holding" as Phase,
           holdEndsAt: action.now + GRACE_MS,
-          pendingGrant: action.remember,
+          // High-risk work always comes back to a human, whatever the client sent.
+          pendingGrant: action.remember && h.risk !== "high",
           decision: {
             kind: "approved" as DecisionKind,
             at: action.now,
@@ -817,13 +842,18 @@ export function handshakeReducer(state: HandshakeState, action: HandshakeAction)
     }
 
     case "simulate_grant": {
-      const grant = state.grants[0];
+      // Only a live grant can start work on its own. Expired keys stay in the
+      // record for the audit trail, but they never authorize anything.
+      const grant = state.grants.find((g) => isGrantActive(g, action.now));
       if (!grant) {
+        const expired = state.grants.length > 0;
         const events = pushEvent(state.events, {
           at: action.now,
           tone: "info",
-          title: "No standing grant to match",
-          detail: "Create a grant from a low- or medium-risk approval first.",
+          title: expired ? "Every standing grant has expired" : "No standing grant to match",
+          detail: expired
+            ? "Expired grants never approve anything. Renew one in Trust to let it match again."
+            : "Create a grant from a low- or medium-risk approval first.",
         });
         return { ...state, events };
       }
@@ -886,6 +916,42 @@ export function handshakeReducer(state: HandshakeState, action: HandshakeAction)
           })
         : state.events;
       return { ...state, grants, events };
+    }
+
+    case "renew_grant": {
+      const target = state.grants.find((g) => g.id === action.id);
+      if (!target || target.maxRisk === "high") return state;
+      const grants = state.grants.map((g) =>
+        g.id === action.id
+          ? { ...g, expiresAt: action.now + GRANT_TTL_MS, expiredAt: undefined }
+          : g,
+      );
+      const events = pushEvent(state.events, {
+        at: action.now,
+        tone: "ok",
+        title: `Standing grant renewed for ${target.agentName}`,
+        detail: `${kindMeta[target.kind].label} asks can start automatically again until ${new Date(
+          action.now + GRANT_TTL_MS,
+        ).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}.`,
+      });
+      return { ...state, grants, events };
+    }
+
+    case "expire_grants": {
+      let events = state.events;
+      let expired = 0;
+      const grants = state.grants.map((g) => {
+        if (!isGrantActive(g, action.now)) return g;
+        expired += 1;
+        events = pushEvent(events, {
+          at: action.now,
+          tone: "warn",
+          title: `Standing grant expired for ${g.agentName}`,
+          detail: `${kindMeta[g.kind].label} asks are back to human approval. Renew it in Trust if you still want it.`,
+        });
+        return { ...g, expiresAt: action.now, expiredAt: action.now };
+      });
+      return { ...state, grants, events: expired ? events : state.events };
     }
 
     case "expire_all": {
@@ -952,6 +1018,23 @@ export function handshakeReducer(state: HandshakeState, action: HandshakeAction)
           };
         });
         next = { ...next, handshakes, events };
+      }
+
+      // 4. Standing grants that reached their expiry stop authorizing work.
+      const lapsing = next.grants.filter((g) => g.expiresAt <= action.now && !g.expiredAt);
+      if (lapsing.length > 0) {
+        let events = next.events;
+        const grants = next.grants.map((g) => {
+          if (g.expiresAt > action.now || g.expiredAt) return g;
+          events = pushEvent(events, {
+            at: action.now,
+            tone: "warn",
+            title: `Standing grant expired for ${g.agentName}`,
+            detail: `${kindMeta[g.kind].label} asks are back to human approval. Renew it in Trust to let it match again.`,
+          });
+          return { ...g, expiredAt: g.expiresAt };
+        });
+        next = { ...next, grants, events };
       }
 
       return next;
