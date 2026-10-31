@@ -1,49 +1,53 @@
-From 29f8643367e353a73420106cb1e9fea76ec5d1c9 Mon Sep 17 00:00:00 2001
+From 7a0cb7bb57e805700a8e3048822d7ad0397ce107 Mon Sep 17 00:00:00 2001
 From: Arnold Nyamongo <arnoldnyams@gmail.com>
-Date: Sat, 31 Oct 2026 10:20:38 +0000
-Subject: [PATCH] Add the whimsical Glow Arcade layer without changing the
- Start.ng theme
+Date: Sat, 31 Oct 2026 10:46:39 +0000
+Subject: [PATCH] Spread the Glow Arcade across every Start.ng page
 
-The landing page and sign-in page keep the original cream, ink and lime
-look; the whimsy is additive rather than a re-theme.
+The whimsy now lives on the whole site, still on the original cream, ink
+and lime theme.
 
-- soft lime / mint / gold washes with drifting orbs and firefly specks on
-  the normal cream background
-- the huge headline keeps the bubbly Baloo face, now in ink over a glowing
-  lime-and-gold ribbon; every other heading and label stays in the house
-  typography
-- Play now / Create free account become chunky 3-D arcade buttons in the
-  original dark-button and cream-ghost colours
-- Today's Tournament is a tilted, translucent card with a slowly pulsing
-  lime border, breathing shadow and floating cover thumbnails; the Daily
-  Challenge, nav, footer and modal stay exactly as they were
-- sign-in keeps the original cream card and lime offset shadow, with a
-  glowing lime marker behind 'Every game.', orbs, sparks and the arcade
-  button; the modal itself is untouched
-- lime-and-gold star cursor with a spark trail and gentle card tilt, off
-  for touch and prefers-reduced-motion
-- full dark-mode support through the existing theme tokens
+- .whimsy-site wraps the chrome in the (site) layout; SiteSky adds soft
+  orbs and fireflies behind every page except the home/sign-in skies
+- page titles and section headings use Baloo, with a lime star after each
+  page title; body copy, docs prose, footer headings and card titles keep
+  the house font
+- every .btn / .ghost / nav CTA / Google button is a chunky 3-D arcade
+  button with a lime glow and sparkle on hover
+- glass filter bars, docs sidebar, profile header, panels, boards, email
+  and submit cards, modals, auth card, help panel and toasts
+- lime active chips/tabs/segments/pagination, lime focus rings, lime
+  underlines in nav and footer, card sparkles and glow on hover
+- tournament panel gets the pulsing conic border; leaderboard rows and
+  creator art respond to the pointer
+- WhimsyLayer now mounts once in the site layout, re-scans cards after
+  navigation, and auto-tilts game, category, promo, board, profile and
+  panel cards; fixed a debounce bug where the cursor trail prevented the
+  scan from ever attaching
+- full light/dark support; immersive play/hangout and Sun Market untouched
 
-Verified with tsc, next build, computed-style audits in light/dark and
-mobile, and a live Vercel deployment.
+Audited all site pages at 1440 and 390 (zero horizontal overflow), tilt on
+games/tournament/leaderboard, glass and heading styles, and the live build.
 ---
- README.md                       |   6 +
- app/(site)/page.tsx             | 101 +++-
- app/fonts/baloo2-variable.woff2 | Bin 0 -> 33056 bytes
- app/layout.tsx                  |  11 +-
- app/whimsy.css                  | 801 ++++++++++++++++++++++++++++++++
- components/HomePromos.tsx       |   2 +-
- components/SignInPrompt.tsx     |  67 +--
- components/WhimsyLayer.tsx      | 173 +++++++
- components/WhimsyOrbs.tsx       |  83 ++++
- 9 files changed, 1199 insertions(+), 45 deletions(-)
+ README.md                       |    6 +
+ app/(site)/layout.tsx           |    8 +-
+ app/(site)/page.tsx             |   99 ++-
+ app/fonts/baloo2-variable.woff2 |  Bin 0 -> 33056 bytes
+ app/layout.tsx                  |   11 +-
+ app/whimsy.css                  | 1417 +++++++++++++++++++++++++++++++
+ components/HomePromos.tsx       |    2 +-
+ components/SignInPrompt.tsx     |   64 +-
+ components/SiteSky.tsx          |   12 +
+ components/WhimsyLayer.tsx      |  232 +++++
+ components/WhimsyOrbs.tsx       |   83 ++
+ 11 files changed, 1887 insertions(+), 47 deletions(-)
  create mode 100644 app/fonts/baloo2-variable.woff2
  create mode 100644 app/whimsy.css
+ create mode 100644 components/SiteSky.tsx
  create mode 100644 components/WhimsyLayer.tsx
  create mode 100644 components/WhimsyOrbs.tsx
 
 diff --git a/README.md b/README.md
-index 0a88d38..3b33c27 100644
+index 0a88d38..d47cd4f 100644
 --- a/README.md
 +++ b/README.md
 @@ -10,6 +10,12 @@ A working recreation of [start.ng](https://start.ng), Nigeria's home for browser
@@ -52,27 +56,53 @@ index 0a88d38..3b33c27 100644
  
 +## The Glow Arcade
 +
-+The landing page (`/`) and the sign-in route (`/signin`) carry a playful layer called **The Glow Arcade** on top of the original cream, ink and lime theme: soft lime-and-cream washes with drifting orbs and firefly specks, a bubbly self-hosted display face, a glowing lime-and-gold ribbon highlight behind “Good games.”, chunky dark 3-D arcade buttons with sparkle hovers, and a tilted glass tournament card with a slowly pulsing lime border. A lime-and-gold star cursor leaves a spark trail and the glass cards tilt gently toward the pointer. Everything respects `prefers-reduced-motion` and falls back to the native cursor on touch devices; the modal, nav, footer and all other pages keep their original styling.
++The whole start.ng site now carries a playful **Glow Arcade** layer on top of the original cream, ink and lime theme. Every page — games, categories, game detail, tournament, leaderboard, creators, docs, about, profile and sign-in — shares it: soft lime-and-cream washes with drifting orbs and firefly specks, bubbly Baloo page titles with a lime star, chunky dark 3-D buttons and cream ghost buttons, glass filter bars, sidebars and panels, lime active chips, card glow/sparkles on hover, and pointer tilt. The header, footer, auth modal, help panel and toasts join in, and it all works in dark mode. The home hero keeps its glowing lime-and-gold ribbon.
 +
-+The rest of the site is untouched: the skin is scoped under `.whimsy` in `app/whimsy.css`, the behaviour lives in `components/WhimsyLayer.tsx` (cursor and tilt) and `components/WhimsyOrbs.tsx` (orbs and stars), and the Baloo 2 variable font is loaded with `next/font/local`.
++The immersive game-play and Hangout routes are deliberately left as full-screen experiences, and The Sun Market keeps its own design. The layer is scoped under `.whimsy` (`.whimsy-site` wraps the site chrome in `app/(site)/layout.tsx`), with behaviour in `components/WhimsyLayer.tsx` (cursor, trail, tilt) and `components/WhimsyOrbs.tsx` / `components/SiteSky.tsx` (orbs and stars). Baloo 2 is loaded with `next/font/local`.
 +
  ## What is included
  
  - The full 189-game catalogue, 33 categories and 39 independent creators.
+diff --git a/app/(site)/layout.tsx b/app/(site)/layout.tsx
+index ab10f13..f0d6155 100644
+--- a/app/(site)/layout.tsx
++++ b/app/(site)/layout.tsx
+@@ -1,16 +1,20 @@
+ import { AuthModal } from '@/components/AuthModal';
+ import { HelpWidget, Toast } from '@/components/ChromeExtras';
+ import { SiteFooter, SiteHeader } from '@/components/SiteChrome';
++import { SiteSky } from '@/components/SiteSky';
++import { WhimsyLayer } from '@/components/WhimsyLayer';
+ 
+ export default function SiteLayout({ children }: { children: React.ReactNode }) {
+   return (
+-    <>
++    <div className="whimsy whimsy-site">
++      <SiteSky />
++      <WhimsyLayer />
+       <SiteHeader />
+       {children}
+       <SiteFooter />
+       <AuthModal />
+       <Toast />
+       <HelpWidget />
+-    </>
++    </div>
+   );
+ }
 diff --git a/app/(site)/page.tsx b/app/(site)/page.tsx
-index 3aff7f0..c650227 100644
+index 3aff7f0..9a0b1c9 100644
 --- a/app/(site)/page.tsx
 +++ b/app/(site)/page.tsx
-@@ -1,6 +1,8 @@
+@@ -1,6 +1,7 @@
  import Link from 'next/link';
  import { CategoryTile, GameCard, CreatorCard } from '@/components/Cards';
  import { HomePromos } from '@/components/HomePromos';
-+import { WhimsyLayer } from '@/components/WhimsyLayer';
 +import { WhimsyOrbs } from '@/components/WhimsyOrbs';
  import { categories, creators, games } from '@/lib/site';
  import { CharacterAvatar } from '@/components/CharacterAvatar';
  import { DEFAULT_CHARACTER } from '@/lib/character';
-@@ -17,22 +19,91 @@ export default function HomePage() {
+@@ -17,22 +18,90 @@ export default function HomePage() {
    const az = [...games].sort((a, b) => a.title.localeCompare(b.title));
  
    return (
@@ -90,8 +120,7 @@ index 3aff7f0..c650227 100644
 -          <Link className="ghost" href="/signin">Create free account</Link>
 -        </div>
 -      </section>
-+    <main className="whimsy whimsy-home">
-+      <WhimsyLayer />
++    <main className="whimsy-home">
 +      <div className="whimsy-hero-band">
 +        <WhimsyOrbs />
 +        <section className="container hero whimsy-hero">
@@ -856,10 +885,10 @@ index a72d40f..507cbfd 100644
        </body>
 diff --git a/app/whimsy.css b/app/whimsy.css
 new file mode 100644
-index 0000000..2ea1cfb
+index 0000000..1b45943
 --- /dev/null
 +++ b/app/whimsy.css
-@@ -0,0 +1,801 @@
+@@ -0,0 +1,1417 @@
 +/* ==========================================================================
 +   The Glow Arcade — a whimsical layer for the start.ng landing and sign-in.
 +   It adds magic to the original cream / ink / lime theme; it does not
@@ -1661,6 +1690,622 @@ index 0000000..2ea1cfb
 +    transition-duration: 0.001ms !important;
 +  }
 +}
++
++/* ==========================================================================
++   Site-wide Glow Arcade — the same lime magic on every page, still on the
++   original cream / ink / lime theme.
++   ========================================================================== */
++.whimsy-site {
++  position: relative;
++  isolation: isolate;
++  background: radial-gradient(960px 480px at 50% -8%, color-mix(in srgb, var(--lime) 11%, transparent), transparent 72%);
++}
++
++:root[data-theme="dark"] .whimsy-site {
++  background: radial-gradient(960px 480px at 50% -8%, rgba(216, 253, 113, 0.05), transparent 72%);
++}
++
++.whimsy-site-sky {
++  position: fixed;
++  inset: 0;
++  z-index: -1;
++  overflow: hidden;
++  pointer-events: none;
++}
++
++.whimsy-site-sky .whimsy-orb { opacity: 0.3; }
++.whimsy-site-sky .whimsy-star { opacity: 0.24; }
++
++:root[data-theme="dark"] .whimsy-site-sky .whimsy-orb { opacity: 0.38; }
++:root[data-theme="dark"] .whimsy-site-sky .whimsy-star { opacity: 0.34; }
++
++/* The bubbly face for titles; reading-heavy blocks keep the house font. */
++.whimsy h1,
++.whimsy h2,
++.whimsy .auth-card h3,
++.whimsy .mini-modal h3 {
++  font-family: var(--w-display);
++  letter-spacing: -0.015em;
++  line-height: 1.05;
++}
++
++.whimsy footer h2,
++.whimsy .docs-content h2,
++.whimsy .docs-content h3,
++.whimsy .faq h2,
++.whimsy .faq h3,
++.whimsy .game .info h3,
++.whimsy .tag-tile b {
++  font-family: inherit;
++}
++
++/* A little star on every section label. */
++.whimsy .section-head .eyebrow::before,
++.whimsy .promo .kicker::before,
++.whimsy .tourney-panel .kicker::before,
++.whimsy .page-head .eyebrow::before,
++.whimsy .cat-hero .eyebrow::before,
++.whimsy .eyebrow-small::before {
++  content: "\2726";
++  margin-right: 6px;
++  color: var(--w-leaf);
++  text-shadow: 0 0 8px rgba(185, 233, 74, 0.7);
++  font-family: var(--w-display);
++}
++
++:root[data-theme="dark"] .whimsy .section-head .eyebrow::before,
++:root[data-theme="dark"] .whimsy .promo .kicker::before,
++:root[data-theme="dark"] .whimsy .tourney-panel .kicker::before,
++:root[data-theme="dark"] .whimsy .page-head .eyebrow::before,
++:root[data-theme="dark"] .whimsy .cat-hero .eyebrow::before,
++:root[data-theme="dark"] .whimsy .eyebrow-small::before {
++  color: var(--lime);
++}
++
++/* ---------- header and footer ---------- */
++.whimsy .nav nav a {
++  position: relative;
++}
++
++.whimsy .nav nav a::after {
++  content: "";
++  position: absolute;
++  left: 8px;
++  right: 8px;
++  bottom: 1px;
++  height: 3px;
++  border-radius: 3px;
++  background: var(--lime-deep);
++  box-shadow: 0 0 8px rgba(185, 233, 74, 0.7);
++  transform: scaleX(0);
++  transform-origin: left;
++  transition: transform 0.2s ease;
++}
++
++.whimsy .nav nav a:hover::after,
++.whimsy .nav nav a.on::after {
++  transform: scaleX(1);
++}
++
++.whimsy .logo-mark {
++  transition: transform 0.25s ease, box-shadow 0.25s ease;
++}
++
++.whimsy .logo:hover .logo-mark {
++  transform: rotate(-7deg) scale(1.08);
++  box-shadow: 0 0 18px rgba(185, 233, 74, 0.75), inset 0 0 0 1px rgba(41, 42, 35, 0.2);
++}
++
++.whimsy .theme-toggle:hover,
++.whimsy .nav-user-btn:hover {
++  border-color: var(--lime-deep);
++  box-shadow: 0 0 14px rgba(216, 253, 113, 0.45);
++}
++
++.whimsy footer {
++  position: relative;
++  border-top: 1px solid var(--line);
++  background-image: linear-gradient(180deg, color-mix(in srgb, var(--lime) 8%, transparent), transparent 42%);
++}
++
++.whimsy footer h2::before {
++  content: "\2726";
++  margin-right: 7px;
++  color: var(--w-leaf);
++  text-shadow: 0 0 8px rgba(185, 233, 74, 0.6);
++}
++
++.whimsy footer a {
++  transition: color 0.15s ease;
++}
++
++.whimsy footer a:hover {
++  color: var(--ink);
++  text-decoration: underline;
++  text-decoration-color: var(--lime-deep);
++  text-decoration-thickness: 2px;
++  text-underline-offset: 3px;
++}
++
++@media (max-width: 760px) {
++  .whimsy .nav nav a::after { display: none; }
++}
++
++/* ---------- buttons across the site ---------- */
++.whimsy .btn:not(.whimsy-btn),
++.whimsy .nav-signin,
++.whimsy .google-btn {
++  position: relative;
++  border: 2px solid var(--ink);
++  border-radius: 999px;
++  font-weight: 800;
++  box-shadow:
++    0 4px 0 #0b0c07,
++    0 9px 18px rgba(41, 42, 35, 0.16),
++    inset 0 2px 0 rgba(255, 255, 255, 0.18);
++  transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.16s ease;
++}
++
++.whimsy .btn:not(.whimsy-btn):hover,
++.whimsy .nav-signin:hover,
++.whimsy .google-btn:hover {
++  transform: translateY(-2px);
++  box-shadow:
++    0 6px 0 #0b0c07,
++    0 14px 24px rgba(41, 42, 35, 0.2),
++    0 0 22px rgba(216, 253, 113, 0.45);
++}
++
++.whimsy .btn:not(.whimsy-btn):active,
++.whimsy .nav-signin:active,
++.whimsy .google-btn:active {
++  transform: translateY(3px);
++  box-shadow: 0 1px 0 #0b0c07, 0 4px 8px rgba(41, 42, 35, 0.18), inset 0 2px 5px rgba(0, 0, 0, 0.2);
++}
++
++.whimsy .ghost:not(.whimsy-btn) {
++  border: 2px solid var(--ink);
++  border-radius: 999px;
++  font-weight: 800;
++  box-shadow:
++    0 4px 0 color-mix(in srgb, var(--ink) 24%, var(--card)),
++    0 9px 18px rgba(41, 42, 35, 0.1);
++  transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.16s ease, border-color 0.16s ease;
++}
++
++.whimsy .ghost:not(.whimsy-btn):hover {
++  transform: translateY(-2px);
++  border-color: var(--ink);
++  box-shadow:
++    0 6px 0 color-mix(in srgb, var(--ink) 24%, var(--card)),
++    0 14px 24px rgba(41, 42, 35, 0.14),
++    0 0 20px rgba(216, 253, 113, 0.4);
++}
++
++.whimsy .ghost:not(.whimsy-btn):active {
++  transform: translateY(2px);
++  box-shadow: 0 1px 0 color-mix(in srgb, var(--ink) 24%, var(--card)), 0 4px 8px rgba(41, 42, 35, 0.12);
++}
++
++.whimsy .btn:not(.whimsy-btn)::after,
++.whimsy .nav-signin::after,
++.whimsy .google-btn::after {
++  content: "\2726";
++  position: absolute;
++  top: -10px;
++  right: -8px;
++  font-size: 0.78rem;
++  color: var(--w-leaf);
++  text-shadow: 0 0 8px rgba(185, 233, 74, 0.9);
++  opacity: 0;
++  pointer-events: none;
++}
++
++.whimsy .btn:not(.whimsy-btn):hover::after,
++.whimsy .nav-signin:hover::after,
++.whimsy .google-btn:hover::after {
++  animation: whimsy-sparkle-pop 0.9s ease-out infinite;
++}
++
++/* ---------- forms, chips and tabs ---------- */
++.whimsy input:focus,
++.whimsy textarea:focus,
++.whimsy select:focus {
++  border-color: var(--lime-deep);
++  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lime) 35%, transparent);
++  outline: none;
++}
++
++.whimsy .search-box:focus-within {
++  filter: drop-shadow(0 0 10px rgba(185, 233, 74, 0.35));
++}
++
++.whimsy .filter-bar .chips button {
++  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
++}
++
++.whimsy .filter-bar .chips button:hover {
++  border-color: var(--lime-deep);
++  box-shadow: 0 0 12px rgba(185, 233, 74, 0.35);
++}
++
++.whimsy .tabs button.on,
++.whimsy .tabs a.on,
++.whimsy .filter-bar .chips button.on,
++.whimsy .segmented button.on,
++.whimsy .pagination .numbers a.on,
++.whimsy .host-games button.on {
++  background: var(--lime);
++  color: #292a23;
++  border-color: var(--ink);
++  box-shadow: 0 0 14px rgba(185, 233, 74, 0.45);
++}
++
++.whimsy .see-all:hover,
++.whimsy .more:hover {
++  color: var(--ink);
++  text-decoration: underline;
++  text-decoration-color: var(--lime-deep);
++}
++
++.whimsy a:focus-visible,
++.whimsy button:focus-visible,
++.whimsy summary:focus-visible {
++  outline: 3px solid var(--lime-deep);
++  outline-offset: 3px;
++}
++
++/* ---------- cards, panels and modals ---------- */
++.whimsy .game,
++.whimsy .tag-tile,
++.whimsy .step,
++.whimsy .board-card,
++.whimsy .profile-row,
++.whimsy .faq details,
++.whimsy .panel {
++  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.15s ease, box-shadow 0.15s ease;
++}
++
++.whimsy .game:hover {
++  box-shadow:
++    5px 6px 0 var(--lime),
++    0 0 0 3px color-mix(in srgb, var(--lime) 32%, transparent),
++    0 18px 34px rgba(41, 42, 35, 0.14);
++}
++
++.whimsy .tag-tile:hover {
++  box-shadow:
++    0 0 0 3px color-mix(in srgb, var(--lime-deep) 65%, transparent),
++    0 14px 28px rgba(41, 42, 35, 0.22);
++}
++
++.whimsy .step:hover,
++.whimsy .board-card:hover,
++.whimsy .panel:hover,
++.whimsy .profile-row:hover,
++.whimsy .faq details:hover,
++.whimsy .profile-stats div:hover {
++  border-color: color-mix(in srgb, var(--lime-deep) 55%, var(--line));
++  box-shadow:
++    0 0 0 3px color-mix(in srgb, var(--lime) 20%, transparent),
++    0 12px 26px rgba(41, 42, 35, 0.1);
++}
++
++/* Translucent glass panels, still cream. */
++.whimsy .tourney-panel,
++.whimsy .lb-you,
++.whimsy .board-card,
++.whimsy .panel,
++.whimsy .email-box,
++.whimsy .submit-card,
++.whimsy .mini-modal,
++.whimsy .auth-card {
++  border: 1px solid color-mix(in srgb, var(--lime-deep) 45%, var(--line));
++  background: color-mix(in srgb, var(--card) 84%, transparent);
++  -webkit-backdrop-filter: blur(14px) saturate(120%);
++  backdrop-filter: blur(14px) saturate(120%);
++  box-shadow:
++    0 16px 36px rgba(41, 42, 35, 0.1),
++    0 0 0 3px color-mix(in srgb, var(--lime) 12%, transparent);
++}
++
++.whimsy .tourney-panel {
++  position: relative;
++  isolation: isolate;
++  border-color: color-mix(in srgb, var(--lime-deep) 55%, var(--line));
++}
++
++.whimsy .tourney-panel::before {
++  content: "";
++  position: absolute;
++  inset: -2px;
++  z-index: -1;
++  border-radius: inherit;
++  padding: 2px;
++  background: conic-gradient(
++    from var(--whimsy-angle),
++    var(--lime), var(--w-gold), var(--w-mint), var(--lime-deep), var(--lime)
++  );
++  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
++  -webkit-mask-composite: xor;
++  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
++  mask-composite: exclude;
++  animation: whimsy-border-spin 10s linear infinite;
++  filter: drop-shadow(0 0 10px rgba(185, 233, 74, 0.6));
++}
++
++/* Modals become little lime-lit glass cards. */
++.whimsy .overlay {
++  background:
++    radial-gradient(760px 480px at 50% 0%, color-mix(in srgb, var(--lime) 26%, transparent), transparent 70%),
++    var(--scrim);
++  -webkit-backdrop-filter: blur(7px);
++  backdrop-filter: blur(7px);
++}
++
++.whimsy .auth-card {
++  box-shadow:
++    6px 6px 0 var(--lime),
++    0 26px 60px rgba(41, 42, 35, 0.22),
++    0 0 44px color-mix(in srgb, var(--lime) 24%, transparent);
++}
++
++.whimsy .auth-card,
++.whimsy .mini-modal {
++  background: color-mix(in srgb, var(--card) 94%, transparent);
++}
++
++.whimsy .mini-modal {
++  box-shadow:
++    5px 5px 0 var(--lime),
++    0 22px 50px rgba(41, 42, 35, 0.18);
++}
++
++/* ---------- small details ---------- */
++.whimsy .new-badge::before {
++  content: "\2726 ";
++}
++
++.whimsy .help-fab {
++  border: 2px solid var(--ink);
++  box-shadow: 0 4px 0 #0b0c07, 0 10px 20px rgba(41, 42, 35, 0.2);
++  transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.16s ease;
++}
++
++.whimsy .help-fab:hover {
++  transform: translateY(-2px);
++  box-shadow: 0 6px 0 #0b0c07, 0 14px 24px rgba(41, 42, 35, 0.22), 0 0 20px rgba(216, 253, 113, 0.45);
++}
++
++.whimsy .help-panel,
++.whimsy .toast {
++  border-color: color-mix(in srgb, var(--lime-deep) 50%, var(--line));
++  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lime) 16%, transparent), 0 18px 38px rgba(41, 42, 35, 0.14);
++}
++
++/* ---------- page-specific accents ---------- */
++.whimsy .docs-content h2 {
++  position: relative;
++  padding-left: 16px;
++}
++
++.whimsy .docs-content h2::before {
++  content: "";
++  position: absolute;
++  left: 0;
++  top: 0.5em;
++  width: 8px;
++  height: 8px;
++  border-radius: 2px;
++  background: var(--lime);
++  box-shadow: 0 0 10px rgba(185, 233, 74, 0.7);
++}
++
++.whimsy .docs-side a:hover,
++.whimsy .docs-toc a:hover {
++  color: var(--ink);
++  text-decoration: underline;
++  text-decoration-color: var(--lime-deep);
++}
++
++.whimsy .lb-table tbody tr {
++  transition: background 0.15s ease;
++}
++
++.whimsy .lb-table tbody tr:hover {
++  background: color-mix(in srgb, var(--lime) 14%, transparent);
++}
++
++.whimsy .faq details[open] {
++  border-color: color-mix(in srgb, var(--lime-deep) 70%, var(--line));
++  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lime) 18%, transparent);
++}
++
++.whimsy .creator-banner {
++  box-shadow:
++    5px 6px 0 rgba(41, 42, 35, 0.15),
++    0 0 38px color-mix(in srgb, var(--lime) 35%, transparent);
++}
++
++.whimsy .creator-art span {
++  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
++}
++
++.whimsy .creator-art span:hover {
++  transform: rotate(0deg) scale(1.04);
++  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.24);
++}
++
++.whimsy .all-games-toggle:hover {
++  border-color: var(--lime-deep);
++  box-shadow: 0 0 14px rgba(185, 233, 74, 0.35);
++}
++
++.whimsy .creator-facts .fact:hover,
++.whimsy .standing-row:hover {
++  border-color: color-mix(in srgb, var(--lime-deep) 55%, var(--line));
++  box-shadow: 0 0 0 2px color-mix(in srgb, var(--lime) 18%, transparent);
++}
++
++/* ---------- night mode, still the same shapes ---------- */
++:root[data-theme="dark"] .whimsy .overlay {
++  background:
++    radial-gradient(760px 480px at 50% 0%, rgba(216, 253, 113, 0.14), transparent 70%),
++    var(--scrim);
++}
++
++:root[data-theme="dark"] .whimsy footer {
++  background-image: linear-gradient(180deg, rgba(216, 253, 113, 0.05), transparent 42%);
++}
++
++:root[data-theme="dark"] .whimsy .tourney-panel,
++:root[data-theme="dark"] .whimsy .lb-you,
++:root[data-theme="dark"] .whimsy .board-card,
++:root[data-theme="dark"] .whimsy .panel,
++:root[data-theme="dark"] .whimsy .email-box,
++:root[data-theme="dark"] .whimsy .submit-card,
++:root[data-theme="dark"] .whimsy .mini-modal,
++:root[data-theme="dark"] .whimsy .auth-card {
++  background: color-mix(in srgb, var(--card) 82%, transparent);
++  box-shadow:
++    0 16px 36px rgba(0, 0, 0, 0.35),
++    0 0 0 3px rgba(216, 253, 113, 0.1);
++}
++
++:root[data-theme="dark"] .whimsy .lb-table tbody tr:hover {
++  background: rgba(216, 253, 113, 0.08);
++}
++
++/* ---------- responsive ---------- */
++@media (max-width: 760px) {
++  .whimsy-site-sky .whimsy-orb:nth-child(n + 7) {
++    display: none;
++  }
++
++  .whimsy .docs-content h2 {
++    padding-left: 14px;
++  }
++}
++
++/* ---------- extra delight on the browse / profile / docs pages ---------- */
++.whimsy-site-sky .whimsy-orb { opacity: 0.38; }
++.whimsy-site-sky .whimsy-star { opacity: 0.3; }
++
++:root[data-theme="dark"] .whimsy-site-sky .whimsy-orb { opacity: 0.44; }
++:root[data-theme="dark"] .whimsy-site-sky .whimsy-star { opacity: 0.4; }
++
++/* A star after every page title. */
++.whimsy .page-head h1::after,
++.whimsy .cat-hero h1::after,
++.whimsy .tourney-top h1::after,
++.whimsy .lb-page h1::after,
++.whimsy .profile-head h1::after,
++.whimsy .docs-content h1::after,
++.whimsy .game-info h1::after,
++.whimsy .about-page h1::after,
++.whimsy .creators-page h1::after {
++  content: "\2726";
++  display: inline-block;
++  margin-left: 0.2em;
++  color: var(--lime-deep);
++  font-size: 0.42em;
++  vertical-align: 0.55em;
++  text-shadow: 0 0 12px rgba(185, 233, 74, 0.8);
++  animation: whimsy-twinkle 3.2s ease-in-out infinite alternate;
++}
++
++:root[data-theme="dark"] .whimsy .page-head h1::after,
++:root[data-theme="dark"] .whimsy .cat-hero h1::after,
++:root[data-theme="dark"] .whimsy .tourney-top h1::after,
++:root[data-theme="dark"] .whimsy .lb-page h1::after,
++:root[data-theme="dark"] .whimsy .profile-head h1::after,
++:root[data-theme="dark"] .whimsy .docs-content h1::after,
++:root[data-theme="dark"] .whimsy .game-info h1::after,
++:root[data-theme="dark"] .whimsy .about-page h1::after,
++:root[data-theme="dark"] .whimsy .creators-page h1::after {
++  color: var(--lime);
++}
++
++/* A sparkle lands on cards when you reach for them. */
++.whimsy .game::after,
++.whimsy .tag-tile::after {
++  content: "\2726";
++  position: absolute;
++  top: 10px;
++  right: 12px;
++  z-index: 3;
++  font-size: 0.95rem;
++  color: var(--lime-deep);
++  text-shadow: 0 0 10px rgba(185, 233, 74, 0.9);
++  opacity: 0;
++  transform: scale(0.6) rotate(0deg);
++  transition: opacity 0.18s ease, transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
++  pointer-events: none;
++}
++
++.whimsy .game:hover::after,
++.whimsy .tag-tile:hover::after {
++  opacity: 1;
++  transform: scale(1) rotate(20deg);
++}
++
++:root[data-theme="dark"] .whimsy .game::after,
++:root[data-theme="dark"] .whimsy .tag-tile::after {
++  color: var(--lime);
++}
++
++/* Browse controls become a glass card. */
++.whimsy .search-row {
++  background: color-mix(in srgb, var(--card) 84%, transparent);
++  border: 1px solid color-mix(in srgb, var(--lime-deep) 45%, var(--line));
++  border-radius: 18px;
++  padding: 12px 14px;
++  box-shadow: 0 16px 34px rgba(41, 42, 35, 0.08), 0 0 0 3px color-mix(in srgb, var(--lime) 10%, transparent);
++  -webkit-backdrop-filter: blur(12px) saturate(120%);
++  backdrop-filter: blur(12px) saturate(120%);
++}
++
++.whimsy .search-row .filter-bar {
++  margin-bottom: 0;
++}
++
++/* Docs sidebar and profile header pick up the glass. */
++.whimsy .docs-side {
++  background: color-mix(in srgb, var(--card) 84%, transparent);
++  border: 1px solid color-mix(in srgb, var(--lime-deep) 45%, var(--line));
++  border-radius: 18px;
++  padding: 16px;
++  box-shadow: 0 16px 34px rgba(41, 42, 35, 0.08), 0 0 0 3px color-mix(in srgb, var(--lime) 10%, transparent);
++  -webkit-backdrop-filter: blur(12px) saturate(120%);
++  backdrop-filter: blur(12px) saturate(120%);
++}
++
++.whimsy .profile-head {
++  background: color-mix(in srgb, var(--card) 88%, transparent);
++  border: 1px solid color-mix(in srgb, var(--lime-deep) 45%, var(--line));
++  border-radius: 18px;
++  padding: 18px 20px;
++  box-shadow: 0 16px 34px rgba(41, 42, 35, 0.08), 0 0 0 3px color-mix(in srgb, var(--lime) 10%, transparent);
++  -webkit-backdrop-filter: blur(12px) saturate(120%);
++  backdrop-filter: blur(12px) saturate(120%);
++}
++
++:root[data-theme="dark"] .whimsy .search-row,
++:root[data-theme="dark"] .whimsy .docs-side,
++:root[data-theme="dark"] .whimsy .profile-head {
++  background: color-mix(in srgb, var(--card) 82%, transparent);
++  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.35), 0 0 0 3px rgba(216, 253, 113, 0.08);
++}
++
++@media (max-width: 760px) {
++  .whimsy .search-row {
++    padding: 10px 12px;
++  }
++
++  .whimsy .docs-side {
++    padding: 14px;
++  }
++}
 diff --git a/components/HomePromos.tsx b/components/HomePromos.tsx
 index 5c08cf1..c11a273 100644
 --- a/components/HomePromos.tsx
@@ -1675,17 +2320,16 @@ index 5c08cf1..c11a273 100644
            <p className="kicker"><b>Today&apos;s tournament</b> {ends && <>· Ends in <Countdown endsAt={ends} /></>}</p>
            <h2 id="today-tourney">5 games. 24 hours. One winner.</h2>
 diff --git a/components/SignInPrompt.tsx b/components/SignInPrompt.tsx
-index 9bbfe1b..dbb049c 100644
+index 9bbfe1b..f9370e8 100644
 --- a/components/SignInPrompt.tsx
 +++ b/components/SignInPrompt.tsx
-@@ -1,31 +1,33 @@
+@@ -1,31 +1,31 @@
  'use client';
  
  import Link from 'next/link';
 -import { useEffect } from 'react';
  import { useApp } from '@/components/AppProvider';
  import { CharacterAvatar } from '@/components/CharacterAvatar';
-+import { WhimsyLayer } from '@/components/WhimsyLayer';
 +import { WhimsyOrbs } from '@/components/WhimsyOrbs';
  
  export function SignInPrompt() {
@@ -1711,7 +2355,6 @@ index 9bbfe1b..dbb049c 100644
 -            <Link className="ghost" href="/games">Play a game</Link>
 +      <main className="whimsy whimsy-signin">
 +        <WhimsyOrbs />
-+        <WhimsyLayer />
 +        <div className="container signin-page">
 +          <div className="signin-card" data-tilt>
 +            <CharacterAvatar character={user.character} size={96} />
@@ -1729,7 +2372,7 @@ index 9bbfe1b..dbb049c 100644
            </div>
          </div>
        </main>
-@@ -33,17 +35,26 @@ export function SignInPrompt() {
+@@ -33,17 +33,25 @@ export function SignInPrompt() {
    }
  
    return (
@@ -1746,7 +2389,6 @@ index 9bbfe1b..dbb049c 100644
 -        <Link className="signin-back" href="/games">Just here to play? Browse all games →</Link>
 +    <main className="whimsy whimsy-signin">
 +      <WhimsyOrbs />
-+      <WhimsyLayer />
 +      <div className="container signin-page">
 +        <div className="signin-card" data-tilt>
 +          <span className="whimsy-signin-spark s1" aria-hidden="true">✦</span>
@@ -1767,17 +2409,53 @@ index 9bbfe1b..dbb049c 100644
        </div>
      </main>
    );
+diff --git a/components/SiteSky.tsx b/components/SiteSky.tsx
+new file mode 100644
+index 0000000..dbaaff0
+--- /dev/null
++++ b/components/SiteSky.tsx
+@@ -0,0 +1,12 @@
++'use client';
++
++import { usePathname } from 'next/navigation';
++import { WhimsyOrbs } from './WhimsyOrbs';
++
++/** The home and sign-in pages have their own richer sky; every other page
++ *  gets this lighter, site-wide one behind the cream layout. */
++export function SiteSky() {
++  const pathname = usePathname();
++  if (pathname === '/' || pathname === '/signin') return null;
++  return <WhimsyOrbs className="whimsy-site-sky" />;
++}
 diff --git a/components/WhimsyLayer.tsx b/components/WhimsyLayer.tsx
 new file mode 100644
-index 0000000..da41422
+index 0000000..e667627
 --- /dev/null
 +++ b/components/WhimsyLayer.tsx
-@@ -0,0 +1,173 @@
-+"use client";
+@@ -0,0 +1,232 @@
++'use client';
 +
-+import { useEffect, useRef } from "react";
++import { useEffect, useRef } from 'react';
++import { usePathname } from 'next/navigation';
 +
 +const SPARK_COLORS = ["#d8fd71", "#b9e94a", "#ffd84d", "#8ff0cf", "#fffef2"];
++
++/** Cards that lean toward the pointer across the whole site. */
++const TILT_SELECTOR = [
++  '[data-tilt]',
++  '.game',
++  '.tag-tile',
++  '.promo',
++  '.creator-banner',
++  '.tourney-panel',
++  '.board-card',
++  '.lb-you',
++  '.panel',
++  '.profile-row',
++  '.submit-card',
++  '.mini-modal',
++  '.email-box',
++].join(',');
 +
 +function spawnSpark(container: HTMLDivElement, x: number, y: number) {
 +  if (container.childElementCount > 22) return;
@@ -1797,19 +2475,19 @@ index 0000000..da41422
 +}
 +
 +/**
-+ * One shared layer for the whimsical pages: a glowing wand cursor with a
-+ * spark trail, plus a gentle pointer tilt on any [data-tilt] element.
-+ * Everything is skipped on touch devices and for reduced-motion visitors.
++ * Site-wide whimsy: a lime-and-gold wand cursor with a spark trail, and a
++ * gentle pointer tilt on cards. Skipped on touch devices and for
++ * prefers-reduced-motion visitors.
 + */
 +export function WhimsyLayer() {
 +  const cursorRef = useRef<HTMLDivElement>(null);
 +  const trailRef = useRef<HTMLDivElement>(null);
++  const pathname = usePathname();
 +
 +  useEffect(() => {
 +    if (typeof window === "undefined") return;
-+    const finePointer = window.matchMedia("(pointer: fine)");
-+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-+    if (!finePointer.matches || reducedMotion.matches) return;
++    if (!window.matchMedia("(pointer: fine)").matches) return;
++    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 +
 +    const root = document.documentElement;
 +    root.classList.add("has-whimsy-cursor");
@@ -1859,48 +2537,6 @@ index 0000000..da41422
 +    window.addEventListener("pointerdown", onDown);
 +    window.addEventListener("pointerup", onUp);
 +
-+    /* Tilt every element that opts in, without fighting their own transitions. */
-+    const tiltables = Array.from(document.querySelectorAll<HTMLElement>("[data-tilt]"));
-+    const tilts = tiltables.map((element) => {
-+      let tiltFrame = 0;
-+      let latest: PointerEvent | null = null;
-+
-+      const apply = () => {
-+        tiltFrame = 0;
-+        if (!latest) return;
-+        const rect = element.getBoundingClientRect();
-+        if (!rect.width || !rect.height) return;
-+        const px = (latest.clientX - rect.left) / rect.width - 0.5;
-+        const py = (latest.clientY - rect.top) / rect.height - 0.5;
-+        element.style.setProperty("--tilt-x", `${(-py * 7).toFixed(2)}deg`);
-+        element.style.setProperty("--tilt-y", `${(px * 9).toFixed(2)}deg`);
-+        element.style.setProperty("--tilt-lift", "-5px");
-+        element.classList.add("is-tilting");
-+      };
-+      const onTiltMove = (event: PointerEvent) => {
-+        latest = event;
-+        if (!tiltFrame) tiltFrame = window.requestAnimationFrame(apply);
-+      };
-+      const reset = () => {
-+        latest = null;
-+        element.style.removeProperty("--tilt-x");
-+        element.style.removeProperty("--tilt-y");
-+        element.style.removeProperty("--tilt-lift");
-+        element.classList.remove("is-tilting");
-+      };
-+
-+      element.addEventListener("pointermove", onTiltMove, { passive: true });
-+      element.addEventListener("pointerleave", reset);
-+      element.addEventListener("blur", reset);
-+      return () => {
-+        window.cancelAnimationFrame(tiltFrame);
-+        element.removeEventListener("pointermove", onTiltMove);
-+        element.removeEventListener("pointerleave", reset);
-+        element.removeEventListener("blur", reset);
-+        reset();
-+      };
-+    });
-+
 +    return () => {
 +      root.classList.remove("has-whimsy-cursor");
 +      window.cancelAnimationFrame(frame);
@@ -1908,10 +2544,93 @@ index 0000000..da41422
 +      document.removeEventListener("pointerleave", onLeave);
 +      window.removeEventListener("pointerdown", onDown);
 +      window.removeEventListener("pointerup", onUp);
-+      tilts.forEach((cleanup) => cleanup());
 +      if (trail) trail.replaceChildren();
 +    };
 +  }, []);
++
++  // Re-scan cards on every route change (and when new cards render).
++  useEffect(() => {
++    if (typeof window === "undefined") return;
++    if (!window.matchMedia("(pointer: fine)").matches) return;
++    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
++
++    let disposers: Array<() => void> = [];
++    let timer = 0;
++    let pending = false;
++
++    const setup = () => {
++      disposers.forEach((dispose) => dispose());
++      disposers = [];
++      const nodes = Array.from(document.querySelectorAll<HTMLElement>(TILT_SELECTOR)).slice(0, 90);
++      disposers = nodes.map((element) => {
++        let tiltFrame = 0;
++        let latest: PointerEvent | null = null;
++
++        const apply = () => {
++          tiltFrame = 0;
++          if (!latest) return;
++          const rect = element.getBoundingClientRect();
++          if (!rect.width || !rect.height) return;
++          const px = (latest.clientX - rect.left) / rect.width - 0.5;
++          const py = (latest.clientY - rect.top) / rect.height - 0.5;
++          element.style.setProperty("--tilt-x", `${(-py * 6).toFixed(2)}deg`);
++          element.style.setProperty("--tilt-y", `${(px * 8).toFixed(2)}deg`);
++          element.style.setProperty("--tilt-lift", "-3px");
++          element.classList.add("is-tilting");
++        };
++        const onTiltMove = (event: PointerEvent) => {
++          latest = event;
++          if (!tiltFrame) tiltFrame = window.requestAnimationFrame(apply);
++        };
++        const reset = () => {
++          latest = null;
++          element.style.removeProperty("--tilt-x");
++          element.style.removeProperty("--tilt-y");
++          element.style.removeProperty("--tilt-lift");
++          element.classList.remove("is-tilting");
++        };
++
++        element.addEventListener("pointermove", onTiltMove, { passive: true });
++        element.addEventListener("pointerleave", reset);
++        element.addEventListener("pointercancel", reset);
++        element.addEventListener("blur", reset);
++        return () => {
++          window.cancelAnimationFrame(tiltFrame);
++          element.removeEventListener("pointermove", onTiltMove);
++          element.removeEventListener("pointerleave", reset);
++          element.removeEventListener("pointercancel", reset);
++          element.removeEventListener("blur", reset);
++          reset();
++        };
++      });
++    };
++
++    // Do not let the cursor trail's own DOM churn keep resetting the scan.
++    const schedule = () => {
++      if (pending) return;
++      pending = true;
++      timer = window.setTimeout(() => {
++        pending = false;
++        setup();
++      }, 140);
++    };
++    schedule();
++    const observer = new MutationObserver((mutations) => {
++      for (const mutation of mutations) {
++        const target = mutation.target as Element;
++        if (target.closest?.(".whimsy-trail") || target.closest?.(".whimsy-cursor")) continue;
++        schedule();
++        break;
++      }
++    });
++    observer.observe(document.body, { childList: true, subtree: true });
++
++    return () => {
++      observer.disconnect();
++      window.clearTimeout(timer);
++      disposers.forEach((dispose) => dispose());
++    };
++  }, [pathname]);
 +
 +  return (
 +    <>
@@ -1948,7 +2667,7 @@ index 0000000..da41422
 +}
 diff --git a/components/WhimsyOrbs.tsx b/components/WhimsyOrbs.tsx
 new file mode 100644
-index 0000000..48853b6
+index 0000000..52f8fa2
 --- /dev/null
 +++ b/components/WhimsyOrbs.tsx
 @@ -0,0 +1,83 @@
@@ -1998,9 +2717,9 @@ index 0000000..48853b6
 +  { x: "40%", y: "26%", size: 2, delay: "-5s" },
 +];
 +
-+export function WhimsyOrbs() {
++export function WhimsyOrbs({ className = "" }: { className?: string }) {
 +  return (
-+    <div className="whimsy-sky" aria-hidden="true">
++    <div className={`whimsy-sky ${className}`.trim()} aria-hidden="true">
 +      {ORBS.map((orb, index) => (
 +        <span
 +          key={`orb-${index}`}

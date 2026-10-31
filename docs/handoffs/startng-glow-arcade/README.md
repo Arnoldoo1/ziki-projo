@@ -1,15 +1,14 @@
-# start.ng — The Glow Arcade (handoff)
+# start.ng — The Glow Arcade, site-wide (handoff)
 
-A complete, tested change set that adds a whimsical, magical arcade layer to
-the start.ng landing page (`/`) and sign-in page (`/signin`) **without
-changing the site's original cream, ink and lime theme**. It was authored
-against `Arnoldoo1/startng` at commit `ee8a557` (branch `main`).
+A complete, tested change set that gives **every page of start.ng** a
+whimsical, magical arcade layer while keeping the original cream, ink and
+lime theme. It was authored against `Arnoldoo1/startng` at commit `ee8a557`
+(branch `main`).
 
 **Why it lives here:** the automation identity used for this session has
 read-only access to `Arnoldoo1/startng` (`push: false`), so the commit could
-not be pushed to that repo or deployed to `startng-three.vercel.app`.
-Everything is preserved in `startng-glow-arcade.patch` so it can be applied
-in one command.
+not be pushed to that repo. Everything is preserved in
+`startng-glow-arcade.patch` so it can be applied in one command.
 
 ## Apply it
 
@@ -23,46 +22,48 @@ npm run build
 npm run dev
 ```
 
-Then open `http://localhost:3000/` and `http://localhost:3000/signin`.
-Merge the branch into `main` and let the existing Vercel project deploy.
+Then merge the branch into `main` and let the Vercel project deploy.
 
 ## What the patch contains
 
-- **Theme preserved** — the page background, body text, nav, footer, cards,
-  typography and the Daily Challenge card stay exactly as the original start.ng
-  theme. Only the landing hero and sign-in page get the extra magic.
-- **Hero** — soft lime / mint / gold washes, drifting glowing orbs and tiny
-  firefly specks over the normal cream background.
-- **Headline** — Baloo 2 (self-hosted, loaded with `next/font/local`) in the
-  house ink colour, with a glowing lime-to-gold wavy ribbon behind “Good games.”
-  instead of a flat marker. Every other heading and label keeps the house font.
-- **Buttons** — `Play now` and `Create free account` are chunky 3-D arcade
-  buttons in the original dark-button and cream-ghost colours, with press
-  depth, hover bounce, lime glow and sparkles.
-- **Today's Tournament** — a tilted, translucent glass card with a slowly
-  pulsing lime border, breathing shadow and floating cover thumbnails. The
-  Daily Challenge card is untouched.
-- **Sign-in** — the original cream card with its lime offset shadow, now with a
-  glowing lime marker behind “Every game.”, soft orbs, sparks and a chunky
-  arcade button. The sign-in modal itself is the original one.
-- **Micro-interactions** — a lime-and-gold star cursor with a spark trail and a
-  subtle pointer tilt on the glass cards. Both are disabled for
-  `prefers-reduced-motion` and on touch devices.
+- **Every site page** — games, categories, game detail, tournament,
+  leaderboard, creators, docs, about, profile and sign-in now share the
+  Glow Arcade layer. The immersive play/hangout routes and The Sun Market
+  stay their own experiences.
+- **Background** — `.whimsy-site` wraps the site chrome; soft lime / mint /
+  gold washes, drifting orbs and firefly specks sit behind every page on the
+  normal cream background.
+- **Typography** — Baloo page titles and section headings with a lime star
+  after each page title. Body copy, docs prose, footer headings and game-card
+  titles keep the house font.
+- **Buttons** — every `.btn`, `.ghost`, nav CTA and Google button is a chunky
+  3-D arcade button in the original dark/cream colours, with a lime glow and
+  sparkle on hover.
+- **Glass** — filter/search bars, docs sidebar, profile header, panels,
+  boards, email and submit cards, modals, the auth card, help panel and
+  toasts.
+- **Details** — lime active chips/tabs/segments/pagination, lime focus rings,
+  lime nav and footer underlines, card sparkle and glow on hover, the
+  tournament panel's pulsing conic border, leaderboard row highlights and
+  creator art that responds to the pointer.
+- **Micro-interactions** — one `WhimsyLayer` for the whole site: lime-and-gold
+  star cursor with a spark trail, plus pointer tilt on game, category, promo,
+  board, profile and panel cards. It re-scans after navigation and is off for
+  touch and `prefers-reduced-motion`.
 - **Dark mode** — works through the site's existing `data-theme` tokens.
-- **Scope** — every rule is under `.whimsy` in `app/whimsy.css`; behaviour
-  lives in `components/WhimsyLayer.tsx` and `components/WhimsyOrbs.tsx`.
+- **Scope** — the home hero keeps its glowing lime-and-gold ribbon; all rules
+  are scoped under `.whimsy` in `app/whimsy.css`.
 
 ## Verification done
 
 - `tsc --noEmit` clean, `next build` clean.
-- Computed-style audits in light, dark and mobile: body `#f6f5ee` / ink
-  `#292a23`, ink headline, lime ribbon, dark primary + cream secondary,
-  translucent glass card with working `backdrop-filter`, original challenge
-  card, no horizontal overflow.
-- Headless Chromium (1440×1000 and 390×844) screenshots:
-  `home-desktop.jpg`, `home-mobile.jpg`, `home-dark.jpg`, `signin.jpg`,
-  `signin-modal.jpg`.
-- Deployed to a Vercel temporary URL during validation and re-checked there.
+- All site pages audited at 1440×1000 and 390×844: zero horizontal overflow.
+- Computed-style checks: cream body, Baloo titles, chunky buttons, glass
+  search/docs/profile panels, lime stars, working tilt on games, tournament
+  and leaderboard, modal glass, light + dark mode.
+- Headless screenshots: `home-desktop.jpg`, `games.jpg`, `tournament.jpg`,
+  `leaderboard.jpg`, `creators.jpg`, `categories.jpg`, `docs.jpg`,
+  `signin.jpg`, `signin-modal.jpg`, `games-mobile.jpg`, `games-dark.jpg`.
+- Deployed to a Vercel temporary URL and re-checked there.
 
-The screenshots in this folder are from the local production build of the
-patched code.
+The screenshots in this folder are from that live build.
