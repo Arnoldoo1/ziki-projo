@@ -10,6 +10,17 @@ A working recreation of [start.ng](https://start.ng), Nigeria's home for browser
 - **Docs rendered from the original:** https://startng-three.vercel.app/docs
 - **Plain-text docs for AI:** https://startng-three.vercel.app/docs.md
 
+## The Naija whimsy layer
+
+Every route now carries a decoration-only whimsy layer: bold outlined Naija doodles in the margins, a fixed sparkle field, a danfo that drives across the top once, card/page sparkles, wavy section dividers, hover tilt + sparkle bursts, a sparkle cursor trail, click ripples/confetti, a sign-in mascot with “Oya, come in!”, tournament trophy + ticking clock, leaderboard medals/crown, a footer skyline and sign-off, scroll reveals, a playful loader, and a 404 sticker.
+
+- `app/whimsy.css` — the single, clearly marked stylesheet.
+- `components/WhimsyDecor.tsx` — fixed doodles/sparkles, click effects, cursor trail, reveals, tooltips and the path-specific mascot/awards/skyline portals.
+- `components/WhimsyDoodles.tsx` — outlined SVG danfo, jollof, suya, puff puff, mango, zobo, coin, mascot, trophy, crown, medal and clock.
+- Mounted once in `app/layout.tsx`; `app/loading.tsx` adds the spinning-coin loader and `app/not-found.tsx` gets the “Wahala!” sticker.
+
+It does not change the site’s fonts, colour palette, logo, layout structure, existing copy, routes, links or functionality. All decorations are `pointer-events: none`, and every animation is disabled under `prefers-reduced-motion`.
+
 ## What is included
 
 - The full 189-game catalogue, 33 categories and 39 independent creators.

@@ -1,0 +1,869 @@
+/* ==========================================================================
+   start.ng — The Naija Whimsy Layer
+   Decoration-only. Nothing here changes the site's fonts, palette, layout,
+   copy, routes, links or functionality. Every decoration is positioned
+   beside/behind content and is pointer-events: none.
+   ========================================================================== */
+
+:root {
+  --wd-ink: #292a23;
+  --wd-outline: #292a23;
+  --wd-lime: #b9e94a;
+  --wd-lime-deep: #4f7a00;
+  --wd-gold: #c98a00;
+  --wd-yellow: #e0a800;
+  --wd-orange: #c25e00;
+  --wd-red: #b02a1e;
+  --wd-green: #2e7d32;
+  --wd-brown: #7a3e12;
+  --wd-pink: #b03060;
+  --wd-teal: #0f6b63;
+  --wd-spark-1: #4f7a00;
+  --wd-spark-2: #a86a00;
+  --wd-spark-3: #b02a1e;
+  --wd-spark-4: #0f6b63;
+  --wd-shadow: rgba(41, 42, 35, 0.28);
+}
+
+.wd-decor *,
+.wd-signin-mascot,
+.wd-tourney-props,
+.wd-medal,
+.wd-skyline,
+.wd-signoff,
+.wd-speech {
+  pointer-events: none !important;
+}
+
+:root[data-theme="dark"] {
+  --wd-ink: #f6f5ee;
+  --wd-outline: #f6f5ee;
+  --wd-lime: #d8fd71;
+  --wd-lime-deep: #d8fd71;
+  --wd-gold: #ffd84d;
+  --wd-yellow: #ffd84d;
+  --wd-orange: #ffb347;
+  --wd-red: #ff8a7d;
+  --wd-green: #7fd884;
+  --wd-brown: #e0a66b;
+  --wd-pink: #ff9db0;
+  --wd-teal: #5ee7ff;
+  --wd-spark-1: #d8fd71;
+  --wd-spark-2: #ffd84d;
+  --wd-spark-3: #ff8a7d;
+  --wd-spark-4: #5ee7ff;
+  --wd-shadow: rgba(0, 0, 0, 0.55);
+}
+
+/* Shared wave divider (light stroke; dark override below). */
+:root {
+  --wd-wave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='10' viewBox='0 0 26 10'%3E%3Cpath d='M1 6c3-4 6-4 9 0s6 4 9 0 6-4 9 0' fill='none' stroke='%234f7a00' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+:root[data-theme="dark"] {
+  --wd-wave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='10' viewBox='0 0 26 10'%3E%3Cpath d='M1 6c3-4 6-4 9 0s6 4 9 0 6-4 9 0' fill='none' stroke='%23d8fd71' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+.wd-decor {
+  pointer-events: none;
+}
+
+/* ---------- fixed margin doodles (desktop margins only) ---------- */
+.wd-margin-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.wd-margin-layer::before,
+.wd-margin-layer::after {
+  content: "";
+  position: fixed;
+  top: 90px;
+  bottom: 90px;
+  width: 6px;
+  background-image: radial-gradient(circle, var(--wd-lime-deep) 2.2px, transparent 2.6px);
+  background-size: 6px 16px;
+  opacity: 0.9;
+}
+
+.wd-margin-layer::before { left: 10px; }
+.wd-margin-layer::after { right: 10px; }
+
+.wd-doodle {
+  display: block;
+  line-height: 0;
+}
+
+.wd-doodle .wd-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  filter: drop-shadow(0 6px 8px var(--wd-shadow));
+}
+
+.wd-margin {
+  position: fixed;
+  width: 94px;
+  animation: wd-float 6s ease-in-out infinite;
+  will-change: translate;
+}
+
+.wd-margin-0 { left: 1.4%; top: 16%; rotate: -3deg; }
+.wd-margin-1 { right: 1.4%; top: 20%; width: 88px; rotate: 3deg; animation-delay: -1.6s; }
+.wd-margin-2 { left: 2%; top: 61%; width: 78px; rotate: 2deg; animation-delay: -3.1s; }
+.wd-margin-3 { right: 2.2%; top: 65%; width: 84px; rotate: -2deg; animation-delay: -4.4s; }
+
+@media (max-width: 1199px) {
+  .wd-margin-layer { display: none; }
+}
+
+/* ---------- bold fixed sparkles ---------- */
+.wd-spark-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.wd-fixed-spark {
+  position: absolute;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--wd-spark-1);
+  -webkit-text-stroke: 1px var(--wd-outline);
+  text-shadow: 0 2px 0 var(--wd-shadow), 0 0 9px currentColor;
+  animation: wd-twinkle 4.5s ease-in-out infinite;
+}
+
+.wd-fixed-spark.wd-s1 { color: var(--wd-spark-1); }
+.wd-fixed-spark.wd-s2 { color: var(--wd-spark-2); }
+.wd-fixed-spark.wd-s3 { color: var(--wd-spark-3); }
+.wd-fixed-spark.wd-s4 { color: var(--wd-spark-4); }
+
+@media (max-width: 760px) {
+  .wd-fixed-spark { font-size: 14px !important; }
+  .wd-fixed-spark:nth-child(n + 5) { display: none; }
+  .wd-fixed-spark:nth-child(1) { left: 0.5% !important; top: 12% !important; }
+  .wd-fixed-spark:nth-child(2) { left: auto !important; right: 0.5% !important; top: 10% !important; }
+  .wd-fixed-spark:nth-child(3) { left: 0.5% !important; top: 78% !important; }
+  .wd-fixed-spark:nth-child(4) { left: auto !important; right: 0.5% !important; top: 80% !important; }
+}
+
+/* ---------- the tiny danfo that drives across once ---------- */
+.wd-runner {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 58px;
+  height: 30px;
+  z-index: 35;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.wd-runner-road {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 22px;
+  height: 3px;
+  background-image: radial-gradient(circle, var(--wd-lime-deep) 2px, transparent 2.4px);
+  background-size: 14px 3px;
+  opacity: 0.9;
+  animation: wd-road-fade 6.4s ease-out forwards;
+}
+
+.wd-runner-bus {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 33px;
+  animation: wd-drive 6s linear 0.4s both;
+}
+
+.wd-runner-bus .wd-svg { filter: drop-shadow(0 3px 4px var(--wd-shadow)); }
+
+@keyframes wd-drive {
+  0% { transform: translateX(-80px); }
+  100% { transform: translateX(calc(100vw + 80px)); }
+}
+
+@keyframes wd-road-fade {
+  0%, 82% { opacity: 0.9; }
+  100% { opacity: 0; }
+}
+
+/* ---------- click bursts, trail, tooltip ---------- */
+.wd-fx {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.wd-fx-spark {
+  position: fixed;
+  transform: translate(-50%, -50%);
+  font-weight: 800;
+  line-height: 1;
+  -webkit-text-stroke: 1px rgba(41, 42, 35, 0.6);
+  text-shadow: 0 2px 0 rgba(41, 42, 35, 0.18), 0 0 7px currentColor;
+  animation: wd-fly 0.65s cubic-bezier(0.16, 0.84, 0.3, 1) forwards;
+}
+
+.wd-fx-coin {
+  position: fixed;
+  width: 11px;
+  height: 11px;
+  margin: -5.5px 0 0 -5.5px;
+  border-radius: 50%;
+  background: var(--wd-yellow);
+  border: 2px solid var(--wd-outline);
+  box-shadow: 0 0 6px rgba(201, 138, 0, 0.75);
+  animation: wd-fly 0.7s cubic-bezier(0.16, 0.84, 0.3, 1) forwards;
+}
+
+.wd-fx-confetti {
+  position: fixed;
+  margin: -2px 0 0 -3px;
+  border-radius: 2px;
+  animation: wd-confetti 0.9s cubic-bezier(0.16, 0.84, 0.3, 1) forwards;
+}
+
+.wd-fx-ring {
+  position: fixed;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  border: 3px solid var(--wd-ring);
+  box-shadow: 0 0 10px var(--wd-ring);
+  animation: wd-ring 0.55s ease-out forwards;
+}
+
+.wd-sharp {
+  position: fixed;
+  transform: translate(-50%, -100%) rotate(-4deg);
+  background: var(--wd-gold);
+  color: #1e260d;
+  border: 2px solid var(--wd-outline);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font: 800 12px/1.2 var(--mono);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  box-shadow: 0 4px 0 rgba(41, 42, 35, 0.25);
+  animation: wd-sharp 0.9s ease-out forwards;
+}
+
+.wd-trail {
+  position: fixed;
+  transform: translate(-50%, -50%);
+  font-weight: 800;
+  line-height: 1;
+  text-shadow: 0 0 6px currentColor;
+  animation: wd-trail 0.65s ease-out forwards;
+}
+
+.wd-tip {
+  position: fixed;
+  transform: translate(-50%, -100%) rotate(-2deg);
+  background: var(--wd-lime);
+  color: #1e260d;
+  border: 2px solid var(--wd-outline);
+  border-radius: 999px;
+  padding: 3px 9px;
+  font: 800 10px/1.2 var(--mono);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  box-shadow: 0 3px 0 rgba(41, 42, 35, 0.22);
+  animation: wd-tip 0.16s ease-out;
+}
+
+@keyframes wd-fly {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--wd-dx)), calc(-50% + var(--wd-dy))) scale(0.4) rotate(140deg); }
+}
+
+@keyframes wd-confetti {
+  0% { opacity: 1; transform: translate(0, 0) rotate(0deg) scale(1); }
+  100% { opacity: 0; transform: translate(var(--wd-dx), var(--wd-dy)) rotate(var(--wd-rot)) scale(0.8); }
+}
+
+@keyframes wd-ring {
+  0% { opacity: 1; transform: scale(0.25); }
+  100% { opacity: 0; transform: scale(2.8); }
+}
+
+@keyframes wd-sharp {
+  0% { opacity: 0; transform: translate(-50%, -80%) rotate(-4deg) scale(0.8); }
+  20% { opacity: 1; transform: translate(-50%, -130%) rotate(-4deg) scale(1.05); }
+  100% { opacity: 0; transform: translate(-50%, -210%) rotate(-4deg) scale(1); }
+}
+
+@keyframes wd-trail {
+  0% { opacity: 0.95; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--wd-dx)), calc(-50% + var(--wd-dy))) scale(0.3); }
+}
+
+@keyframes wd-tip {
+  from { opacity: 0; transform: translate(-50%, -80%) scale(0.9); }
+  to { opacity: 1; transform: translate(-50%, -100%) scale(1); }
+}
+
+/* ---------- the home “Naija vibes” mascot ---------- */
+.wd-home-mascot {
+  position: fixed;
+  right: 18px;
+  bottom: 88px;
+  width: 94px;
+  z-index: 30;
+  pointer-events: none;
+  animation: wd-bob 4.4s ease-in-out infinite;
+}
+
+.wd-home-mascot .wd-svg { width: 100%; height: auto; }
+
+.wd-speech {
+  position: absolute;
+  background: var(--wd-lime);
+  color: #1e260d;
+  border: 2px solid var(--wd-outline);
+  border-radius: 999px;
+  padding: 5px 9px;
+  font: 800 11px/1.25 var(--mono);
+  white-space: nowrap;
+  box-shadow: 0 4px 0 rgba(41, 42, 35, 0.22);
+  pointer-events: none;
+}
+
+.wd-speech-home {
+  right: 76px;
+  bottom: 56px;
+  transform: rotate(-3deg);
+}
+
+@media (max-width: 1199px) {
+  .wd-home-mascot { display: none; }
+}
+
+/* ---------- sign-in mascot peeking over the form ---------- */
+.wd-anchor { position: relative; }
+
+.wd-signin-mascot {
+  position: absolute;
+  top: -60px;
+  right: 12px;
+  width: 84px;
+  z-index: 6;
+  pointer-events: none;
+  animation: wd-bob 4.6s ease-in-out infinite;
+}
+
+.wd-signin-mascot-modal { right: 88px; }
+
+.wd-signin-mascot .wd-svg { width: 100%; height: auto; }
+
+.wd-speech-signin {
+  right: 76px;
+  top: -10px;
+  transform: rotate(-3deg);
+}
+
+@media (max-width: 600px) {
+  .wd-signin-mascot,
+  .wd-signin-mascot-modal {
+    top: -48px;
+    left: 8px;
+    right: auto;
+    width: 64px;
+  }
+
+  .wd-speech-signin {
+    left: 58px;
+    right: auto;
+    top: -8px;
+    padding: 3px 7px;
+    font-size: 9px;
+  }
+}
+
+/* ---------- tournament trophy + ticking clock ---------- */
+.wd-tourney-props {
+  position: absolute;
+  top: -22px;
+  right: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.wd-trophy,
+.wd-clock {
+  display: block;
+  width: 34px;
+}
+
+.wd-trophy .wd-svg,
+.wd-clock .wd-svg { width: 100%; height: auto; }
+
+.wd-trophy { animation: wd-bounce 2.6s ease-in-out infinite; }
+
+.wd-clock-hand {
+  transform-origin: 50px 50px;
+  animation: wd-tick 2s steps(12, end) infinite;
+}
+
+@media (max-width: 600px) {
+  .wd-tourney-props { top: -18px; right: 4px; gap: 4px; }
+  .wd-trophy, .wd-clock { width: 26px; }
+}
+
+/* ---------- footer skyline + sign-off ---------- */
+.wd-has-skyline { position: relative; }
+
+.wd-has-skyline .footer-grid,
+.wd-has-skyline .footer-bottom {
+  position: relative;
+  z-index: 1;
+}
+
+.wd-skyline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 10px;
+  width: 100%;
+  height: 20px;
+  z-index: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 0 rgba(41, 42, 35, 0.12));
+}
+
+.wd-signoff {
+  position: absolute;
+  right: 16px;
+  top: 12px;
+  z-index: 2;
+  transform: rotate(-2deg);
+  background: var(--wd-lime);
+  color: #1e260d;
+  border: 2px solid var(--wd-outline);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font: 800 10px/1.4 var(--mono);
+  box-shadow: 0 3px 0 rgba(41, 42, 35, 0.2);
+}
+
+@media (max-width: 760px) {
+  .wd-signoff { display: none; }
+  .wd-skyline { top: 10px; height: 18px; }
+}
+
+/* ---------- top-three medals ---------- */
+.wd-medal-anchor { position: relative; }
+
+.wd-medal {
+  position: absolute;
+  left: -26px;
+  top: 50%;
+  width: 24px;
+  transform: translateY(-50%);
+  z-index: 2;
+  animation: wd-bob 4s ease-in-out infinite;
+}
+
+.wd-medal .wd-svg { width: 100%; height: auto; }
+
+.wd-medal-spark {
+  position: absolute;
+  top: -8px;
+  right: -7px;
+  font-size: 14px;
+  color: var(--wd-gold);
+  -webkit-text-stroke: 0.8px var(--wd-outline);
+  animation: wd-twinkle 3s ease-in-out infinite;
+}
+
+.wd-medal-2 { --wd-gold: #8d99a6; --wd-yellow: #c3ccd4; }
+.wd-medal-3 { --wd-gold: #a9662b; --wd-yellow: #d99a5b; }
+
+@media (max-width: 760px) {
+  .wd-medal { display: none; }
+}
+
+/* ==========================================================================
+   UI-side whimsy (effects only; no typography, palette, spacing or layout)
+   ========================================================================== */
+
+/* Wavy hand-drawn underline under “Good games.” */
+[data-whimsy] .hero h1 mark {
+  position: relative;
+  display: inline-block;
+}
+
+[data-whimsy] .hero h1 mark::after {
+  content: "";
+  position: absolute;
+  left: -1%;
+  right: -1%;
+  bottom: -11px;
+  height: 10px;
+  background-image: var(--wd-wave);
+  background-repeat: repeat-x;
+  background-size: 26px 10px;
+  pointer-events: none;
+}
+
+/* Wavy section dividers + a bold sparkle by every section/page heading. */
+[data-whimsy] .section-head,
+[data-whimsy] .page-head,
+[data-whimsy] .cat-hero,
+[data-whimsy] .tourney-top,
+[data-whimsy] .lb-page,
+[data-whimsy] .profile-head,
+[data-whimsy] .docs-content h1,
+[data-whimsy] .about-page h1 {
+  position: relative;
+}
+
+[data-whimsy] .section-head::after,
+[data-whimsy] .page-head::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -12px;
+  height: 10px;
+  background-image: var(--wd-wave);
+  background-repeat: repeat-x;
+  background-size: 26px 10px;
+  pointer-events: none;
+}
+
+[data-whimsy] .page-head::after { bottom: -7px; }
+
+[data-whimsy] .section-head::before,
+[data-whimsy] .page-head::before,
+[data-whimsy] .cat-hero::before,
+[data-whimsy] .tourney-top::before,
+[data-whimsy] .lb-page::before,
+[data-whimsy] .profile-head::before,
+[data-whimsy] .docs-content h1::before,
+[data-whimsy] .about-page h1::before {
+  content: "✦";
+  position: absolute;
+  right: 0;
+  top: -16px;
+  z-index: 2;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--wd-gold);
+  -webkit-text-stroke: 1px var(--wd-outline);
+  text-shadow: 0 0 9px currentColor;
+  pointer-events: none;
+  animation: wd-twinkle 4s ease-in-out infinite;
+}
+
+/* Bold corner sparkle on every card, plus a gentle tilt on hover. */
+[data-whimsy] .game,
+[data-whimsy] .tag-tile,
+[data-whimsy] .promo {
+  position: relative;
+}
+
+[data-whimsy] .game::after,
+[data-whimsy] .tag-tile::after,
+[data-whimsy] .promo::after {
+  content: "✦";
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  z-index: 5;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--wd-gold);
+  -webkit-text-stroke: 0.8px var(--wd-outline);
+  text-shadow: 0 0 8px currentColor;
+  pointer-events: none;
+  animation: wd-twinkle 3.8s ease-in-out infinite;
+}
+
+[data-whimsy] .game:hover,
+[data-whimsy] .tag-tile:hover,
+[data-whimsy] .promo:hover,
+[data-whimsy] .tourney-panel:hover,
+[data-whimsy] .panel:hover,
+[data-whimsy] .board-card:hover,
+[data-whimsy] .step:hover {
+  rotate: -0.7deg;
+}
+
+/* Wiggling NEW sticker. */
+[data-whimsy] .new-badge {
+  animation: wd-wiggle 3.2s ease-in-out infinite;
+  transform-origin: center;
+}
+
+[data-whimsy] .new-badge::before { content: "✦ "; }
+
+/* Sparkle shimmer on the logo, using the existing brand colours. */
+[data-whimsy] .logo-mark { position: relative; }
+
+[data-whimsy] .logo:hover .logo-mark::after {
+  content: "✦";
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  font-size: 14px;
+  color: var(--wd-gold);
+  -webkit-text-stroke: 0.7px var(--wd-outline);
+  text-shadow: 0 0 6px currentColor;
+  pointer-events: none;
+  animation: wd-pop 0.55s ease-out;
+}
+
+/* Bouncy hero buttons + squish on any click. */
+[data-whimsy] .hero .actions .btn:hover,
+[data-whimsy] .hero .actions .ghost:hover {
+  animation: wd-btn-bounce 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+[data-whimsy] .wd-squish {
+  animation: wd-squish 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+/* Visible lime focus glow on every form field. */
+[data-whimsy] .signin-card input:focus,
+[data-whimsy] .auth-card input:focus,
+[data-whimsy] .auth-card select:focus,
+[data-whimsy] .search-box input:focus,
+[data-whimsy] .field input:focus,
+[data-whimsy] .field textarea:focus,
+[data-whimsy] .builder-group select:focus {
+  box-shadow: 0 0 0 3px rgba(143, 191, 0, 0.55), 0 0 12px rgba(143, 191, 0, 0.3);
+  outline: 2px solid var(--wd-lime-deep);
+  outline-offset: 1px;
+}
+
+/* Playful empty-state sticker (added beside the existing copy). */
+[data-whimsy] .profile-empty::after,
+[data-whimsy] .empty::after {
+  content: "No wahala — something sharp is coming.";
+  display: block;
+  margin-top: 8px;
+  color: var(--wd-lime-deep);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+/* Scroll reveals (only applied by JS to below-the-fold blocks). */
+[data-whimsy] .wd-reveal {
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+[data-whimsy] .wd-reveal.wd-in {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.55s ease, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Fixed mascot for the auto-opened sign-in modal (above the overlay). */
+.wd-auth-mascot {
+  position: fixed;
+  z-index: 95;
+  width: 84px;
+  pointer-events: none;
+  animation: wd-bob 4.6s ease-in-out infinite;
+}
+
+.wd-auth-mascot .wd-svg { width: 100%; height: auto; }
+
+.wd-speech-auth {
+  left: 76px;
+  top: -8px;
+  transform: rotate(-3deg);
+}
+
+@media (max-width: 600px) {
+  .wd-auth-mascot { width: 64px; }
+  .wd-speech-auth { left: 56px; top: -6px; padding: 3px 7px; font-size: 9px; }
+}
+
+/* ---------- loader + 404 ---------- */
+.wd-loading {
+  display: grid;
+  place-items: center;
+  gap: 10px;
+  min-height: 60vh;
+  padding: 70px 24px;
+  text-align: center;
+}
+
+.wd-loading-coin {
+  width: 64px;
+  animation: wd-spin 1.6s linear infinite;
+}
+
+.wd-loading-coin .wd-svg { width: 100%; height: auto; }
+
+.wd-loading p {
+  margin: 0;
+  color: var(--ink);
+  font: 800 0.8rem/1.4 var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.wd-loading small {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.wd-404-line {
+  margin: 12px 0 0 !important;
+  color: var(--wd-lime-deep) !important;
+  font-weight: 800;
+}
+
+.wd-404-doodle {
+  width: 86px;
+  margin: 16px auto 0;
+  animation: wd-bob 4s ease-in-out infinite;
+}
+
+/* ---------- motion ---------- */
+@keyframes wd-float {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -9px; }
+}
+
+@keyframes wd-bob {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -6px; }
+}
+
+@keyframes wd-twinkle {
+  0%, 100% { opacity: 0.35; scale: 0.82; }
+  50% { opacity: 1; scale: 1.12; }
+}
+
+@keyframes wd-bounce {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -7px; }
+}
+
+@keyframes wd-tick {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes wd-wiggle {
+  0%, 100% { rotate: 0deg; }
+  25% { rotate: -6deg; }
+  50% { rotate: 5deg; }
+  75% { rotate: -3deg; }
+}
+
+@keyframes wd-pop {
+  0% { opacity: 0; scale: 0.2; rotate: -40deg; }
+  60% { opacity: 1; scale: 1.25; }
+  100% { opacity: 1; scale: 1; rotate: 0deg; }
+}
+
+@keyframes wd-btn-bounce {
+  0%, 100% { translate: 0 0; scale: 1; }
+  30% { translate: 0 -5px; scale: 1.04; }
+  60% { translate: 0 1px; scale: 0.99; }
+}
+
+@keyframes wd-squish {
+  0% { scale: 1; }
+  35% { scale: 0.94; }
+  70% { scale: 1.03; }
+  100% { scale: 1; }
+}
+
+@keyframes wd-spin {
+  to { transform: rotate(360deg); }
+}
+
+.wd-wave {
+  transform-box: view-box;
+  transform-origin: 76px 50px;
+  animation: wd-wave 2.4s ease-in-out infinite;
+}
+
+@keyframes wd-wave {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-16deg); }
+}
+
+/* ---------- reduced motion: keep decoration, drop animation ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .wd-runner { display: none !important; }
+
+  .wd-decor *,
+  .wd-decor *::before,
+  .wd-decor *::after,
+  [data-whimsy] .wd-squish,
+  [data-whimsy] .hero .actions .btn,
+  [data-whimsy] .hero .actions .ghost {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  [data-whimsy] .game:hover,
+  [data-whimsy] .tag-tile:hover,
+  [data-whimsy] .promo:hover,
+  [data-whimsy] .tourney-panel:hover,
+  [data-whimsy] .panel:hover,
+  [data-whimsy] .board-card:hover,
+  [data-whimsy] .step:hover {
+    rotate: none;
+  }
+
+  [data-whimsy] .wd-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  [data-whimsy] .section-head::before,
+  [data-whimsy] .page-head::before,
+  [data-whimsy] .cat-hero::before,
+  [data-whimsy] .tourney-top::before,
+  [data-whimsy] .lb-page::before,
+  [data-whimsy] .profile-head::before,
+  [data-whimsy] .docs-content h1::before,
+  [data-whimsy] .about-page h1::before,
+  [data-whimsy] .game::after,
+  [data-whimsy] .tag-tile::after,
+  [data-whimsy] .promo::after,
+  [data-whimsy] .new-badge,
+  .wd-tourney-props *,
+  .wd-medal,
+  .wd-medal *,
+  .wd-signin-mascot,
+  .wd-signin-mascot *,
+  .wd-auth-mascot,
+  .wd-auth-mascot *,
+  .wd-wave {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Tablet widths: keep the corner sparkles inside the page padding. */
+@media (min-width: 761px) and (max-width: 1199px) {
+  .wd-fixed-spark { font-size: 15px !important; }
+  .wd-fixed-spark:nth-child(odd) { left: 0.5% !important; right: auto !important; }
+  .wd-fixed-spark:nth-child(even) { left: auto !important; right: 0.5% !important; }
+}

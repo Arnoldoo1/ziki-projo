@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import './whimsy.css';
 import { AppProvider } from '@/components/AppProvider';
+import { WhimsyDecor } from '@/components/WhimsyDecor';
 
 export const metadata: Metadata = {
   title: 'start.ng · Good vibes. Good games.',
@@ -21,6 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <AppProvider>{children}</AppProvider>
+        <WhimsyDecor />
       </body>
     </html>
   );
