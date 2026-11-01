@@ -1,0 +1,1672 @@
+From 4ae3548436ff7bfd73a3a59ef032e3f7731bbf55 Mon Sep 17 00:00:00 2001
+From: Arnold Nyamongo <arnoldnyams@gmail.com>
+Date: Sun, 1 Nov 2026 12:30:55 +0000
+Subject: [PATCH] Add a decoration-only Naija whimsy layer to every route
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+A whimsical, playful layer that sits beside/behind the existing site and
+changes no fonts, palette, layout structure, copy, routes, links or
+functionality.
+
+- fixed margin doodles (danfo, jollof, suya, puff puff, mango, zobo, coin,
+  mascot, trophy, crown, medal, clock), each with a 2.2px dark outline,
+  saturated fills and a drop shadow, plus dotted edge trails
+- high-contrast sparkles, card and section sparkles, and a wavy underlined
+  highlight under “Good games.”
+- wavy section/page dividers, a danfo that drives across the top once, a
+  footer skyline and “No wahala” sign-off
+- click delight: squish, ripple, 8-12 bold sparkles, coins, confetti and a
+  floating “Sharp sharp!” label for the hero CTAs (no navigation delay)
+- sparkle cursor trail (desktop only), playful tooltips, a waving Naija
+  vibes mascot on home, a sign-in mascot with “Oya, come in!”, focus glow
+  and confetti on sign-up success
+- tournament trophy + ticking clock, leaderboard crown/medals, confetti
+  for the leader, wiggling NEW stickers and scroll reveals
+- reduced-motion disables every animation and click effect; decorations
+  are hidden/fitted on tablet/mobile without touching content
+- playful loader and the “Wahala!” 404 sticker
+
+Verified in light mode on every route: zero horizontal overflow, all
+decorations visible on the first screen, every visible control hit-tested
+and click-tested with zero decoration interception, plus dark mode and
+reduced-motion checks.
+---
+ README.md                    |  11 +
+ app/layout.tsx               |   3 +
+ app/loading.tsx              |  13 +
+ app/not-found.tsx            |   3 +
+ app/whimsy.css               | 869 +++++++++++++++++++++++++++++++++++
+ components/WhimsyDecor.tsx   | 476 +++++++++++++++++++
+ components/WhimsyDoodles.tsx | 177 +++++++
+ 7 files changed, 1552 insertions(+)
+ create mode 100644 app/loading.tsx
+ create mode 100644 app/whimsy.css
+ create mode 100644 components/WhimsyDecor.tsx
+ create mode 100644 components/WhimsyDoodles.tsx
+
+diff --git a/README.md b/README.md
+index 0a88d38..b648ca0 100644
+--- a/README.md
++++ b/README.md
+@@ -10,6 +10,17 @@ A working recreation of [start.ng](https://start.ng), Nigeria's home for browser
+ - **Docs rendered from the original:** https://startng-three.vercel.app/docs
+ - **Plain-text docs for AI:** https://startng-three.vercel.app/docs.md
+ 
++## The Naija whimsy layer
++
++Every route now carries a decoration-only whimsy layer: bold outlined Naija doodles in the margins, a fixed sparkle field, a danfo that drives across the top once, card/page sparkles, wavy section dividers, hover tilt + sparkle bursts, a sparkle cursor trail, click ripples/confetti, a sign-in mascot with “Oya, come in!”, tournament trophy + ticking clock, leaderboard medals/crown, a footer skyline and sign-off, scroll reveals, a playful loader, and a 404 sticker.
++
++- `app/whimsy.css` — the single, clearly marked stylesheet.
++- `components/WhimsyDecor.tsx` — fixed doodles/sparkles, click effects, cursor trail, reveals, tooltips and the path-specific mascot/awards/skyline portals.
++- `components/WhimsyDoodles.tsx` — outlined SVG danfo, jollof, suya, puff puff, mango, zobo, coin, mascot, trophy, crown, medal and clock.
++- Mounted once in `app/layout.tsx`; `app/loading.tsx` adds the spinning-coin loader and `app/not-found.tsx` gets the “Wahala!” sticker.
++
++It does not change the site’s fonts, colour palette, logo, layout structure, existing copy, routes, links or functionality. All decorations are `pointer-events: none`, and every animation is disabled under `prefers-reduced-motion`.
++
+ ## What is included
+ 
+ - The full 189-game catalogue, 33 categories and 39 independent creators.
+diff --git a/app/layout.tsx b/app/layout.tsx
+index a72d40f..399702b 100644
+--- a/app/layout.tsx
++++ b/app/layout.tsx
+@@ -1,6 +1,8 @@
+ import type { Metadata } from 'next';
+ import './globals.css';
++import './whimsy.css';
+ import { AppProvider } from '@/components/AppProvider';
++import { WhimsyDecor } from '@/components/WhimsyDecor';
+ 
+ export const metadata: Metadata = {
+   title: 'start.ng · Good vibes. Good games.',
+@@ -21,6 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode })
+     <html lang="en">
+       <body>
+         <AppProvider>{children}</AppProvider>
++        <WhimsyDecor />
+       </body>
+     </html>
+   );
+diff --git a/app/loading.tsx b/app/loading.tsx
+new file mode 100644
+index 0000000..aff61bf
+--- /dev/null
++++ b/app/loading.tsx
+@@ -0,0 +1,13 @@
++import { Doodle } from '@/components/WhimsyDoodles';
++
++export default function Loading() {
++  return (
++    <div className="wd-loading">
++      <span className="wd-loading-coin">
++        <Doodle name="coin" />
++      </span>
++      <p>Sharp sharp, loading…</p>
++      <small>The vibes are warming up.</small>
++    </div>
++  );
++}
+diff --git a/app/not-found.tsx b/app/not-found.tsx
+index cee2506..36ed753 100644
+--- a/app/not-found.tsx
++++ b/app/not-found.tsx
+@@ -1,4 +1,5 @@
+ import Link from 'next/link';
++import { Doodle } from '@/components/WhimsyDoodles';
+ 
+ export default function NotFound() {
+   return (
+@@ -7,6 +8,8 @@ export default function NotFound() {
+         <p className="eyebrow-small">404</p>
+         <h1>This page is out playing.</h1>
+         <p>The link you followed does not exist, or the game packed up and went home. Try the games shelf instead.</p>
++        <p className="wd-404-line">Wahala! This page is on a hustle. Go back home.</p>
++        <div className="wd-404-doodle"><Doodle name="danfo" /></div>
+         <div className="actions" style={{ justifyContent: 'center' }}>
+           <Link className="btn" href="/games">Browse all games</Link>
+           <Link className="ghost" href="/">Back home</Link>
+diff --git a/app/whimsy.css b/app/whimsy.css
+new file mode 100644
+index 0000000..598e135
+--- /dev/null
++++ b/app/whimsy.css
+@@ -0,0 +1,869 @@
++/* ==========================================================================
++   start.ng — The Naija Whimsy Layer
++   Decoration-only. Nothing here changes the site's fonts, palette, layout,
++   copy, routes, links or functionality. Every decoration is positioned
++   beside/behind content and is pointer-events: none.
++   ========================================================================== */
++
++:root {
++  --wd-ink: #292a23;
++  --wd-outline: #292a23;
++  --wd-lime: #b9e94a;
++  --wd-lime-deep: #4f7a00;
++  --wd-gold: #c98a00;
++  --wd-yellow: #e0a800;
++  --wd-orange: #c25e00;
++  --wd-red: #b02a1e;
++  --wd-green: #2e7d32;
++  --wd-brown: #7a3e12;
++  --wd-pink: #b03060;
++  --wd-teal: #0f6b63;
++  --wd-spark-1: #4f7a00;
++  --wd-spark-2: #a86a00;
++  --wd-spark-3: #b02a1e;
++  --wd-spark-4: #0f6b63;
++  --wd-shadow: rgba(41, 42, 35, 0.28);
++}
++
++.wd-decor *,
++.wd-signin-mascot,
++.wd-tourney-props,
++.wd-medal,
++.wd-skyline,
++.wd-signoff,
++.wd-speech {
++  pointer-events: none !important;
++}
++
++:root[data-theme="dark"] {
++  --wd-ink: #f6f5ee;
++  --wd-outline: #f6f5ee;
++  --wd-lime: #d8fd71;
++  --wd-lime-deep: #d8fd71;
++  --wd-gold: #ffd84d;
++  --wd-yellow: #ffd84d;
++  --wd-orange: #ffb347;
++  --wd-red: #ff8a7d;
++  --wd-green: #7fd884;
++  --wd-brown: #e0a66b;
++  --wd-pink: #ff9db0;
++  --wd-teal: #5ee7ff;
++  --wd-spark-1: #d8fd71;
++  --wd-spark-2: #ffd84d;
++  --wd-spark-3: #ff8a7d;
++  --wd-spark-4: #5ee7ff;
++  --wd-shadow: rgba(0, 0, 0, 0.55);
++}
++
++/* Shared wave divider (light stroke; dark override below). */
++:root {
++  --wd-wave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='10' viewBox='0 0 26 10'%3E%3Cpath d='M1 6c3-4 6-4 9 0s6 4 9 0 6-4 9 0' fill='none' stroke='%234f7a00' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
++}
++
++:root[data-theme="dark"] {
++  --wd-wave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='10' viewBox='0 0 26 10'%3E%3Cpath d='M1 6c3-4 6-4 9 0s6 4 9 0 6-4 9 0' fill='none' stroke='%23d8fd71' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
++}
++
++.wd-decor {
++  pointer-events: none;
++}
++
++/* ---------- fixed margin doodles (desktop margins only) ---------- */
++.wd-margin-layer {
++  position: fixed;
++  inset: 0;
++  z-index: 4;
++  pointer-events: none;
++}
++
++.wd-margin-layer::before,
++.wd-margin-layer::after {
++  content: "";
++  position: fixed;
++  top: 90px;
++  bottom: 90px;
++  width: 6px;
++  background-image: radial-gradient(circle, var(--wd-lime-deep) 2.2px, transparent 2.6px);
++  background-size: 6px 16px;
++  opacity: 0.9;
++}
++
++.wd-margin-layer::before { left: 10px; }
++.wd-margin-layer::after { right: 10px; }
++
++.wd-doodle {
++  display: block;
++  line-height: 0;
++}
++
++.wd-doodle .wd-svg {
++  display: block;
++  width: 100%;
++  height: auto;
++  overflow: visible;
++  filter: drop-shadow(0 6px 8px var(--wd-shadow));
++}
++
++.wd-margin {
++  position: fixed;
++  width: 94px;
++  animation: wd-float 6s ease-in-out infinite;
++  will-change: translate;
++}
++
++.wd-margin-0 { left: 1.4%; top: 16%; rotate: -3deg; }
++.wd-margin-1 { right: 1.4%; top: 20%; width: 88px; rotate: 3deg; animation-delay: -1.6s; }
++.wd-margin-2 { left: 2%; top: 61%; width: 78px; rotate: 2deg; animation-delay: -3.1s; }
++.wd-margin-3 { right: 2.2%; top: 65%; width: 84px; rotate: -2deg; animation-delay: -4.4s; }
++
++@media (max-width: 1199px) {
++  .wd-margin-layer { display: none; }
++}
++
++/* ---------- bold fixed sparkles ---------- */
++.wd-spark-layer {
++  position: fixed;
++  inset: 0;
++  z-index: 5;
++  pointer-events: none;
++}
++
++.wd-fixed-spark {
++  position: absolute;
++  font-weight: 800;
++  line-height: 1;
++  color: var(--wd-spark-1);
++  -webkit-text-stroke: 1px var(--wd-outline);
++  text-shadow: 0 2px 0 var(--wd-shadow), 0 0 9px currentColor;
++  animation: wd-twinkle 4.5s ease-in-out infinite;
++}
++
++.wd-fixed-spark.wd-s1 { color: var(--wd-spark-1); }
++.wd-fixed-spark.wd-s2 { color: var(--wd-spark-2); }
++.wd-fixed-spark.wd-s3 { color: var(--wd-spark-3); }
++.wd-fixed-spark.wd-s4 { color: var(--wd-spark-4); }
++
++@media (max-width: 760px) {
++  .wd-fixed-spark { font-size: 14px !important; }
++  .wd-fixed-spark:nth-child(n + 5) { display: none; }
++  .wd-fixed-spark:nth-child(1) { left: 0.5% !important; top: 12% !important; }
++  .wd-fixed-spark:nth-child(2) { left: auto !important; right: 0.5% !important; top: 10% !important; }
++  .wd-fixed-spark:nth-child(3) { left: 0.5% !important; top: 78% !important; }
++  .wd-fixed-spark:nth-child(4) { left: auto !important; right: 0.5% !important; top: 80% !important; }
++}
++
++/* ---------- the tiny danfo that drives across once ---------- */
++.wd-runner {
++  position: fixed;
++  left: 0;
++  right: 0;
++  top: 58px;
++  height: 30px;
++  z-index: 35;
++  pointer-events: none;
++  overflow: hidden;
++}
++
++.wd-runner-road {
++  position: absolute;
++  left: 0;
++  right: 0;
++  top: 22px;
++  height: 3px;
++  background-image: radial-gradient(circle, var(--wd-lime-deep) 2px, transparent 2.4px);
++  background-size: 14px 3px;
++  opacity: 0.9;
++  animation: wd-road-fade 6.4s ease-out forwards;
++}
++
++.wd-runner-bus {
++  position: absolute;
++  top: 0;
++  left: 0;
++  width: 33px;
++  animation: wd-drive 6s linear 0.4s both;
++}
++
++.wd-runner-bus .wd-svg { filter: drop-shadow(0 3px 4px var(--wd-shadow)); }
++
++@keyframes wd-drive {
++  0% { transform: translateX(-80px); }
++  100% { transform: translateX(calc(100vw + 80px)); }
++}
++
++@keyframes wd-road-fade {
++  0%, 82% { opacity: 0.9; }
++  100% { opacity: 0; }
++}
++
++/* ---------- click bursts, trail, tooltip ---------- */
++.wd-fx {
++  position: fixed;
++  inset: 0;
++  z-index: 99999;
++  pointer-events: none;
++  overflow: hidden;
++}
++
++.wd-fx-spark {
++  position: fixed;
++  transform: translate(-50%, -50%);
++  font-weight: 800;
++  line-height: 1;
++  -webkit-text-stroke: 1px rgba(41, 42, 35, 0.6);
++  text-shadow: 0 2px 0 rgba(41, 42, 35, 0.18), 0 0 7px currentColor;
++  animation: wd-fly 0.65s cubic-bezier(0.16, 0.84, 0.3, 1) forwards;
++}
++
++.wd-fx-coin {
++  position: fixed;
++  width: 11px;
++  height: 11px;
++  margin: -5.5px 0 0 -5.5px;
++  border-radius: 50%;
++  background: var(--wd-yellow);
++  border: 2px solid var(--wd-outline);
++  box-shadow: 0 0 6px rgba(201, 138, 0, 0.75);
++  animation: wd-fly 0.7s cubic-bezier(0.16, 0.84, 0.3, 1) forwards;
++}
++
++.wd-fx-confetti {
++  position: fixed;
++  margin: -2px 0 0 -3px;
++  border-radius: 2px;
++  animation: wd-confetti 0.9s cubic-bezier(0.16, 0.84, 0.3, 1) forwards;
++}
++
++.wd-fx-ring {
++  position: fixed;
++  width: 14px;
++  height: 14px;
++  margin: -7px 0 0 -7px;
++  border-radius: 50%;
++  border: 3px solid var(--wd-ring);
++  box-shadow: 0 0 10px var(--wd-ring);
++  animation: wd-ring 0.55s ease-out forwards;
++}
++
++.wd-sharp {
++  position: fixed;
++  transform: translate(-50%, -100%) rotate(-4deg);
++  background: var(--wd-gold);
++  color: #1e260d;
++  border: 2px solid var(--wd-outline);
++  border-radius: 999px;
++  padding: 4px 10px;
++  font: 800 12px/1.2 var(--mono);
++  letter-spacing: 0.04em;
++  white-space: nowrap;
++  box-shadow: 0 4px 0 rgba(41, 42, 35, 0.25);
++  animation: wd-sharp 0.9s ease-out forwards;
++}
++
++.wd-trail {
++  position: fixed;
++  transform: translate(-50%, -50%);
++  font-weight: 800;
++  line-height: 1;
++  text-shadow: 0 0 6px currentColor;
++  animation: wd-trail 0.65s ease-out forwards;
++}
++
++.wd-tip {
++  position: fixed;
++  transform: translate(-50%, -100%) rotate(-2deg);
++  background: var(--wd-lime);
++  color: #1e260d;
++  border: 2px solid var(--wd-outline);
++  border-radius: 999px;
++  padding: 3px 9px;
++  font: 800 10px/1.2 var(--mono);
++  letter-spacing: 0.04em;
++  white-space: nowrap;
++  box-shadow: 0 3px 0 rgba(41, 42, 35, 0.22);
++  animation: wd-tip 0.16s ease-out;
++}
++
++@keyframes wd-fly {
++  0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
++  100% { opacity: 0; transform: translate(calc(-50% + var(--wd-dx)), calc(-50% + var(--wd-dy))) scale(0.4) rotate(140deg); }
++}
++
++@keyframes wd-confetti {
++  0% { opacity: 1; transform: translate(0, 0) rotate(0deg) scale(1); }
++  100% { opacity: 0; transform: translate(var(--wd-dx), var(--wd-dy)) rotate(var(--wd-rot)) scale(0.8); }
++}
++
++@keyframes wd-ring {
++  0% { opacity: 1; transform: scale(0.25); }
++  100% { opacity: 0; transform: scale(2.8); }
++}
++
++@keyframes wd-sharp {
++  0% { opacity: 0; transform: translate(-50%, -80%) rotate(-4deg) scale(0.8); }
++  20% { opacity: 1; transform: translate(-50%, -130%) rotate(-4deg) scale(1.05); }
++  100% { opacity: 0; transform: translate(-50%, -210%) rotate(-4deg) scale(1); }
++}
++
++@keyframes wd-trail {
++  0% { opacity: 0.95; transform: translate(-50%, -50%) scale(1); }
++  100% { opacity: 0; transform: translate(calc(-50% + var(--wd-dx)), calc(-50% + var(--wd-dy))) scale(0.3); }
++}
++
++@keyframes wd-tip {
++  from { opacity: 0; transform: translate(-50%, -80%) scale(0.9); }
++  to { opacity: 1; transform: translate(-50%, -100%) scale(1); }
++}
++
++/* ---------- the home “Naija vibes” mascot ---------- */
++.wd-home-mascot {
++  position: fixed;
++  right: 18px;
++  bottom: 88px;
++  width: 94px;
++  z-index: 30;
++  pointer-events: none;
++  animation: wd-bob 4.4s ease-in-out infinite;
++}
++
++.wd-home-mascot .wd-svg { width: 100%; height: auto; }
++
++.wd-speech {
++  position: absolute;
++  background: var(--wd-lime);
++  color: #1e260d;
++  border: 2px solid var(--wd-outline);
++  border-radius: 999px;
++  padding: 5px 9px;
++  font: 800 11px/1.25 var(--mono);
++  white-space: nowrap;
++  box-shadow: 0 4px 0 rgba(41, 42, 35, 0.22);
++  pointer-events: none;
++}
++
++.wd-speech-home {
++  right: 76px;
++  bottom: 56px;
++  transform: rotate(-3deg);
++}
++
++@media (max-width: 1199px) {
++  .wd-home-mascot { display: none; }
++}
++
++/* ---------- sign-in mascot peeking over the form ---------- */
++.wd-anchor { position: relative; }
++
++.wd-signin-mascot {
++  position: absolute;
++  top: -60px;
++  right: 12px;
++  width: 84px;
++  z-index: 6;
++  pointer-events: none;
++  animation: wd-bob 4.6s ease-in-out infinite;
++}
++
++.wd-signin-mascot-modal { right: 88px; }
++
++.wd-signin-mascot .wd-svg { width: 100%; height: auto; }
++
++.wd-speech-signin {
++  right: 76px;
++  top: -10px;
++  transform: rotate(-3deg);
++}
++
++@media (max-width: 600px) {
++  .wd-signin-mascot,
++  .wd-signin-mascot-modal {
++    top: -48px;
++    left: 8px;
++    right: auto;
++    width: 64px;
++  }
++
++  .wd-speech-signin {
++    left: 58px;
++    right: auto;
++    top: -8px;
++    padding: 3px 7px;
++    font-size: 9px;
++  }
++}
++
++/* ---------- tournament trophy + ticking clock ---------- */
++.wd-tourney-props {
++  position: absolute;
++  top: -22px;
++  right: 0;
++  display: flex;
++  align-items: flex-start;
++  gap: 6px;
++  z-index: 4;
++  pointer-events: none;
++}
++
++.wd-trophy,
++.wd-clock {
++  display: block;
++  width: 34px;
++}
++
++.wd-trophy .wd-svg,
++.wd-clock .wd-svg { width: 100%; height: auto; }
++
++.wd-trophy { animation: wd-bounce 2.6s ease-in-out infinite; }
++
++.wd-clock-hand {
++  transform-origin: 50px 50px;
++  animation: wd-tick 2s steps(12, end) infinite;
++}
++
++@media (max-width: 600px) {
++  .wd-tourney-props { top: -18px; right: 4px; gap: 4px; }
++  .wd-trophy, .wd-clock { width: 26px; }
++}
++
++/* ---------- footer skyline + sign-off ---------- */
++.wd-has-skyline { position: relative; }
++
++.wd-has-skyline .footer-grid,
++.wd-has-skyline .footer-bottom {
++  position: relative;
++  z-index: 1;
++}
++
++.wd-skyline {
++  position: absolute;
++  left: 0;
++  right: 0;
++  top: 10px;
++  width: 100%;
++  height: 20px;
++  z-index: 0;
++  pointer-events: none;
++  filter: drop-shadow(0 2px 0 rgba(41, 42, 35, 0.12));
++}
++
++.wd-signoff {
++  position: absolute;
++  right: 16px;
++  top: 12px;
++  z-index: 2;
++  transform: rotate(-2deg);
++  background: var(--wd-lime);
++  color: #1e260d;
++  border: 2px solid var(--wd-outline);
++  border-radius: 999px;
++  padding: 2px 8px;
++  font: 800 10px/1.4 var(--mono);
++  box-shadow: 0 3px 0 rgba(41, 42, 35, 0.2);
++}
++
++@media (max-width: 760px) {
++  .wd-signoff { display: none; }
++  .wd-skyline { top: 10px; height: 18px; }
++}
++
++/* ---------- top-three medals ---------- */
++.wd-medal-anchor { position: relative; }
++
++.wd-medal {
++  position: absolute;
++  left: -26px;
++  top: 50%;
++  width: 24px;
++  transform: translateY(-50%);
++  z-index: 2;
++  animation: wd-bob 4s ease-in-out infinite;
++}
++
++.wd-medal .wd-svg { width: 100%; height: auto; }
++
++.wd-medal-spark {
++  position: absolute;
++  top: -8px;
++  right: -7px;
++  font-size: 14px;
++  color: var(--wd-gold);
++  -webkit-text-stroke: 0.8px var(--wd-outline);
++  animation: wd-twinkle 3s ease-in-out infinite;
++}
++
++.wd-medal-2 { --wd-gold: #8d99a6; --wd-yellow: #c3ccd4; }
++.wd-medal-3 { --wd-gold: #a9662b; --wd-yellow: #d99a5b; }
++
++@media (max-width: 760px) {
++  .wd-medal { display: none; }
++}
++
++/* ==========================================================================
++   UI-side whimsy (effects only; no typography, palette, spacing or layout)
++   ========================================================================== */
++
++/* Wavy hand-drawn underline under “Good games.” */
++[data-whimsy] .hero h1 mark {
++  position: relative;
++  display: inline-block;
++}
++
++[data-whimsy] .hero h1 mark::after {
++  content: "";
++  position: absolute;
++  left: -1%;
++  right: -1%;
++  bottom: -11px;
++  height: 10px;
++  background-image: var(--wd-wave);
++  background-repeat: repeat-x;
++  background-size: 26px 10px;
++  pointer-events: none;
++}
++
++/* Wavy section dividers + a bold sparkle by every section/page heading. */
++[data-whimsy] .section-head,
++[data-whimsy] .page-head,
++[data-whimsy] .cat-hero,
++[data-whimsy] .tourney-top,
++[data-whimsy] .lb-page,
++[data-whimsy] .profile-head,
++[data-whimsy] .docs-content h1,
++[data-whimsy] .about-page h1 {
++  position: relative;
++}
++
++[data-whimsy] .section-head::after,
++[data-whimsy] .page-head::after {
++  content: "";
++  position: absolute;
++  left: 0;
++  right: 0;
++  bottom: -12px;
++  height: 10px;
++  background-image: var(--wd-wave);
++  background-repeat: repeat-x;
++  background-size: 26px 10px;
++  pointer-events: none;
++}
++
++[data-whimsy] .page-head::after { bottom: -7px; }
++
++[data-whimsy] .section-head::before,
++[data-whimsy] .page-head::before,
++[data-whimsy] .cat-hero::before,
++[data-whimsy] .tourney-top::before,
++[data-whimsy] .lb-page::before,
++[data-whimsy] .profile-head::before,
++[data-whimsy] .docs-content h1::before,
++[data-whimsy] .about-page h1::before {
++  content: "✦";
++  position: absolute;
++  right: 0;
++  top: -16px;
++  z-index: 2;
++  font-size: 20px;
++  line-height: 1;
++  color: var(--wd-gold);
++  -webkit-text-stroke: 1px var(--wd-outline);
++  text-shadow: 0 0 9px currentColor;
++  pointer-events: none;
++  animation: wd-twinkle 4s ease-in-out infinite;
++}
++
++/* Bold corner sparkle on every card, plus a gentle tilt on hover. */
++[data-whimsy] .game,
++[data-whimsy] .tag-tile,
++[data-whimsy] .promo {
++  position: relative;
++}
++
++[data-whimsy] .game::after,
++[data-whimsy] .tag-tile::after,
++[data-whimsy] .promo::after {
++  content: "✦";
++  position: absolute;
++  top: 8px;
++  right: 10px;
++  z-index: 5;
++  font-size: 15px;
++  font-weight: 800;
++  line-height: 1;
++  color: var(--wd-gold);
++  -webkit-text-stroke: 0.8px var(--wd-outline);
++  text-shadow: 0 0 8px currentColor;
++  pointer-events: none;
++  animation: wd-twinkle 3.8s ease-in-out infinite;
++}
++
++[data-whimsy] .game:hover,
++[data-whimsy] .tag-tile:hover,
++[data-whimsy] .promo:hover,
++[data-whimsy] .tourney-panel:hover,
++[data-whimsy] .panel:hover,
++[data-whimsy] .board-card:hover,
++[data-whimsy] .step:hover {
++  rotate: -0.7deg;
++}
++
++/* Wiggling NEW sticker. */
++[data-whimsy] .new-badge {
++  animation: wd-wiggle 3.2s ease-in-out infinite;
++  transform-origin: center;
++}
++
++[data-whimsy] .new-badge::before { content: "✦ "; }
++
++/* Sparkle shimmer on the logo, using the existing brand colours. */
++[data-whimsy] .logo-mark { position: relative; }
++
++[data-whimsy] .logo:hover .logo-mark::after {
++  content: "✦";
++  position: absolute;
++  top: -7px;
++  right: -7px;
++  font-size: 14px;
++  color: var(--wd-gold);
++  -webkit-text-stroke: 0.7px var(--wd-outline);
++  text-shadow: 0 0 6px currentColor;
++  pointer-events: none;
++  animation: wd-pop 0.55s ease-out;
++}
++
++/* Bouncy hero buttons + squish on any click. */
++[data-whimsy] .hero .actions .btn:hover,
++[data-whimsy] .hero .actions .ghost:hover {
++  animation: wd-btn-bounce 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
++}
++
++[data-whimsy] .wd-squish {
++  animation: wd-squish 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
++}
++
++/* Visible lime focus glow on every form field. */
++[data-whimsy] .signin-card input:focus,
++[data-whimsy] .auth-card input:focus,
++[data-whimsy] .auth-card select:focus,
++[data-whimsy] .search-box input:focus,
++[data-whimsy] .field input:focus,
++[data-whimsy] .field textarea:focus,
++[data-whimsy] .builder-group select:focus {
++  box-shadow: 0 0 0 3px rgba(143, 191, 0, 0.55), 0 0 12px rgba(143, 191, 0, 0.3);
++  outline: 2px solid var(--wd-lime-deep);
++  outline-offset: 1px;
++}
++
++/* Playful empty-state sticker (added beside the existing copy). */
++[data-whimsy] .profile-empty::after,
++[data-whimsy] .empty::after {
++  content: "No wahala — something sharp is coming.";
++  display: block;
++  margin-top: 8px;
++  color: var(--wd-lime-deep);
++  font-size: 0.78rem;
++  font-weight: 800;
++}
++
++/* Scroll reveals (only applied by JS to below-the-fold blocks). */
++[data-whimsy] .wd-reveal {
++  opacity: 0;
++  transform: translateY(18px);
++}
++
++[data-whimsy] .wd-reveal.wd-in {
++  opacity: 1;
++  transform: none;
++  transition: opacity 0.55s ease, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
++}
++
++/* Fixed mascot for the auto-opened sign-in modal (above the overlay). */
++.wd-auth-mascot {
++  position: fixed;
++  z-index: 95;
++  width: 84px;
++  pointer-events: none;
++  animation: wd-bob 4.6s ease-in-out infinite;
++}
++
++.wd-auth-mascot .wd-svg { width: 100%; height: auto; }
++
++.wd-speech-auth {
++  left: 76px;
++  top: -8px;
++  transform: rotate(-3deg);
++}
++
++@media (max-width: 600px) {
++  .wd-auth-mascot { width: 64px; }
++  .wd-speech-auth { left: 56px; top: -6px; padding: 3px 7px; font-size: 9px; }
++}
++
++/* ---------- loader + 404 ---------- */
++.wd-loading {
++  display: grid;
++  place-items: center;
++  gap: 10px;
++  min-height: 60vh;
++  padding: 70px 24px;
++  text-align: center;
++}
++
++.wd-loading-coin {
++  width: 64px;
++  animation: wd-spin 1.6s linear infinite;
++}
++
++.wd-loading-coin .wd-svg { width: 100%; height: auto; }
++
++.wd-loading p {
++  margin: 0;
++  color: var(--ink);
++  font: 800 0.8rem/1.4 var(--mono);
++  letter-spacing: 0.12em;
++  text-transform: uppercase;
++}
++
++.wd-loading small {
++  color: var(--muted);
++  font-size: 0.8rem;
++  font-weight: 700;
++}
++
++.wd-404-line {
++  margin: 12px 0 0 !important;
++  color: var(--wd-lime-deep) !important;
++  font-weight: 800;
++}
++
++.wd-404-doodle {
++  width: 86px;
++  margin: 16px auto 0;
++  animation: wd-bob 4s ease-in-out infinite;
++}
++
++/* ---------- motion ---------- */
++@keyframes wd-float {
++  0%, 100% { translate: 0 0; }
++  50% { translate: 0 -9px; }
++}
++
++@keyframes wd-bob {
++  0%, 100% { translate: 0 0; }
++  50% { translate: 0 -6px; }
++}
++
++@keyframes wd-twinkle {
++  0%, 100% { opacity: 0.35; scale: 0.82; }
++  50% { opacity: 1; scale: 1.12; }
++}
++
++@keyframes wd-bounce {
++  0%, 100% { translate: 0 0; }
++  50% { translate: 0 -7px; }
++}
++
++@keyframes wd-tick {
++  to { transform: rotate(360deg); }
++}
++
++@keyframes wd-wiggle {
++  0%, 100% { rotate: 0deg; }
++  25% { rotate: -6deg; }
++  50% { rotate: 5deg; }
++  75% { rotate: -3deg; }
++}
++
++@keyframes wd-pop {
++  0% { opacity: 0; scale: 0.2; rotate: -40deg; }
++  60% { opacity: 1; scale: 1.25; }
++  100% { opacity: 1; scale: 1; rotate: 0deg; }
++}
++
++@keyframes wd-btn-bounce {
++  0%, 100% { translate: 0 0; scale: 1; }
++  30% { translate: 0 -5px; scale: 1.04; }
++  60% { translate: 0 1px; scale: 0.99; }
++}
++
++@keyframes wd-squish {
++  0% { scale: 1; }
++  35% { scale: 0.94; }
++  70% { scale: 1.03; }
++  100% { scale: 1; }
++}
++
++@keyframes wd-spin {
++  to { transform: rotate(360deg); }
++}
++
++.wd-wave {
++  transform-box: view-box;
++  transform-origin: 76px 50px;
++  animation: wd-wave 2.4s ease-in-out infinite;
++}
++
++@keyframes wd-wave {
++  0%, 100% { transform: rotate(0deg); }
++  50% { transform: rotate(-16deg); }
++}
++
++/* ---------- reduced motion: keep decoration, drop animation ---------- */
++@media (prefers-reduced-motion: reduce) {
++  .wd-runner { display: none !important; }
++
++  .wd-decor *,
++  .wd-decor *::before,
++  .wd-decor *::after,
++  [data-whimsy] .wd-squish,
++  [data-whimsy] .hero .actions .btn,
++  [data-whimsy] .hero .actions .ghost {
++    animation: none !important;
++    transition: none !important;
++  }
++
++  [data-whimsy] .game:hover,
++  [data-whimsy] .tag-tile:hover,
++  [data-whimsy] .promo:hover,
++  [data-whimsy] .tourney-panel:hover,
++  [data-whimsy] .panel:hover,
++  [data-whimsy] .board-card:hover,
++  [data-whimsy] .step:hover {
++    rotate: none;
++  }
++
++  [data-whimsy] .wd-reveal {
++    opacity: 1 !important;
++    transform: none !important;
++  }
++
++  [data-whimsy] .section-head::before,
++  [data-whimsy] .page-head::before,
++  [data-whimsy] .cat-hero::before,
++  [data-whimsy] .tourney-top::before,
++  [data-whimsy] .lb-page::before,
++  [data-whimsy] .profile-head::before,
++  [data-whimsy] .docs-content h1::before,
++  [data-whimsy] .about-page h1::before,
++  [data-whimsy] .game::after,
++  [data-whimsy] .tag-tile::after,
++  [data-whimsy] .promo::after,
++  [data-whimsy] .new-badge,
++  .wd-tourney-props *,
++  .wd-medal,
++  .wd-medal *,
++  .wd-signin-mascot,
++  .wd-signin-mascot *,
++  .wd-auth-mascot,
++  .wd-auth-mascot *,
++  .wd-wave {
++    animation: none !important;
++    transition: none !important;
++  }
++}
++
++/* Tablet widths: keep the corner sparkles inside the page padding. */
++@media (min-width: 761px) and (max-width: 1199px) {
++  .wd-fixed-spark { font-size: 15px !important; }
++  .wd-fixed-spark:nth-child(odd) { left: 0.5% !important; right: auto !important; }
++  .wd-fixed-spark:nth-child(even) { left: auto !important; right: 0.5% !important; }
++}
+diff --git a/components/WhimsyDecor.tsx b/components/WhimsyDecor.tsx
+new file mode 100644
+index 0000000..79a07b0
+--- /dev/null
++++ b/components/WhimsyDecor.tsx
+@@ -0,0 +1,476 @@
++'use client';
++
++import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
++import { usePathname } from 'next/navigation';
++import { createPortal } from 'react-dom';
++import { Doodle, type DoodleName } from './WhimsyDoodles';
++
++const FX_COLORS = ['#7a9a00', '#c98a00', '#c0392b', '#0f766e', '#292a23'];
++const SPARK_CHARS = ['✦', '✧'];
++const REDUCED = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
++const FINE = () => typeof window !== 'undefined' && window.matchMedia('(pointer: fine)').matches;
++
++const DOODLES_BY_ROUTE: { test: (path: string) => boolean; names: DoodleName[] }[] = [
++  { test: (p) => p === '/', names: ['danfo', 'jollof', 'mango', 'trophy'] },
++  { test: (p) => p === '/tournament', names: ['trophy', 'crown', 'clock', 'coin'] },
++  { test: (p) => p === '/leaderboard', names: ['crown', 'medal', 'coin', 'mango'] },
++  { test: (p) => p === '/creators' || p.startsWith('/creators/'), names: ['zobo', 'puff', 'mango', 'coin'] },
++  { test: (p) => p === '/docs', names: ['coin', 'danfo', 'puff', 'jollof'] },
++  { test: (p) => p === '/about', names: ['suya', 'zobo', 'jollof', 'mango'] },
++  { test: (p) => p === '/signin', names: ['puff', 'zobo', 'coin', 'jollof'] },
++  { test: (p) => p === '/hangout', names: ['danfo', 'puff', 'coin', 'mango'] },
++  { test: (p) => p.startsWith('/toybox'), names: ['mango', 'zobo', 'coin', 'danfo'] },
++  { test: (p) => p.startsWith('/games') || p.startsWith('/categories'), names: ['coin', 'puff', 'mango', 'danfo'] },
++];
++
++function doodlesFor(pathname: string) {
++  return DOODLES_BY_ROUTE.find((row) => row.test(pathname))?.names ?? ['danfo', 'jollof', 'coin', 'mango'];
++}
++
++function node<K extends keyof HTMLElementTagNameMap>(tag: K, className: string) {
++  const el = document.createElement(tag);
++  el.className = className;
++  return el;
++}
++
++function removeLater(el: HTMLElement, ms = 800) {
++  el.addEventListener('animationend', () => el.remove(), { once: true });
++  window.setTimeout(() => el.remove(), ms);
++}
++
++function spark(fx: HTMLElement, x: number, y: number, color: string, char: string, size: number, angle: number, distance: number) {
++  const el = node('span', 'wd-fx-spark');
++  el.textContent = char;
++  el.style.left = `${x}px`;
++  el.style.top = `${y}px`;
++  el.style.fontSize = `${size}px`;
++  el.style.color = color;
++  el.style.setProperty('--wd-dx', `${Math.cos(angle) * distance}px`);
++  el.style.setProperty('--wd-dy', `${Math.sin(angle) * distance}px`);
++  fx.appendChild(el);
++  removeLater(el, 750);
++}
++
++function coin(fx: HTMLElement, x: number, y: number, angle: number, distance: number) {
++  const el = node('span', 'wd-fx-coin');
++  el.style.left = `${x}px`;
++  el.style.top = `${y}px`;
++  el.style.setProperty('--wd-dx', `${Math.cos(angle) * distance}px`);
++  el.style.setProperty('--wd-dy', `${Math.sin(angle) * distance}px`);
++  fx.appendChild(el);
++  removeLater(el, 750);
++}
++
++function confetti(fx: HTMLElement, x: number, y: number, count = 18) {
++  for (let i = 0; i < count; i += 1) {
++    const el = node('span', 'wd-fx-confetti');
++    const angle = (i / count) * Math.PI * 2 + Math.random() * 0.4;
++    const distance = 60 + Math.random() * 90;
++    el.style.left = `${x}px`;
++    el.style.top = `${y}px`;
++    el.style.background = FX_COLORS[i % FX_COLORS.length];
++    el.style.width = `${5 + Math.random() * 6}px`;
++    el.style.height = `${3 + Math.random() * 5}px`;
++    el.style.setProperty('--wd-dx', `${Math.cos(angle) * distance}px`);
++    el.style.setProperty('--wd-dy', `${Math.sin(angle) * distance}px`);
++    el.style.setProperty('--wd-rot', `${Math.random() * 540 - 270}deg`);
++    fx.appendChild(el);
++    removeLater(el, 1000);
++  }
++}
++
++function burst(fx: HTMLElement, x: number, y: number, big = false) {
++  if (REDUCED()) return;
++  const ring = node('span', 'wd-fx-ring');
++  ring.style.left = `${x}px`;
++  ring.style.top = `${y}px`;
++  ring.style.setProperty('--wd-ring', big ? '#c98a00' : '#7a9a00');
++  fx.appendChild(ring);
++  removeLater(ring, 700);
++
++  const sparks = big ? 12 : 8;
++  for (let i = 0; i < sparks; i += 1) {
++    spark(
++      fx,
++      x,
++      y,
++      FX_COLORS[i % 4],
++      SPARK_CHARS[i % 2],
++      big ? 20 + Math.random() * 8 : 15 + Math.random() * 6,
++      (i / sparks) * Math.PI * 2,
++      big ? 70 + Math.random() * 50 : 38 + Math.random() * 30,
++    );
++  }
++  coin(fx, x, y, Math.PI * 0.2, big ? 90 : 50);
++  coin(fx, x, y, Math.PI * 1.2, big ? 110 : 60);
++  if (big) confetti(fx, x, y, 16);
++}
++
++const SPARKLES = [
++  { x: '2.4%', y: '15%', size: 22, char: '✦', tone: 'wd-s1', delay: '0s', dur: '4.8s' },
++  { x: '96.8%', y: '12%', size: 18, char: '✧', tone: 'wd-s2', delay: '-1.4s', dur: '5.6s' },
++  { x: '3.2%', y: '46%', size: 16, char: '✧', tone: 'wd-s3', delay: '-2.6s', dur: '4.2s' },
++  { x: '96.2%', y: '42%', size: 24, char: '✦', tone: 'wd-s4', delay: '-0.8s', dur: '6.2s' },
++  { x: '2.8%', y: '76%', size: 18, char: '✦', tone: 'wd-s2', delay: '-3.2s', dur: '5.2s' },
++  { x: '96.6%', y: '74%', size: 16, char: '✧', tone: 'wd-s1', delay: '-2s', dur: '4.6s' },
++  { x: '7%', y: '90%', size: 20, char: '✦', tone: 'wd-s3', delay: '-1.1s', dur: '5.8s' },
++  { x: '91%', y: '88%', size: 18, char: '✧', tone: 'wd-s4', delay: '-3.8s', dur: '5s' },
++];
++
++type Anchors = {
++  signin: HTMLElement | null;
++  auth: HTMLElement | null;
++  tourney: HTMLElement | null;
++  footer: HTMLElement | null;
++  medals: HTMLElement[];
++};
++
++export function WhimsyDecor() {
++  const pathname = usePathname();
++  const names = useMemo(() => doodlesFor(pathname), [pathname]);
++  const fxRef = useRef<HTMLDivElement>(null);
++  const [anchors, setAnchors] = useState<Anchors>({ signin: null, auth: null, tourney: null, footer: null, medals: [] });
++  const [authRect, setAuthRect] = useState<{ top: number; left: number } | null>(null);
++
++  useEffect(() => {
++    const root = document.documentElement;
++    root.dataset.whimsy = 'on';
++    return () => {
++      delete root.dataset.whimsy;
++    };
++  }, []);
++
++  // Cursor trail, click bursts, hover sparkles and playful tooltips.
++  useEffect(() => {
++    const fx = fxRef.current;
++    if (!fx) return;
++    let lastTrail = 0;
++    let tip: HTMLElement | null = null;
++
++    const hideTip = () => {
++      tip?.remove();
++      tip = null;
++    };
++
++    const onMove = (event: PointerEvent) => {
++      if (REDUCED() || !FINE()) return;
++      const now = performance.now();
++      if (now - lastTrail < 55) return;
++      lastTrail = now;
++      const el = node('span', 'wd-trail');
++      el.textContent = SPARK_CHARS[Math.floor(Math.random() * 2)];
++      el.style.left = `${event.clientX}px`;
++      el.style.top = `${event.clientY}px`;
++      el.style.fontSize = `${10 + Math.random() * 7}px`;
++      el.style.color = FX_COLORS[Math.floor(Math.random() * 4)];
++      el.style.setProperty('--wd-dx', `${(Math.random() - 0.5) * 18}px`);
++      el.style.setProperty('--wd-dy', `${8 + Math.random() * 14}px`);
++      fx.appendChild(el);
++      removeLater(el, 650);
++    };
++
++    const onDown = (event: PointerEvent) => {
++      if (REDUCED()) return;
++      const target = (event.target as Element | null)?.closest?.<HTMLElement>('a, button, summary, [role="button"]');
++      if (!target) return;
++      const rect = target.getBoundingClientRect();
++      const x = event.clientX || rect.left + rect.width / 2;
++      const y = event.clientY || rect.top + rect.height / 2;
++      const text = (target.textContent || '').toLowerCase();
++      const big = Boolean(target.closest('.hero .actions')) || text.includes('play now') || text.includes('create free account');
++      burst(fx, x, y, big);
++      if (big) {
++        const label = node('span', 'wd-sharp');
++        label.textContent = 'Sharp sharp!';
++        label.style.left = `${x}px`;
++        label.style.top = `${y - 34}px`;
++        fx.appendChild(label);
++        removeLater(label, 950);
++      }
++      hideTip();
++      target.classList.remove('wd-squish');
++      void target.offsetWidth;
++      target.classList.add('wd-squish');
++      window.setTimeout(() => target.classList.remove('wd-squish'), 280);
++    };
++
++    const onOver = (event: PointerEvent) => {
++      if (REDUCED() || !FINE()) return;
++      const target = event.target as Element | null;
++      if (!target) return;
++      const card = target.closest<HTMLElement>('.game, .tag-tile, .promo, .tourney-panel, .creator-banner, .panel, .board-card, .step');
++      if (card) {
++        const from = event.relatedTarget as Node | null;
++        if (from && card.contains(from)) return;
++        const rect = card.getBoundingClientRect();
++        for (let i = 0; i < 3; i += 1) {
++          spark(fx, rect.right - 10, rect.top + 10, FX_COLORS[i], SPARK_CHARS[i % 2], 15 + i * 2, -0.6 - i * 0.5, 22 + i * 8);
++        }
++      }
++      const tipTarget = target.closest<HTMLElement>('.btn, .ghost, .nav-signin, .nav nav a');
++      if (tipTarget && (tipTarget.textContent || '').trim().length > 1) {
++        hideTip();
++        tip = node('span', 'wd-tip');
++        tip.textContent = 'Sharp sharp!';
++        const r = tipTarget.getBoundingClientRect();
++        tip.style.left = `${Math.min(Math.max(r.left + r.width / 2, 70), window.innerWidth - 70)}px`;
++        tip.style.top = `${Math.max(12, r.top - 10)}px`;
++        fx.appendChild(tip);
++      }
++    };
++
++    const onOut = (event: PointerEvent) => {
++      const target = event.target as Element | null;
++      if (!target?.closest?.('.btn, .ghost, .nav-signin, .nav nav a')) return;
++      hideTip();
++    };
++
++    window.addEventListener('pointermove', onMove, { passive: true });
++    document.addEventListener('pointerdown', onDown, { capture: true, passive: true });
++    document.addEventListener('pointerover', onOver, { passive: true });
++    document.addEventListener('pointerout', onOut, { passive: true });
++    window.addEventListener('scroll', hideTip, { passive: true });
++    return () => {
++      window.removeEventListener('pointermove', onMove);
++      document.removeEventListener('pointerdown', onDown, true);
++      document.removeEventListener('pointerover', onOver);
++      document.removeEventListener('pointerout', onOut);
++      window.removeEventListener('scroll', hideTip);
++      hideTip();
++    };
++  }, []);
++
++  // Anchor the sign-in mascot, tournament props, medals and footer strip.
++  useEffect(() => {
++    let timer = 0;
++    let authObserver: MutationObserver | null = null;
++
++    const computeRect = (el: HTMLElement) => {
++      const r = el.getBoundingClientRect();
++      const mobile = window.innerWidth < 600;
++      const modal = el.classList.contains('auth-card');
++      const offset = modal ? (mobile ? 62 : 78) : (mobile ? 46 : 60);
++      return { top: r.top - offset, left: Math.max(8, r.left - 4) };
++    };
++    const updateRect = (el: HTMLElement | null) => {
++      const next = el ? computeRect(el) : null;
++      setAuthRect((prev) => {
++        if (!next || !prev) return next;
++        return Math.abs(prev.top - next.top) < 1 && Math.abs(prev.left - next.left) < 1 ? prev : next;
++      });
++    };
++
++    const apply = () => {
++      const signin = document.querySelector<HTMLElement>('.signin-card');
++      const auth = document.querySelector<HTMLElement>('.auth-card');
++      const tourney = document.querySelector<HTMLElement>('.tourney-panel');
++      const footer = document.querySelector<HTMLElement>('footer:not(.sm-footer)');
++      const medals = Array.from(document.querySelectorAll<HTMLElement>('.lb-table tbody tr'))
++        .slice(0, 3)
++        .map((row) => row.querySelector<HTMLElement>('td:first-child'))
++        .filter((cell): cell is HTMLElement => Boolean(cell));
++
++      [signin, auth, tourney, footer].forEach((el) => el?.classList.add('wd-anchor'));
++      medals.forEach((cell) => cell.classList.add('wd-medal-anchor'));
++      footer?.classList.add('wd-has-skyline');
++      setAnchors({ signin, auth, tourney, footer, medals });
++      updateRect(auth);
++
++      if (pathname === '/leaderboard' && !REDUCED() && !sessionStorage.getItem('wd-leader-confetti')) {
++        const table = document.querySelector<HTMLElement>('.lb-table');
++        if (table && fxRef.current) {
++          const rect = table.getBoundingClientRect();
++          window.setTimeout(() => {
++            confetti(fxRef.current!, rect.left + rect.width / 2, Math.max(90, rect.top + 40), 24);
++            sessionStorage.setItem('wd-leader-confetti', '1');
++          }, 500);
++        }
++      }
++    };
++
++    const wireAuth = (auth: HTMLElement | null) => {
++      if (!auth) return;
++      auth.classList.add('wd-anchor');
++      const form = auth.querySelector<HTMLFormElement>('form.character-form');
++      if (!form || form.dataset.wdWired === '1') return;
++      form.dataset.wdWired = '1';
++      form.addEventListener('submit', () => {
++        const name = form.querySelector<HTMLInputElement>('#character-name')?.value.trim() ?? '';
++        if (name.length < 2 || REDUCED()) return;
++        const button = form.querySelector<HTMLElement>('button[type="submit"]');
++        const rect = button?.getBoundingClientRect();
++        window.setTimeout(() => {
++          if (!fxRef.current) return;
++          confetti(fxRef.current, rect ? rect.left + rect.width / 2 : window.innerWidth / 2, rect ? rect.top : window.innerHeight / 2, 28);
++        }, 120);
++      });
++    };
++
++    apply();
++    timer = window.setTimeout(apply, 180);
++    const onResize = () => {
++      updateRect(document.querySelector<HTMLElement>('.auth-card'));
++    };
++    window.addEventListener('resize', onResize);
++    wireAuth(document.querySelector<HTMLElement>('.auth-card'));
++
++    authObserver = new MutationObserver(() => {
++      const auth = document.querySelector<HTMLElement>('.auth-card');
++      wireAuth(auth);
++      setAnchors((prev) => (prev.auth === auth ? prev : { ...prev, auth }));
++      updateRect(auth);
++    });
++    authObserver.observe(document.body, { childList: true, subtree: true });
++
++    return () => {
++      window.clearTimeout(timer);
++      window.removeEventListener('resize', onResize);
++      authObserver?.disconnect();
++      document.querySelectorAll('.wd-anchor').forEach((el) => el.classList.remove('wd-anchor'));
++      document.querySelectorAll('.wd-medal-anchor').forEach((el) => el.classList.remove('wd-medal-anchor'));
++      document.querySelectorAll('.wd-has-skyline').forEach((el) => el.classList.remove('wd-has-skyline'));
++      setAnchors({ signin: null, auth: null, tourney: null, footer: null, medals: [] });
++      setAuthRect(null);
++    };
++  }, [pathname]);
++
++  // Gentle scroll reveals for content below the first screen.
++  useEffect(() => {
++    if (REDUCED() || pathname === '/hangout' || pathname.startsWith('/toybox') || (pathname.startsWith('/games/') && pathname.endsWith('/play'))) return;
++    let timer = 0;
++    let observer: IntersectionObserver | null = null;
++
++    const run = () => {
++      const selector = 'main > section, main > div > section, .game, .tag-tile, .panel, .board-card, .step, .promo, .creator-banner, .tourney-panel, .lb-you, .faq details';
++      const targets = Array.from(document.querySelectorAll<HTMLElement>(selector)).filter((el) => {
++        const rect = el.getBoundingClientRect();
++        return rect.top > window.innerHeight && !el.classList.contains('wd-reveal');
++      });
++      if (!targets.length) return;
++      observer = new IntersectionObserver(
++        (entries) => {
++          entries.forEach((entry) => {
++            if (!entry.isIntersecting) return;
++            entry.target.classList.add('wd-in');
++            observer?.unobserve(entry.target);
++          });
++        },
++        { threshold: 0.08, rootMargin: '0px 0px -40px 0px' },
++      );
++      targets.forEach((el, index) => {
++        el.classList.add('wd-reveal');
++        el.style.transitionDelay = `${Math.min(index % 6, 5) * 55}ms`;
++        observer?.observe(el);
++      });
++    };
++
++    timer = window.setTimeout(run, 240);
++    return () => {
++      window.clearTimeout(timer);
++      observer?.disconnect();
++      document.querySelectorAll('.wd-reveal').forEach((el) => {
++        el.classList.remove('wd-reveal', 'wd-in');
++        (el as HTMLElement).style.transitionDelay = '';
++      });
++    };
++  }, [pathname]);
++
++  return (
++    <div className="wd-decor" aria-hidden="true">
++      <div className="wd-margin-layer">
++        {names.map((name, index) => (
++          <Doodle key={`${name}-${index}`} name={name} className={`wd-margin wd-margin-${index}`} />
++        ))}
++      </div>
++
++      <div className="wd-spark-layer">
++        {SPARKLES.map((s, index) => (
++          <span
++            key={index}
++            className={`wd-fixed-spark ${s.tone}`}
++            style={{ left: s.x, top: s.y, fontSize: s.size, animationDelay: s.delay, animationDuration: s.dur }}
++          >
++            {s.char}
++          </span>
++        ))}
++      </div>
++
++      <div className="wd-runner">
++        <span className="wd-runner-road" />
++        <Doodle name="danfo" className="wd-runner-bus" />
++      </div>
++
++      <div className="wd-fx" ref={fxRef} />
++
++      {pathname === '/' && (
++        <div className="wd-home-mascot">
++          <span className="wd-speech wd-speech-home">Naija vibes ✦</span>
++          <Doodle name="mascot" />
++        </div>
++      )}
++
++      {anchors.signin && !anchors.auth
++        ? createPortal(<SigninMascot modal={false} />, anchors.signin)
++        : null}
++      {anchors.auth && authRect ? <AuthMascot rect={authRect} /> : null}
++      {anchors.tourney ? createPortal(<TournamentProps />, anchors.tourney) : null}
++      {anchors.footer ? createPortal(<FooterProps />, anchors.footer) : null}
++      {anchors.medals.map((cell, rank) => (
++        <Fragment key={rank}>{createPortal(<MedalProps rank={rank} />, cell)}</Fragment>
++      ))}
++    </div>
++  );
++}
++
++function AuthMascot({ rect }: { rect: { top: number; left: number } }) {
++  return (
++    <div className='wd-auth-mascot' style={{ top: rect.top, left: rect.left }}>
++      <span className='wd-speech wd-speech-auth'>Oya, come in!</span>
++      <Doodle name='mascot' />
++    </div>
++  );
++}
++
++function SigninMascot({ modal }: { modal: boolean }) {
++  return (
++    <div className={`wd-signin-mascot${modal ? ' wd-signin-mascot-modal' : ''}`}>
++      <span className="wd-speech wd-speech-signin">Oya, come in!</span>
++      <Doodle name="mascot" />
++    </div>
++  );
++}
++
++function TournamentProps() {
++  return (
++    <div className="wd-tourney-props">
++      <span className="wd-trophy"><Doodle name="trophy" /></span>
++      <span className="wd-clock"><Doodle name="clock" /></span>
++    </div>
++  );
++}
++
++function MedalProps({ rank }: { rank: number }) {
++  return (
++    <span className={`wd-medal wd-medal-${rank + 1}`}>
++      {rank === 0 ? <Doodle name="crown" /> : <Doodle name="medal" />}
++      <span className="wd-medal-spark">✦</span>
++    </span>
++  );
++}
++
++function FooterProps() {
++  return (
++    <>
++      <svg className="wd-skyline" viewBox="0 0 1200 40" preserveAspectRatio="none" aria-hidden="true">
++        <path d="M0 40V31h38v-9h22v9h18V18h34v22h16V27h30v13h20V14h36v26h18V24h26v16h14V19h30v21h18V29h34v11h14V13h40v27h18V25h26v15h12V20h30v20h18V28h30v12h14V15h38v25h18V24h26v16h12V19h34v21h18V30h38v10h14V17h42v23h18V26h24v14h12V20h34v20h18V28h30v12h14V16h40v24h16V27h30v13h16V22h34v18h14V29h32v11h12V18h38v22h16V26h30v14h12V21h34v19h14V30h40v10h14V19h34v21h12V27h28v13H0Z" fill="var(--wd-lime)" stroke="var(--wd-outline)" strokeWidth="2" vectorEffect="non-scaling-stroke" />
++        <path d="M96 40V20l16-10 16 10v20M244 40V12l18-9 18 9v28M392 40V17l16-8 16 8v23M560 40V14l18-10 18 10v26M706 40V22l15-9 15 9v18M900 40V15l16-9 16 9v25M1052 40V20l16-10 16 10v20" fill="var(--wd-gold)" stroke="var(--wd-outline)" strokeWidth="2" vectorEffect="non-scaling-stroke" />
++        <path d="M160 40V28h24v12M310 40V31h28v9M470 40V26h22v14M630 40V31h26v9M800 40V25h24v15M980 40V30h30v10M1130 40V26h26v14" fill="var(--wd-red)" stroke="var(--wd-outline)" strokeWidth="2" vectorEffect="non-scaling-stroke" />
++        <rect x="520" y="29" width="52" height="11" rx="3" fill="var(--wd-orange)" stroke="var(--wd-outline)" strokeWidth="2" vectorEffect="non-scaling-stroke" />
++        <circle cx="532" cy="40" r="3" fill="var(--wd-outline)" />
++        <circle cx="560" cy="40" r="3" fill="var(--wd-outline)" />
++        <path d="M1040 40V18l6-12 6 12M1046 10c-7-7-2-13 5-12-1 6-2 10-5 12M1046 10c7-7 12-2 11 5-6-1-9-2-11-5" fill="var(--wd-green)" stroke="var(--wd-outline)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
++      </svg>
++      <span className="wd-signoff">No wahala ✦</span>
++    </>
++  );
++}
+diff --git a/components/WhimsyDoodles.tsx b/components/WhimsyDoodles.tsx
+new file mode 100644
+index 0000000..77bc0c8
+--- /dev/null
++++ b/components/WhimsyDoodles.tsx
+@@ -0,0 +1,177 @@
++'use client';
++
++import type { CSSProperties } from 'react';
++
++export type DoodleName =
++  | 'danfo'
++  | 'jollof'
++  | 'suya'
++  | 'puff'
++  | 'mango'
++  | 'zobo'
++  | 'coin'
++  | 'mascot'
++  | 'trophy'
++  | 'crown'
++  | 'medal'
++  | 'clock';
++
++const outline = {
++  stroke: 'var(--wd-outline)',
++  strokeWidth: 2.2,
++  vectorEffect: 'non-scaling-stroke' as const,
++  strokeLinejoin: 'round' as const,
++  strokeLinecap: 'round' as const,
++};
++
++export function Doodle({
++  name,
++  className = '',
++  style,
++}: {
++  name: DoodleName;
++  className?: string;
++  style?: CSSProperties;
++}) {
++  return (
++    <span className={`wd-doodle wd-doodle-${name} ${className}`.trim()} style={style} aria-hidden="true">
++      {name === 'danfo' && (
++        <svg viewBox="0 0 100 80" className="wd-svg">
++          <rect x="5" y="26" width="90" height="34" rx="9" fill="var(--wd-yellow)" {...outline} />
++          <path d="M19 26 29 11h42l10 15" fill="var(--wd-yellow)" {...outline} />
++          <rect x="35" y="14" width="14" height="9" rx="2" fill="var(--wd-teal)" {...outline} />
++          <rect x="53" y="14" width="14" height="9" rx="2" fill="var(--wd-teal)" {...outline} />
++          <path d="M6 46h88" stroke="var(--wd-red)" strokeWidth="7" />
++          <rect x="14" y="34" width="20" height="8" rx="2" fill="var(--wd-orange)" {...outline} />
++          <circle cx="27" cy="62" r="8" fill="var(--wd-ink)" {...outline} />
++          <circle cx="73" cy="62" r="8" fill="var(--wd-ink)" {...outline} />
++          <circle cx="27" cy="62" r="3" fill="var(--wd-gold)" />
++          <circle cx="73" cy="62" r="3" fill="var(--wd-gold)" />
++        </svg>
++      )}
++      {name === 'jollof' && (
++        <svg viewBox="0 0 100 80" className="wd-svg">
++          <path d="M14 36h72c-2 22-16 33-36 33S16 58 14 36Z" fill="var(--wd-red)" {...outline} />
++          <path d="M20 36c6-16 54-16 60 0" fill="var(--wd-orange)" {...outline} />
++          <circle cx="34" cy="31" r="4" fill="var(--wd-gold)" {...outline} />
++          <circle cx="48" cy="27" r="4" fill="var(--wd-gold)" {...outline} />
++          <circle cx="62" cy="31" r="4" fill="var(--wd-gold)" {...outline} />
++          <path d="M62 21c5-8 14-8 18-2-7 1-11 4-13 8" fill="var(--wd-green)" {...outline} />
++          <path d="M26 54c8 7 40 7 48 0" stroke="var(--wd-outline)" strokeWidth="3" fill="none" />
++        </svg>
++      )}
++      {name === 'suya' && (
++        <svg viewBox="0 0 100 80" className="wd-svg">
++          <path d="M16 64 84 12" stroke="var(--wd-brown)" strokeWidth="5" strokeLinecap="round" />
++          <rect x="25" y="40" width="18" height="15" rx="4" fill="var(--wd-brown)" {...outline} transform="rotate(-38 34 47)" />
++          <rect x="41" y="30" width="18" height="15" rx="4" fill="var(--wd-red)" {...outline} transform="rotate(-38 50 37)" />
++          <rect x="57" y="20" width="18" height="15" rx="4" fill="var(--wd-brown)" {...outline} transform="rotate(-38 66 27)" />
++          <circle cx="38" cy="42" r="2.6" fill="var(--wd-gold)" />
++          <circle cx="54" cy="32" r="2.6" fill="var(--wd-gold)" />
++          <circle cx="70" cy="22" r="2.6" fill="var(--wd-gold)" />
++          <path d="M18 62c-6 2-10 7-11 12" stroke="var(--wd-outline)" strokeWidth="3" fill="none" />
++        </svg>
++      )}
++      {name === 'puff' && (
++        <svg viewBox="0 0 100 80" className="wd-svg">
++          <circle cx="30" cy="50" r="17" fill="var(--wd-gold)" {...outline} />
++          <circle cx="52" cy="38" r="19" fill="var(--wd-orange)" {...outline} />
++          <circle cx="73" cy="53" r="16" fill="var(--wd-gold)" {...outline} />
++          <circle cx="26" cy="44" r="3" fill="var(--wd-red)" opacity=".85" />
++          <circle cx="47" cy="31" r="3.4" fill="var(--wd-red)" opacity=".85" />
++          <circle cx="69" cy="47" r="3" fill="var(--wd-red)" opacity=".85" />
++        </svg>
++      )}
++      {name === 'mango' && (
++        <svg viewBox="0 0 100 80" className="wd-svg">
++          <path d="M50 22c20-8 34 10 30 28-4 19-22 25-33 17-14-9-18-36 3-45Z" fill="var(--wd-orange)" {...outline} />
++          <path d="M51 22c-2-9 5-15 14-14-1 8-6 13-14 14Z" fill="var(--wd-green)" {...outline} />
++          <path d="M59 35c6 2 9 7 9 14" stroke="var(--wd-gold)" strokeWidth="5" strokeLinecap="round" />
++          <circle cx="42" cy="37" r="3" fill="var(--wd-red)" />
++        </svg>
++      )}
++      {name === 'zobo' && (
++        <svg viewBox="0 0 100 80" className="wd-svg">
++          <path d="M28 26h44l-6 42H34Z" fill="var(--wd-red)" {...outline} />
++          <path d="M28 26h44" stroke="var(--wd-outline)" strokeWidth="5" />
++          <path d="M62 16 52 60" stroke="var(--wd-teal)" strokeWidth="6" strokeLinecap="round" />
++          <circle cx="46" cy="44" r="7" fill="var(--wd-pink)" {...outline} />
++          <path d="M42 44 50 44M46 40v8" stroke="var(--wd-gold)" strokeWidth="2.5" />
++          <path d="M38 21c2-6 8-7 10-2" fill="var(--wd-green)" {...outline} />
++        </svg>
++      )}
++      {name === 'coin' && (
++        <svg viewBox="0 0 100 80" className="wd-svg">
++          <circle cx="50" cy="40" r="27" fill="var(--wd-gold)" {...outline} />
++          <circle cx="50" cy="40" r="19" fill="var(--wd-yellow)" {...outline} />
++          <path d="M50 26l4.6 9.4 10.4 1.5-7.5 7.3 1.8 10.3L50 49.6l-9.3 4.9 1.8-10.3-7.5-7.3 10.4-1.5Z" fill="var(--wd-outline)" />
++          <circle cx="34" cy="29" r="2.5" fill="var(--wd-red)" opacity=".85" />
++        </svg>
++      )}
++      {name === 'mascot' && (
++        <svg viewBox="0 0 100 100" className="wd-svg">
++          <path d="M26 90c0-19 11-27 24-27s24 8 24 27" fill="var(--wd-lime)" {...outline} />
++          <circle cx="50" cy="40" r="25" fill="var(--wd-gold)" {...outline} />
++          <path d="M27 33c2-16 14-23 23-23s21 7 23 23c-8-6-16-8-23-8s-15 2-23 8Z" fill="var(--wd-lime)" {...outline} />
++          <circle cx="41" cy="41" r="3.4" fill="var(--wd-outline)" />
++          <circle cx="59" cy="41" r="3.4" fill="var(--wd-outline)" />
++          <path d="M42 50c4 4 12 4 16 0" stroke="var(--wd-outline)" strokeWidth="3" fill="none" strokeLinecap="round" />
++          <g className="wd-wave">
++            <path d="M76 50c8 2 11 10 9 18" stroke="var(--wd-outline)" strokeWidth="7" strokeLinecap="round" fill="none" />
++            <circle cx="85" cy="70" r="6" fill="var(--wd-gold)" {...outline} />
++          </g>
++        </svg>
++      )}
++      {name === 'trophy' && (
++        <svg viewBox="0 0 100 100" className="wd-svg">
++          <path d="M30 18h40v18c0 15-9 25-20 25S30 51 30 36Z" fill="var(--wd-gold)" {...outline} />
++          <path d="M30 24H18c0 13 6 20 14 21M70 24h12c0 13-6 20-14 21" fill="none" {...outline} />
++          <path d="M45 61h10v12H45Z" fill="var(--wd-gold)" {...outline} />
++          <path d="M34 80h32" stroke="var(--wd-outline)" strokeWidth="7" strokeLinecap="round" />
++          <path d="M50 28l3.4 6.9 7.6 1.1-5.5 5.4 1.3 7.6-6.8-3.6-6.8 3.6 1.3-7.6-5.5-5.4 7.6-1.1Z" fill="var(--wd-outline)" />
++        </svg>
++      )}
++      {name === 'crown' && (
++        <svg viewBox="0 0 100 80" className="wd-svg">
++          <path d="M16 58 12 25l21 14 17-23 17 23 21-14-4 33Z" fill="var(--wd-gold)" {...outline} />
++          <path d="M18 65h64" stroke="var(--wd-outline)" strokeWidth="7" strokeLinecap="round" />
++          <circle cx="50" cy="20" r="5" fill="var(--wd-teal)" {...outline} />
++          <circle cx="19" cy="26" r="4.5" fill="var(--wd-red)" {...outline} />
++          <circle cx="81" cy="26" r="4.5" fill="var(--wd-red)" {...outline} />
++          <circle cx="50" cy="48" r="4" fill="var(--wd-lime)" {...outline} />
++        </svg>
++      )}
++      {name === 'medal' && (
++        <svg viewBox="0 0 100 100" className="wd-svg">
++          <path d="M36 8 50 36 64 8" fill="var(--wd-red)" {...outline} />
++          <path d="M48 26 38 8M52 26l10-18" stroke="var(--wd-lime)" strokeWidth="6" />
++          <circle cx="50" cy="58" r="24" fill="var(--wd-gold)" {...outline} />
++          <circle cx="50" cy="58" r="17" fill="var(--wd-yellow)" {...outline} />
++          <path d="M50 44l4 8 9 1.4-6.6 6.4 1.6 9L50 64.4l-8 4.2 1.6-9-6.6-6.4 9-1.4Z" fill="var(--wd-outline)" />
++        </svg>
++      )}
++      {name === 'clock' && (
++        <svg viewBox="0 0 100 100" className="wd-svg">
++          <circle cx="50" cy="50" r="32" fill="var(--wd-yellow)" {...outline} />
++          <circle cx="50" cy="50" r="24" fill="var(--wd-gold)" {...outline} />
++          <path d="M50 50V31M50 50l13 9" stroke="var(--wd-outline)" strokeWidth="4" strokeLinecap="round" />
++          <circle cx="50" cy="50" r="4" fill="var(--wd-red)" {...outline} />
++          <path d="M40 10h20M50 10v8" stroke="var(--wd-outline)" strokeWidth="4" strokeLinecap="round" />
++          <path d="M20 22 26 28M80 22 74 28" stroke="var(--wd-teal)" strokeWidth="4" strokeLinecap="round" />
++          <g className="wd-clock-hand">
++            <path d="M50 50V38" stroke="var(--wd-red)" strokeWidth="4" strokeLinecap="round" />
++          </g>
++        </svg>
++      )}
++    </span>
++  );
++}
++
++/** Bold outlined sparkle used for static and burst effects. */
++export function Sparkle({ size = 18, color = 'var(--wd-spark-1)', char = '✦' }: { size?: number; color?: string; char?: string }) {
++  return (
++    <span className="wd-spark" style={{ fontSize: size, color }} aria-hidden="true">
++      {char}
++    </span>
++  );
++}
+-- 
+2.39.5
+
