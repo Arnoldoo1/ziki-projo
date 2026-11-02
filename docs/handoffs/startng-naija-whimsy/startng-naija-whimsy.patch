@@ -1,7 +1,7 @@
 From 4ae3548436ff7bfd73a3a59ef032e3f7731bbf55 Mon Sep 17 00:00:00 2001
 From: Arnold Nyamongo <arnoldnyams@gmail.com>
 Date: Sun, 1 Nov 2026 12:30:55 +0000
-Subject: [PATCH] Add a decoration-only Naija whimsy layer to every route
+Subject: [PATCH 1/3] Add a decoration-only Naija whimsy layer to every route
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -1667,6 +1667,854 @@ index 0000000..77bc0c8
 +    </span>
 +  );
 +}
+-- 
+2.39.5
+
+
+From 273ce8f86391c52b9643dcc881c02f17152e9936 Mon Sep 17 00:00:00 2001
+From: Arnold Nyamongo <arnoldnyams@gmail.com>
+Date: Mon, 2 Nov 2026 15:46:23 +0000
+Subject: [PATCH 2/3] Turn the hero into a whimsical set-piece and Play now
+ into a celebration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- add a decorative hero layer (sunburst halo, dashed orbit, six outlined
+  Naija doodles, six bold sparkles) inside the home hero; behind content,
+  clipped to the hero, no copy/layout changes
+- add a magic-wand custom cursor with a spark trail; disabled on touch and
+  for prefers-reduced-motion (native pointer preserved)
+- Play now opens a unique fixed celebration: six doodles orbit outward,
+  twelve high-contrast sparkles, a glowing ring and an “Oya, let’s play!”
+  sticker; pointer-events none, clears after 1.8s, navigation unaffected
+- replace the straight road/runner with a danfo following a curly
+  offset-path across the hero; no road line
+- remove the vertical dotted page rails and the section/page wavy divider
+  lines that looked like generic borders; keep the hand-drawn double
+  underline + star on “Good games.”
+- every button click now adds a sticker shout (Sharp sharp!/Oya!/Correct!/
+  E sweet!/No wahala!), 10–14 bold sparkles, coins and a bright ripple;
+  big CTAs add confetti
+- expand hero set-piece reduced-motion handling; hide corner sparkles/
+  cursor on touch; keep all content readable
+
+Verified: hero magic 6 doodles + 6 sparkles with 0 text overlaps, zero
+horizontal overflow at 1440/390, Play celebration appears/clears, custom
+cursor active only on fine pointers, reduced-motion keeps native cursor,
+dark mode glows, no page-edge or section lines remain.
+---
+ app/(site)/page.tsx        |   4 +-
+ app/whimsy.css             | 407 +++++++++++++++++++++++++++++++------
+ components/HeroMagic.tsx   |  25 +++
+ components/WhimsyDecor.tsx | 154 ++++++++++++--
+ 4 files changed, 513 insertions(+), 77 deletions(-)
+ create mode 100644 components/HeroMagic.tsx
+
+diff --git a/app/(site)/page.tsx b/app/(site)/page.tsx
+index 3aff7f0..5dada47 100644
+--- a/app/(site)/page.tsx
++++ b/app/(site)/page.tsx
+@@ -1,6 +1,7 @@
+ import Link from 'next/link';
+ import { CategoryTile, GameCard, CreatorCard } from '@/components/Cards';
+ import { HomePromos } from '@/components/HomePromos';
++import { HeroMagic } from '@/components/HeroMagic';
+ import { categories, creators, games } from '@/lib/site';
+ import { CharacterAvatar } from '@/components/CharacterAvatar';
+ import { DEFAULT_CHARACTER } from '@/lib/character';
+@@ -18,7 +19,8 @@ export default function HomePage() {
+ 
+   return (
+     <main>
+-      <section className="container hero">
++      <section className="container hero wd-hero-magic-on">
++        <HeroMagic />
+         <p className="eyebrow">Big imagination. Played everywhere.</p>
+         <h1>Good vibes.<br /><mark>Good games.</mark></h1>
+         <p className="lead">
+diff --git a/app/whimsy.css b/app/whimsy.css
+index 598e135..43b4872 100644
+--- a/app/whimsy.css
++++ b/app/whimsy.css
+@@ -76,21 +76,6 @@
+   pointer-events: none;
+ }
+ 
+-.wd-margin-layer::before,
+-.wd-margin-layer::after {
+-  content: "";
+-  position: fixed;
+-  top: 90px;
+-  bottom: 90px;
+-  width: 6px;
+-  background-image: radial-gradient(circle, var(--wd-lime-deep) 2.2px, transparent 2.6px);
+-  background-size: 6px 16px;
+-  opacity: 0.9;
+-}
+-
+-.wd-margin-layer::before { left: 10px; }
+-.wd-margin-layer::after { right: 10px; }
+-
+ .wd-doodle {
+   display: block;
+   line-height: 0;
+@@ -152,48 +137,48 @@
+   .wd-fixed-spark:nth-child(4) { left: auto !important; right: 0.5% !important; top: 80% !important; }
+ }
+ 
+-/* ---------- the tiny danfo that drives across once ---------- */
++/* ---------- the danfo follows a curly street across the hero ---------- */
+ .wd-runner {
+   position: fixed;
+-  left: 0;
+-  right: 0;
+-  top: 58px;
+-  height: 30px;
++  inset: 0;
+   z-index: 35;
+   pointer-events: none;
+   overflow: hidden;
+ }
+ 
+-.wd-runner-road {
+-  position: absolute;
++.wd-runner-bus {
++  position: fixed;
+   left: 0;
+-  right: 0;
+-  top: 22px;
+-  height: 3px;
+-  background-image: radial-gradient(circle, var(--wd-lime-deep) 2px, transparent 2.4px);
+-  background-size: 14px 3px;
+-  opacity: 0.9;
+-  animation: wd-road-fade 6.4s ease-out forwards;
++  top: 0;
++  width: 42px;
++  offset-path: path("M -80 92 C 160 42, 320 138, 560 84 S 860 34, 1120 118 S 1360 58, 1500 94");
++  offset-rotate: auto;
++  animation: wd-curvy-drive 8.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0.35s both;
++  will-change: offset-distance, opacity;
+ }
+ 
+-.wd-runner-bus {
+-  position: absolute;
+-  top: 0;
+-  left: 0;
+-  width: 33px;
+-  animation: wd-drive 6s linear 0.4s both;
++.wd-runner-bus .wd-svg {
++  animation: wd-bus-bounce 0.7s ease-in-out infinite;
++  filter: drop-shadow(0 6px 7px var(--wd-shadow));
+ }
+ 
+-.wd-runner-bus .wd-svg { filter: drop-shadow(0 3px 4px var(--wd-shadow)); }
++@keyframes wd-curvy-drive {
++  0% { offset-distance: 0%; opacity: 0; }
++  8% { opacity: 1; }
++  92% { opacity: 1; }
++  100% { offset-distance: 100%; opacity: 0; }
++}
+ 
+-@keyframes wd-drive {
+-  0% { transform: translateX(-80px); }
+-  100% { transform: translateX(calc(100vw + 80px)); }
++@keyframes wd-bus-bounce {
++  0%, 100% { translate: 0 0; }
++  50% { translate: 0 -3px; }
+ }
+ 
+-@keyframes wd-road-fade {
+-  0%, 82% { opacity: 0.9; }
+-  100% { opacity: 0; }
++@media (max-width: 760px) {
++  .wd-runner-bus {
++    width: 32px;
++    offset-path: path("M -40 84 C 60 58, 110 112, 200 78 S 320 54, 430 98");
++  }
+ }
+ 
+ /* ---------- click bursts, trail, tooltip ---------- */
+@@ -533,22 +518,6 @@
+   position: relative;
+ }
+ 
+-[data-whimsy] .section-head::after,
+-[data-whimsy] .page-head::after {
+-  content: "";
+-  position: absolute;
+-  left: 0;
+-  right: 0;
+-  bottom: -12px;
+-  height: 10px;
+-  background-image: var(--wd-wave);
+-  background-repeat: repeat-x;
+-  background-size: 26px 10px;
+-  pointer-events: none;
+-}
+-
+-[data-whimsy] .page-head::after { bottom: -7px; }
+-
+ [data-whimsy] .section-head::before,
+ [data-whimsy] .page-head::before,
+ [data-whimsy] .cat-hero::before,
+@@ -836,6 +805,14 @@
+     transform: none !important;
+   }
+ 
++  .wd-hero-halo,
++  .wd-hero-orbit,
++  .wd-hero-doodle,
++  .wd-hero-spark,
++  [data-whimsy] .hero h1 mark::before {
++    animation: none !important;
++  }
++
+   [data-whimsy] .section-head::before,
+   [data-whimsy] .page-head::before,
+   [data-whimsy] .cat-hero::before,
+@@ -867,3 +844,317 @@
+   .wd-fixed-spark:nth-child(odd) { left: 0.5% !important; right: auto !important; }
+   .wd-fixed-spark:nth-child(even) { left: auto !important; right: 0.5% !important; }
+ }
++
++/* ==========================================================================
++   Wand cursor, hero set-piece, Play celebration and click shouts
++   ========================================================================== */
++
++/* ---------- the wand cursor ---------- */
++.wd-cursor {
++  position: fixed;
++  left: 0;
++  top: 0;
++  z-index: 100000;
++  width: 46px;
++  height: 58px;
++  margin-left: -31px;
++  margin-top: -20px;
++  pointer-events: none;
++  opacity: 0;
++  transition: opacity 0.2s ease;
++  will-change: transform;
++}
++
++.wd-cursor svg {
++  width: 100%;
++  height: 100%;
++  overflow: visible;
++  filter: drop-shadow(0 0 6px rgba(185, 233, 74, 0.95)) drop-shadow(0 0 16px rgba(201, 138, 0, 0.7));
++  animation: wd-wand-wiggle 2.8s ease-in-out infinite;
++}
++
++.wd-cursor.is-clicking svg { animation: wd-cursor-pop 0.3s ease-out; }
++
++.wd-cursor-on,
++.wd-cursor-on body,
++.wd-cursor-on a,
++.wd-cursor-on button,
++.wd-cursor-on summary,
++.wd-cursor-on label,
++.wd-cursor-on [role="button"] { cursor: none; }
++
++.wd-cursor-on input,
++.wd-cursor-on textarea,
++.wd-cursor-on select { cursor: auto; }
++
++@media (hover: none) {
++  .wd-cursor { display: none; }
++}
++
++@keyframes wd-wand-wiggle {
++  0%, 100% { rotate: -4deg; }
++  50% { rotate: 6deg; }
++}
++
++@keyframes wd-cursor-pop {
++  0% { scale: 1; }
++  45% { scale: 1.28; }
++  100% { scale: 1; }
++}
++
++/* ---------- hero set-piece ---------- */
++.wd-hero-magic-on {
++  position: relative;
++  isolation: isolate;
++}
++
++.wd-hero-magic-on > *:not(.wd-hero-magic) {
++  position: relative;
++  z-index: 1;
++}
++
++.wd-hero-magic {
++  position: absolute;
++  inset: 0;
++  z-index: 0;
++  pointer-events: none;
++  overflow: hidden;
++}
++
++.wd-hero-halo {
++  position: absolute;
++  left: 50%;
++  top: 46%;
++  width: min(860px, 96%);
++  aspect-ratio: 1;
++  transform: translate(-50%, -50%);
++  border-radius: 50%;
++  background:
++    repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--wd-gold) 30%, transparent) 0deg 3.5deg, transparent 3.5deg 13deg),
++    radial-gradient(circle, color-mix(in srgb, var(--wd-lime) 34%, transparent) 0%, transparent 64%);
++  -webkit-mask-image: radial-gradient(circle, transparent 0 26%, #000 43%, transparent 72%);
++  mask-image: radial-gradient(circle, transparent 0 26%, #000 43%, transparent 72%);
++  opacity: 0.95;
++  animation: wd-halo-spin 70s linear infinite;
++}
++
++.wd-hero-orbit {
++  position: absolute;
++  left: 50%;
++  top: 41%;
++  width: min(900px, 100%);
++  height: min(380px, 72%);
++  transform: translate(-50%, -50%);
++  border: 2px dashed color-mix(in srgb, var(--wd-gold) 72%, transparent);
++  border-radius: 50%;
++  opacity: 0.85;
++  animation: wd-orbit-spin 80s linear infinite reverse;
++}
++
++.wd-hero-doodle {
++  position: absolute;
++  width: 72px;
++  animation: wd-float 6s ease-in-out infinite;
++  filter: drop-shadow(0 7px 9px var(--wd-shadow));
++}
++
++.wd-hero-doodle .wd-svg { width: 100%; height: auto; }
++
++.wd-hd1 { left: 1%; top: 20%; rotate: -4deg; }
++.wd-hd2 { right: 1%; top: 15%; width: 66px; rotate: 4deg; animation-delay: -1.4s; }
++.wd-hd3 { left: 3%; top: 62%; width: 60px; rotate: 2deg; animation-delay: -2.6s; }
++.wd-hd4 { right: 2%; top: 58%; width: 64px; rotate: -3deg; animation-delay: -3.4s; }
++.wd-hd5 { left: 12%; top: 6%; width: 46px; rotate: 3deg; animation-delay: -0.8s; }
++.wd-hd6 { right: 12%; top: 6%; width: 46px; rotate: -2deg; animation-delay: -2s; }
++
++.wd-hero-spark {
++  position: absolute;
++  z-index: 2;
++  font-size: 22px;
++  font-weight: 800;
++  line-height: 1;
++  color: var(--wd-gold);
++  -webkit-text-stroke: 1px var(--wd-outline);
++  text-shadow: 0 0 9px currentColor;
++  animation: wd-twinkle 3.6s ease-in-out infinite;
++}
++
++.wd-hsp1 { left: 6%; top: 30%; color: var(--wd-spark-2); }
++.wd-hsp2 { right: 6%; top: 24%; color: var(--wd-spark-1); animation-delay: -1.1s; }
++.wd-hsp3 { left: 16%; bottom: 18%; color: var(--wd-spark-3); font-size: 18px; animation-delay: -2.2s; }
++.wd-hsp4 { right: 15%; bottom: 22%; color: var(--wd-spark-4); font-size: 18px; animation-delay: -0.7s; }
++.wd-hsp5 { left: 26%; top: 4%; color: var(--wd-spark-3); font-size: 16px; animation-delay: -2.7s; }
++.wd-hsp6 { right: 26%; top: 4%; color: var(--wd-spark-1); font-size: 16px; animation-delay: -1.7s; }
++
++@keyframes wd-halo-spin {
++  to { transform: translate(-50%, -50%) rotate(360deg); }
++}
++
++@keyframes wd-orbit-spin {
++  to { transform: translate(-50%, -50%) rotate(360deg); }
++}
++
++@media (max-width: 760px) {
++  .wd-hero-halo { width: 150%; top: 48%; opacity: 0.6; }
++  .wd-hero-orbit { display: none; }
++  .wd-hero-doodle { width: 44px; }
++  .wd-hd1 { left: 0; top: 0; }
++  .wd-hd2 { right: 0; top: 0; width: 44px; }
++  .wd-hd3, .wd-hd4, .wd-hd5, .wd-hd6 { display: none; }
++  .wd-hero-spark { font-size: 16px; }
++  .wd-hsp3, .wd-hsp4 { display: none; }
++}
++
++/* a double hand-drawn underline + star for the hero highlight */
++:root {
++  --wd-wave-gold: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='10' viewBox='0 0 26 10'%3E%3Cpath d='M1 6c3-4 6-4 9 0s6 4 9 0 6-4 9 0' fill='none' stroke='%23c98a00' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
++}
++
++[data-whimsy] .hero h1 mark::after {
++  height: 14px;
++  bottom: -14px;
++  background-image: var(--wd-wave), var(--wd-wave-gold);
++  background-position: 0 0, 5px 5px;
++  background-size: 26px 10px, 26px 10px;
++}
++
++[data-whimsy] .hero h1 mark::before {
++  content: "✦";
++  position: absolute;
++  right: -10px;
++  top: -14px;
++  font-size: 18px;
++  color: var(--wd-gold);
++  -webkit-text-stroke: 0.8px var(--wd-outline);
++  text-shadow: 0 0 8px currentColor;
++  pointer-events: none;
++  animation: wd-twinkle 3.2s ease-in-out infinite;
++}
++
++/* ---------- Play now celebration ---------- */
++.wd-play-fx {
++  position: fixed;
++  z-index: 99998;
++  width: 0;
++  height: 0;
++  pointer-events: none;
++}
++
++.wd-play-glow {
++  position: absolute;
++  left: 0;
++  top: 0;
++  width: 44px;
++  height: 44px;
++  margin: -22px;
++  border-radius: 50%;
++  background: radial-gradient(circle, var(--wd-lime) 0%, var(--wd-gold) 46%, transparent 72%);
++  filter: blur(2px);
++  animation: wd-play-glow 1.5s ease-out forwards;
++}
++
++.wd-play-ring {
++  position: absolute;
++  left: 0;
++  top: 0;
++  width: 58px;
++  height: 58px;
++  margin: -29px;
++  border-radius: 50%;
++  border: 3px dashed var(--wd-gold);
++  animation: wd-play-ring 1.35s ease-out forwards;
++}
++
++.wd-play-banner {
++  position: absolute;
++  left: 0;
++  top: 0;
++  white-space: nowrap;
++  padding: 8px 16px;
++  border-radius: 999px;
++  border: 2px solid var(--wd-outline);
++  background: var(--wd-gold);
++  color: #1e260d;
++  font: 800 14px/1.2 var(--mono);
++  box-shadow: 0 5px 0 rgba(41, 42, 35, 0.25);
++  animation: wd-play-banner 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
++}
++
++.wd-play-doodle {
++  position: absolute;
++  left: 0;
++  top: 0;
++  width: 56px;
++  animation: wd-play-fly 1.5s cubic-bezier(0.16, 0.84, 0.3, 1) forwards;
++  will-change: transform, opacity;
++}
++
++.wd-play-doodle .wd-svg {
++  width: 100%;
++  height: auto;
++  filter: drop-shadow(0 7px 8px var(--wd-shadow));
++}
++
++.wd-play-spark {
++  position: absolute;
++  left: 0;
++  top: 0;
++  font-size: 20px;
++  font-weight: 800;
++  line-height: 1;
++  -webkit-text-stroke: 1px var(--wd-outline);
++  text-shadow: 0 0 8px currentColor;
++  animation: wd-play-spark 1.2s ease-out forwards;
++}
++
++@keyframes wd-play-glow {
++  0% { opacity: 0; transform: scale(0.2); }
++  30% { opacity: 1; transform: scale(2.8); }
++  100% { opacity: 0; transform: scale(6); }
++}
++
++@keyframes wd-play-ring {
++  0% { opacity: 0; transform: scale(0.2) rotate(0deg); }
++  30% { opacity: 1; }
++  100% { opacity: 0; transform: scale(3.6) rotate(90deg); }
++}
++
++@keyframes wd-play-banner {
++  0% { opacity: 0; transform: translate(-50%, -100%) scale(0.6) rotate(-4deg); }
++  22% { opacity: 1; transform: translate(-50%, -170%) scale(1.08) rotate(-4deg); }
++  75% { opacity: 1; transform: translate(-50%, -180%) scale(1) rotate(-4deg); }
++  100% { opacity: 0; transform: translate(-50%, -240%) scale(0.95) rotate(-4deg); }
++}
++
++@keyframes wd-play-fly {
++  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.25); }
++  22% { opacity: 1; }
++  60% { opacity: 1; transform: translate(calc(-50% + var(--wd-mx)), calc(-50% + var(--wd-my))) scale(1.1) rotate(-6deg); }
++  100% { opacity: 0; transform: translate(calc(-50% + var(--wd-px)), calc(-50% + var(--wd-py))) scale(0.7) rotate(14deg); }
++}
++
++@keyframes wd-play-spark {
++  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
++  25% { opacity: 1; }
++  100% { opacity: 0; transform: translate(calc(-50% + var(--wd-px)), calc(-50% + var(--wd-py))) scale(0.2); }
++}
++
++@media (prefers-reduced-motion: reduce) {
++  .wd-cursor, .wd-play-fx { display: none; }
++}
++
++/* ---------- playful click shout ---------- */
++.wd-shout {
++  position: fixed;
++  z-index: 100000;
++  transform: translate(-50%, -100%) rotate(-3deg);
++  padding: 4px 10px;
++  border-radius: 999px;
++  border: 2px solid var(--wd-outline);
++  background: var(--wd-lime);
++  color: #1e260d;
++  font: 800 12px/1.2 var(--mono);
++  white-space: nowrap;
++  box-shadow: 0 4px 0 rgba(41, 42, 35, 0.22);
++  animation: wd-sharp 0.95s ease-out forwards;
++}
+diff --git a/components/HeroMagic.tsx b/components/HeroMagic.tsx
+new file mode 100644
+index 0000000..8058d76
+--- /dev/null
++++ b/components/HeroMagic.tsx
+@@ -0,0 +1,25 @@
++'use client';
++
++import { Doodle, type DoodleName } from './WhimsyDoodles';
++
++const DOODLES: DoodleName[] = ['danfo', 'jollof', 'mango', 'suya', 'puff', 'zobo'];
++const SPARKS = ['✦', '✧', '✦', '✧', '✦', '✧'];
++
++/** Decoration-only layer inside the home hero. Sits behind the existing
++ *  content and changes no layout, copy, fonts, colours or functionality. */
++export function HeroMagic() {
++  return (
++    <div className="wd-hero-magic" aria-hidden="true">
++      <span className="wd-hero-halo" />
++      <span className="wd-hero-orbit" />
++      {SPARKS.map((char, index) => (
++        <span key={index} className={`wd-hero-spark wd-hsp${index + 1}`}>{char}</span>
++      ))}
++      {DOODLES.map((name, index) => (
++        <span key={name} className={`wd-hero-doodle wd-hd${index + 1}`}>
++          <Doodle name={name} />
++        </span>
++      ))}
++    </div>
++  );
++}
+diff --git a/components/WhimsyDecor.tsx b/components/WhimsyDecor.tsx
+index 79a07b0..38974fa 100644
+--- a/components/WhimsyDecor.tsx
++++ b/components/WhimsyDecor.tsx
+@@ -1,6 +1,6 @@
+ 'use client';
+ 
+-import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
++import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+ import { usePathname } from 'next/navigation';
+ import { createPortal } from 'react-dom';
+ import { Doodle, type DoodleName } from './WhimsyDoodles';
+@@ -88,7 +88,7 @@ function burst(fx: HTMLElement, x: number, y: number, big = false) {
+   fx.appendChild(ring);
+   removeLater(ring, 700);
+ 
+-  const sparks = big ? 12 : 8;
++  const sparks = big ? 14 : 10;
+   for (let i = 0; i < sparks; i += 1) {
+     spark(
+       fx,
+@@ -96,14 +96,15 @@ function burst(fx: HTMLElement, x: number, y: number, big = false) {
+       y,
+       FX_COLORS[i % 4],
+       SPARK_CHARS[i % 2],
+-      big ? 20 + Math.random() * 8 : 15 + Math.random() * 6,
++      big ? 20 + Math.random() * 8 : 16 + Math.random() * 6,
+       (i / sparks) * Math.PI * 2,
+-      big ? 70 + Math.random() * 50 : 38 + Math.random() * 30,
++      big ? 78 + Math.random() * 48 : 44 + Math.random() * 34,
+     );
+   }
+   coin(fx, x, y, Math.PI * 0.2, big ? 90 : 50);
+   coin(fx, x, y, Math.PI * 1.2, big ? 110 : 60);
+-  if (big) confetti(fx, x, y, 16);
++  coin(fx, x, y, Math.PI * 1.8, big ? 96 : 52);
++  if (big) confetti(fx, x, y, 18);
+ }
+ 
+ const SPARKLES = [
+@@ -129,6 +130,8 @@ export function WhimsyDecor() {
+   const pathname = usePathname();
+   const names = useMemo(() => doodlesFor(pathname), [pathname]);
+   const fxRef = useRef<HTMLDivElement>(null);
++  const cursorRef = useRef<HTMLDivElement>(null);
++  const [playFx, setPlayFx] = useState<{ x: number; y: number; id: number } | null>(null);
+   const [anchors, setAnchors] = useState<Anchors>({ signin: null, auth: null, tourney: null, footer: null, medals: [] });
+   const [authRect, setAuthRect] = useState<{ top: number; left: number } | null>(null);
+ 
+@@ -140,10 +143,33 @@ export function WhimsyDecor() {
+     };
+   }, []);
+ 
++
++  useEffect(() => {
++    if (!playFx) return;
++    const timer = window.setTimeout(() => setPlayFx(null), 1800);
++    return () => window.clearTimeout(timer);
++  }, [playFx]);
++
+   // Cursor trail, click bursts, hover sparkles and playful tooltips.
+   useEffect(() => {
+     const fx = fxRef.current;
+     if (!fx) return;
++    const cursor = FINE() && !REDUCED() ? cursorRef.current : null;
++    const root = document.documentElement;
++    if (cursor) root.classList.add('wd-cursor-on');
++    let cx = -120;
++    let cy = -120;
++    let tx = -120;
++    let ty = -120;
++    let seen = false;
++    let cursorFrame = 0;
++    const cursorLoop = () => {
++      cx += (tx - cx) * 0.24;
++      cy += (ty - cy) * 0.24;
++      if (cursor) cursor.style.transform = `translate3d(${cx}px, ${cy}px, 0)`;
++      cursorFrame = window.requestAnimationFrame(cursorLoop);
++    };
++    if (cursor) cursorFrame = window.requestAnimationFrame(cursorLoop);
+     let lastTrail = 0;
+     let tip: HTMLElement | null = null;
+ 
+@@ -154,6 +180,14 @@ export function WhimsyDecor() {
+ 
+     const onMove = (event: PointerEvent) => {
+       if (REDUCED() || !FINE()) return;
++      tx = event.clientX;
++      ty = event.clientY;
++      if (cursor && !seen) {
++        seen = true;
++        cx = tx;
++        cy = ty;
++        cursor.style.opacity = '1';
++      }
+       const now = performance.now();
+       if (now - lastTrail < 55) return;
+       lastTrail = now;
+@@ -176,16 +210,24 @@ export function WhimsyDecor() {
+       const rect = target.getBoundingClientRect();
+       const x = event.clientX || rect.left + rect.width / 2;
+       const y = event.clientY || rect.top + rect.height / 2;
+-      const text = (target.textContent || '').toLowerCase();
++      const text = (target.textContent || '').toLowerCase().trim();
++      const isPlay = Boolean(target.closest('.hero .actions')) && text.includes('play');
+       const big = Boolean(target.closest('.hero .actions')) || text.includes('play now') || text.includes('create free account');
+-      burst(fx, x, y, big);
+-      if (big) {
+-        const label = node('span', 'wd-sharp');
+-        label.textContent = 'Sharp sharp!';
+-        label.style.left = `${x}px`;
+-        label.style.top = `${y - 34}px`;
+-        fx.appendChild(label);
+-        removeLater(label, 950);
++      cursor?.classList.add('is-clicking');
++      window.setTimeout(() => cursor?.classList.remove('is-clicking'), 180);
++      if (isPlay) {
++        setPlayFx({ x, y, id: Date.now() });
++      } else {
++        burst(fx, x, y, big);
++        if (target.matches('.btn, .ghost, .nav-signin, button, summary')) {
++          const phrases = ['Sharp sharp!', 'Oya!', 'Correct!', 'E sweet!', 'No wahala!'];
++          const shout = node('span', 'wd-shout');
++          shout.textContent = phrases[Math.floor(Math.random() * phrases.length)];
++          shout.style.left = `${x}px`;
++          shout.style.top = `${y - 34}px`;
++          fx.appendChild(shout);
++          removeLater(shout, 1000);
++        }
+       }
+       hideTip();
+       target.classList.remove('wd-squish');
+@@ -219,6 +261,11 @@ export function WhimsyDecor() {
+       }
+     };
+ 
++    const onLeave = () => {
++      if (cursor) cursor.style.opacity = '0';
++      seen = false;
++    };
++
+     const onOut = (event: PointerEvent) => {
+       const target = event.target as Element | null;
+       if (!target?.closest?.('.btn, .ghost, .nav-signin, .nav nav a')) return;
+@@ -229,13 +276,17 @@ export function WhimsyDecor() {
+     document.addEventListener('pointerdown', onDown, { capture: true, passive: true });
+     document.addEventListener('pointerover', onOver, { passive: true });
+     document.addEventListener('pointerout', onOut, { passive: true });
++    document.addEventListener('pointerleave', onLeave);
+     window.addEventListener('scroll', hideTip, { passive: true });
+     return () => {
+       window.removeEventListener('pointermove', onMove);
+       document.removeEventListener('pointerdown', onDown, true);
+       document.removeEventListener('pointerover', onOver);
+       document.removeEventListener('pointerout', onOut);
++      document.removeEventListener('pointerleave', onLeave);
+       window.removeEventListener('scroll', hideTip);
++      window.cancelAnimationFrame(cursorFrame);
++      root.classList.remove('wd-cursor-on');
+       hideTip();
+     };
+   }, []);
+@@ -395,13 +446,26 @@ export function WhimsyDecor() {
+         ))}
+       </div>
+ 
+-      <div className="wd-runner">
+-        <span className="wd-runner-road" />
+-        <Doodle name="danfo" className="wd-runner-bus" />
+-      </div>
++      {pathname === '/' && (
++        <div className="wd-runner">
++          <Doodle name="danfo" className="wd-runner-bus" />
++        </div>
++      )}
+ 
+       <div className="wd-fx" ref={fxRef} />
+ 
++      <div ref={cursorRef} className="wd-cursor">
++        <svg viewBox="0 0 46 58" width="46" height="58" aria-hidden="true">
++          <path d="M12 52 32 26" stroke="var(--wd-outline)" strokeWidth="10" strokeLinecap="round" />
++          <path d="M12 52 32 26" stroke="var(--wd-gold)" strokeWidth="5" strokeLinecap="round" />
++          <path d="M31 7l3.6 9.4L44 20l-9.4 3.6L31 33l-3.6-9.4L18 20l9.4-3.6Z" fill="var(--wd-lime)" stroke="var(--wd-outline)" strokeWidth="2.2" strokeLinejoin="round" />
++          <circle cx="39" cy="8" r="2.2" fill="var(--wd-red)" />
++          <circle cx="23" cy="9" r="1.6" fill="var(--wd-teal)" />
++        </svg>
++      </div>
++
++      {playFx ? <PlayCelebration fx={playFx} /> : null}
++
+       {pathname === '/' && (
+         <div className="wd-home-mascot">
+           <span className="wd-speech wd-speech-home">Naija vibes ✦</span>
+@@ -474,3 +538,57 @@ function FooterProps() {
+     </>
+   );
+ }
++
++function PlayCelebration({ fx }: { fx: { x: number; y: number } }) {
++  const doodles: DoodleName[] = ['danfo', 'jollof', 'mango', 'suya', 'puff', 'zobo'];
++  return (
++    <div className="wd-play-fx" style={{ left: fx.x, top: fx.y }} aria-hidden="true">
++      <span className="wd-play-glow" />
++      <span className="wd-play-ring" />
++      <span className="wd-play-banner">{"Oya, let's play! ✦"}</span>
++      {doodles.map((name, index) => {
++        const angle = (index / doodles.length) * Math.PI * 2 - Math.PI / 2;
++        const distance = 118 + (index % 3) * 28;
++        const dx = Math.cos(angle) * distance;
++        const dy = Math.sin(angle) * distance;
++        return (
++          <span
++            key={name}
++            className={`wd-play-doodle wd-pd${index + 1}`}
++            style={
++              {
++                '--wd-px': `${dx}px`,
++                '--wd-py': `${dy}px`,
++                '--wd-mx': `${dx * 0.6}px`,
++                '--wd-my': `${dy * 0.6}px`,
++                animationDelay: `${index * 24}ms`,
++              } as CSSProperties
++            }
++          >
++            <Doodle name={name} />
++          </span>
++        );
++      })}
++      {Array.from({ length: 12 }).map((_, index) => {
++        const angle = (index / 12) * Math.PI * 2;
++        const distance = 82 + (index % 4) * 24;
++        return (
++          <span
++            key={index}
++            className="wd-play-spark"
++            style={
++              {
++                '--wd-px': `${Math.cos(angle) * distance}px`,
++                '--wd-py': `${Math.sin(angle) * distance}px`,
++                color: ['var(--wd-spark-1)', 'var(--wd-spark-2)', 'var(--wd-spark-3)', 'var(--wd-spark-4)'][index % 4],
++                animationDelay: `${index * 18}ms`,
++              } as CSSProperties
++            }
++          >
++            {index % 2 ? '✦' : '✧'}
++          </span>
++        );
++      })}
++    </div>
++  );
++}
+-- 
+2.39.5
+
+
+From 703ee8a0c48a9aad56f3153a5d623dfb704029a9 Mon Sep 17 00:00:00 2001
+From: Arnold Nyamongo <arnoldnyams@gmail.com>
+Date: Mon, 2 Nov 2026 15:49:06 +0000
+Subject: [PATCH 3/3] Let the curvy danfo loop across the hero
+
+The whimsical offset-path ride now repeats every nine seconds with a
+short off-screen pause, so the wavy danfo street is part of the page's
+rhythm instead of a one-off. No road line, no text overlap, reduced-motion
+still hides it.
+---
+ app/whimsy.css | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/app/whimsy.css b/app/whimsy.css
+index 43b4872..cd9e164 100644
+--- a/app/whimsy.css
++++ b/app/whimsy.css
+@@ -153,7 +153,7 @@
+   width: 42px;
+   offset-path: path("M -80 92 C 160 42, 320 138, 560 84 S 860 34, 1120 118 S 1360 58, 1500 94");
+   offset-rotate: auto;
+-  animation: wd-curvy-drive 8.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0.35s both;
++  animation: wd-curvy-drive 9s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0.35s infinite;
+   will-change: offset-distance, opacity;
+ }
+ 
+@@ -164,8 +164,9 @@
+ 
+ @keyframes wd-curvy-drive {
+   0% { offset-distance: 0%; opacity: 0; }
+-  8% { opacity: 1; }
+-  92% { opacity: 1; }
++  6% { opacity: 1; }
++  88% { offset-distance: 100%; opacity: 1; }
++  94% { offset-distance: 100%; opacity: 0; }
+   100% { offset-distance: 100%; opacity: 0; }
+ }
+ 
 -- 
 2.39.5
 

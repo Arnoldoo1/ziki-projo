@@ -13,6 +13,34 @@ Authored against `Arnoldoo1/startng` at `ee8a557` (`main`).
 `Arnoldoo1/startng` (`push: false`), so the commit cannot be pushed there or
 deployed to the project URL. The patch is preserved here.
 
+## Latest presentation pass (hero · Play · cursor · car)
+
+- **Hero set-piece:** a clipped sunburst halo, dashed orbit, six outlined
+  Naija doodles (danfo, jollof, mango, suya, puff, zobo) and six bold
+  sparkles sit behind the existing “Good vibes. Good games.” content. The
+  highlight now has a double hand-drawn lime/gold underline plus a star.
+  No text overlap, no horizontal overflow.
+- **Play now celebration:** clicking Play spawns a unique fixed overlay — six
+  doodles orbit outward, twelve high-contrast sparkles, a glowing ring and an
+  “Oya, let’s play! ✦” sticker. It is `pointer-events: none`, clears after
+  1.8s, and never delays the `#games` scroll.
+- **Wand cursor:** a lime/gold star-tipped wand follows the pointer with a
+  spark trail on fine pointers. Touch and `prefers-reduced-motion` keep the
+  native cursor.
+- **Curvy danfo:** the straight road/runner is gone. A danfo follows a wavy
+  `offset-path` across the full hero width, loops every 9 seconds, and bounces
+  slightly; it is hidden under reduced motion.
+- **Lines removed:** the vertical dotted page rails and the section/page wavy
+  divider lines are gone. The only remaining “line” is the intentional
+  hand-drawn underline on “Good games.”
+- **Every click:** buttons/links get a squish, a bright ripple, 10–14 bold
+  sparkles, three coins and a sticker shout (“Sharp sharp!”, “Oya!”,
+  “Correct!”, “E sweet!”, “No wahala!”); big CTAs add confetti. Play now uses
+  the full celebration instead. All effects are pointer-events none.
+
+New screenshots: `hero-v2.jpg`, `play-celebration.jpg`, `mobile-v2.jpg`,
+`dark-hero.jpg`.
+
 ## Apply it
 
 ```bash
@@ -90,8 +118,11 @@ Screenshots: `home.jpg`, `games.jpg`, `tournament.jpg`, `leaderboard.jpg`,
 
 ## Deployment status
 
-**Not deployed yet.** The current `https://nimble-xenon-4wygl2l.tmp.now/`
-still serves the previous build. I am waiting for the word **deploy**. That URL
-is an unauthenticated Vercel temporary deployment: redeploying the same
-anonymous project can replace it, but Vercel may issue a new temporary
-hostname. For an exact-URL update the project must be claimed / logged in.
+Deployed to the **existing** Vercel project `nimble-xenon-4wygl2l`:
+
+**https://nimble-xenon-4wygl2l-anm17.vercel.app**
+
+The legacy anonymous hostname `https://nimble-xenon-4wygl2l.tmp.now/` is an
+immutable anonymous-deployment domain. Vercel refuses to reassign it
+(`You don't have access to the domain ... under anm17`), so it still serves the
+older build. The project itself is live and public at the production URL above.
