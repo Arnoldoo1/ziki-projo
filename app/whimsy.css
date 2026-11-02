@@ -153,7 +153,7 @@
   width: 42px;
   offset-path: path("M -80 92 C 160 42, 320 138, 560 84 S 860 34, 1120 118 S 1360 58, 1500 94");
   offset-rotate: auto;
-  animation: wd-curvy-drive 8.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0.35s both;
+  animation: wd-curvy-drive 9s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0.35s infinite;
   will-change: offset-distance, opacity;
 }
 
@@ -164,8 +164,9 @@
 
 @keyframes wd-curvy-drive {
   0% { offset-distance: 0%; opacity: 0; }
-  8% { opacity: 1; }
-  92% { opacity: 1; }
+  6% { opacity: 1; }
+  88% { offset-distance: 100%; opacity: 1; }
+  94% { offset-distance: 100%; opacity: 0; }
   100% { offset-distance: 100%; opacity: 0; }
 }
 
