@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { CategoryTile, GameCard, CreatorCard } from '@/components/Cards';
 import { HomePromos } from '@/components/HomePromos';
+import { HeroMagic } from '@/components/HeroMagic';
 import { categories, creators, games } from '@/lib/site';
 import { CharacterAvatar } from '@/components/CharacterAvatar';
 import { DEFAULT_CHARACTER } from '@/lib/character';
@@ -18,7 +19,8 @@ export default function HomePage() {
 
   return (
     <main>
-      <section className="container hero">
+      <section className="container hero wd-hero-magic-on">
+        <HeroMagic />
         <p className="eyebrow">Big imagination. Played everywhere.</p>
         <h1>Good vibes.<br /><mark>Good games.</mark></h1>
         <p className="lead">

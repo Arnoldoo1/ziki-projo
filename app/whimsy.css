@@ -76,21 +76,6 @@
   pointer-events: none;
 }
 
-.wd-margin-layer::before,
-.wd-margin-layer::after {
-  content: "";
-  position: fixed;
-  top: 90px;
-  bottom: 90px;
-  width: 6px;
-  background-image: radial-gradient(circle, var(--wd-lime-deep) 2.2px, transparent 2.6px);
-  background-size: 6px 16px;
-  opacity: 0.9;
-}
-
-.wd-margin-layer::before { left: 10px; }
-.wd-margin-layer::after { right: 10px; }
-
 .wd-doodle {
   display: block;
   line-height: 0;
@@ -152,48 +137,48 @@
   .wd-fixed-spark:nth-child(4) { left: auto !important; right: 0.5% !important; top: 80% !important; }
 }
 
-/* ---------- the tiny danfo that drives across once ---------- */
+/* ---------- the danfo follows a curly street across the hero ---------- */
 .wd-runner {
   position: fixed;
-  left: 0;
-  right: 0;
-  top: 58px;
-  height: 30px;
+  inset: 0;
   z-index: 35;
   pointer-events: none;
   overflow: hidden;
 }
 
-.wd-runner-road {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 22px;
-  height: 3px;
-  background-image: radial-gradient(circle, var(--wd-lime-deep) 2px, transparent 2.4px);
-  background-size: 14px 3px;
-  opacity: 0.9;
-  animation: wd-road-fade 6.4s ease-out forwards;
-}
-
 .wd-runner-bus {
-  position: absolute;
-  top: 0;
+  position: fixed;
   left: 0;
-  width: 33px;
-  animation: wd-drive 6s linear 0.4s both;
+  top: 0;
+  width: 42px;
+  offset-path: path("M -80 92 C 160 42, 320 138, 560 84 S 860 34, 1120 118 S 1360 58, 1500 94");
+  offset-rotate: auto;
+  animation: wd-curvy-drive 8.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0.35s both;
+  will-change: offset-distance, opacity;
 }
 
-.wd-runner-bus .wd-svg { filter: drop-shadow(0 3px 4px var(--wd-shadow)); }
-
-@keyframes wd-drive {
-  0% { transform: translateX(-80px); }
-  100% { transform: translateX(calc(100vw + 80px)); }
+.wd-runner-bus .wd-svg {
+  animation: wd-bus-bounce 0.7s ease-in-out infinite;
+  filter: drop-shadow(0 6px 7px var(--wd-shadow));
 }
 
-@keyframes wd-road-fade {
-  0%, 82% { opacity: 0.9; }
-  100% { opacity: 0; }
+@keyframes wd-curvy-drive {
+  0% { offset-distance: 0%; opacity: 0; }
+  8% { opacity: 1; }
+  92% { opacity: 1; }
+  100% { offset-distance: 100%; opacity: 0; }
+}
+
+@keyframes wd-bus-bounce {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -3px; }
+}
+
+@media (max-width: 760px) {
+  .wd-runner-bus {
+    width: 32px;
+    offset-path: path("M -40 84 C 60 58, 110 112, 200 78 S 320 54, 430 98");
+  }
 }
 
 /* ---------- click bursts, trail, tooltip ---------- */
@@ -533,22 +518,6 @@
   position: relative;
 }
 
-[data-whimsy] .section-head::after,
-[data-whimsy] .page-head::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -12px;
-  height: 10px;
-  background-image: var(--wd-wave);
-  background-repeat: repeat-x;
-  background-size: 26px 10px;
-  pointer-events: none;
-}
-
-[data-whimsy] .page-head::after { bottom: -7px; }
-
 [data-whimsy] .section-head::before,
 [data-whimsy] .page-head::before,
 [data-whimsy] .cat-hero::before,
@@ -836,6 +805,14 @@
     transform: none !important;
   }
 
+  .wd-hero-halo,
+  .wd-hero-orbit,
+  .wd-hero-doodle,
+  .wd-hero-spark,
+  [data-whimsy] .hero h1 mark::before {
+    animation: none !important;
+  }
+
   [data-whimsy] .section-head::before,
   [data-whimsy] .page-head::before,
   [data-whimsy] .cat-hero::before,
@@ -866,4 +843,318 @@
   .wd-fixed-spark { font-size: 15px !important; }
   .wd-fixed-spark:nth-child(odd) { left: 0.5% !important; right: auto !important; }
   .wd-fixed-spark:nth-child(even) { left: auto !important; right: 0.5% !important; }
+}
+
+/* ==========================================================================
+   Wand cursor, hero set-piece, Play celebration and click shouts
+   ========================================================================== */
+
+/* ---------- the wand cursor ---------- */
+.wd-cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 100000;
+  width: 46px;
+  height: 58px;
+  margin-left: -31px;
+  margin-top: -20px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  will-change: transform;
+}
+
+.wd-cursor svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 0 6px rgba(185, 233, 74, 0.95)) drop-shadow(0 0 16px rgba(201, 138, 0, 0.7));
+  animation: wd-wand-wiggle 2.8s ease-in-out infinite;
+}
+
+.wd-cursor.is-clicking svg { animation: wd-cursor-pop 0.3s ease-out; }
+
+.wd-cursor-on,
+.wd-cursor-on body,
+.wd-cursor-on a,
+.wd-cursor-on button,
+.wd-cursor-on summary,
+.wd-cursor-on label,
+.wd-cursor-on [role="button"] { cursor: none; }
+
+.wd-cursor-on input,
+.wd-cursor-on textarea,
+.wd-cursor-on select { cursor: auto; }
+
+@media (hover: none) {
+  .wd-cursor { display: none; }
+}
+
+@keyframes wd-wand-wiggle {
+  0%, 100% { rotate: -4deg; }
+  50% { rotate: 6deg; }
+}
+
+@keyframes wd-cursor-pop {
+  0% { scale: 1; }
+  45% { scale: 1.28; }
+  100% { scale: 1; }
+}
+
+/* ---------- hero set-piece ---------- */
+.wd-hero-magic-on {
+  position: relative;
+  isolation: isolate;
+}
+
+.wd-hero-magic-on > *:not(.wd-hero-magic) {
+  position: relative;
+  z-index: 1;
+}
+
+.wd-hero-magic {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.wd-hero-halo {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: min(860px, 96%);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background:
+    repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--wd-gold) 30%, transparent) 0deg 3.5deg, transparent 3.5deg 13deg),
+    radial-gradient(circle, color-mix(in srgb, var(--wd-lime) 34%, transparent) 0%, transparent 64%);
+  -webkit-mask-image: radial-gradient(circle, transparent 0 26%, #000 43%, transparent 72%);
+  mask-image: radial-gradient(circle, transparent 0 26%, #000 43%, transparent 72%);
+  opacity: 0.95;
+  animation: wd-halo-spin 70s linear infinite;
+}
+
+.wd-hero-orbit {
+  position: absolute;
+  left: 50%;
+  top: 41%;
+  width: min(900px, 100%);
+  height: min(380px, 72%);
+  transform: translate(-50%, -50%);
+  border: 2px dashed color-mix(in srgb, var(--wd-gold) 72%, transparent);
+  border-radius: 50%;
+  opacity: 0.85;
+  animation: wd-orbit-spin 80s linear infinite reverse;
+}
+
+.wd-hero-doodle {
+  position: absolute;
+  width: 72px;
+  animation: wd-float 6s ease-in-out infinite;
+  filter: drop-shadow(0 7px 9px var(--wd-shadow));
+}
+
+.wd-hero-doodle .wd-svg { width: 100%; height: auto; }
+
+.wd-hd1 { left: 1%; top: 20%; rotate: -4deg; }
+.wd-hd2 { right: 1%; top: 15%; width: 66px; rotate: 4deg; animation-delay: -1.4s; }
+.wd-hd3 { left: 3%; top: 62%; width: 60px; rotate: 2deg; animation-delay: -2.6s; }
+.wd-hd4 { right: 2%; top: 58%; width: 64px; rotate: -3deg; animation-delay: -3.4s; }
+.wd-hd5 { left: 12%; top: 6%; width: 46px; rotate: 3deg; animation-delay: -0.8s; }
+.wd-hd6 { right: 12%; top: 6%; width: 46px; rotate: -2deg; animation-delay: -2s; }
+
+.wd-hero-spark {
+  position: absolute;
+  z-index: 2;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--wd-gold);
+  -webkit-text-stroke: 1px var(--wd-outline);
+  text-shadow: 0 0 9px currentColor;
+  animation: wd-twinkle 3.6s ease-in-out infinite;
+}
+
+.wd-hsp1 { left: 6%; top: 30%; color: var(--wd-spark-2); }
+.wd-hsp2 { right: 6%; top: 24%; color: var(--wd-spark-1); animation-delay: -1.1s; }
+.wd-hsp3 { left: 16%; bottom: 18%; color: var(--wd-spark-3); font-size: 18px; animation-delay: -2.2s; }
+.wd-hsp4 { right: 15%; bottom: 22%; color: var(--wd-spark-4); font-size: 18px; animation-delay: -0.7s; }
+.wd-hsp5 { left: 26%; top: 4%; color: var(--wd-spark-3); font-size: 16px; animation-delay: -2.7s; }
+.wd-hsp6 { right: 26%; top: 4%; color: var(--wd-spark-1); font-size: 16px; animation-delay: -1.7s; }
+
+@keyframes wd-halo-spin {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes wd-orbit-spin {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@media (max-width: 760px) {
+  .wd-hero-halo { width: 150%; top: 48%; opacity: 0.6; }
+  .wd-hero-orbit { display: none; }
+  .wd-hero-doodle { width: 44px; }
+  .wd-hd1 { left: 0; top: 0; }
+  .wd-hd2 { right: 0; top: 0; width: 44px; }
+  .wd-hd3, .wd-hd4, .wd-hd5, .wd-hd6 { display: none; }
+  .wd-hero-spark { font-size: 16px; }
+  .wd-hsp3, .wd-hsp4 { display: none; }
+}
+
+/* a double hand-drawn underline + star for the hero highlight */
+:root {
+  --wd-wave-gold: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='10' viewBox='0 0 26 10'%3E%3Cpath d='M1 6c3-4 6-4 9 0s6 4 9 0 6-4 9 0' fill='none' stroke='%23c98a00' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+[data-whimsy] .hero h1 mark::after {
+  height: 14px;
+  bottom: -14px;
+  background-image: var(--wd-wave), var(--wd-wave-gold);
+  background-position: 0 0, 5px 5px;
+  background-size: 26px 10px, 26px 10px;
+}
+
+[data-whimsy] .hero h1 mark::before {
+  content: "✦";
+  position: absolute;
+  right: -10px;
+  top: -14px;
+  font-size: 18px;
+  color: var(--wd-gold);
+  -webkit-text-stroke: 0.8px var(--wd-outline);
+  text-shadow: 0 0 8px currentColor;
+  pointer-events: none;
+  animation: wd-twinkle 3.2s ease-in-out infinite;
+}
+
+/* ---------- Play now celebration ---------- */
+.wd-play-fx {
+  position: fixed;
+  z-index: 99998;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.wd-play-glow {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 44px;
+  height: 44px;
+  margin: -22px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--wd-lime) 0%, var(--wd-gold) 46%, transparent 72%);
+  filter: blur(2px);
+  animation: wd-play-glow 1.5s ease-out forwards;
+}
+
+.wd-play-ring {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 58px;
+  height: 58px;
+  margin: -29px;
+  border-radius: 50%;
+  border: 3px dashed var(--wd-gold);
+  animation: wd-play-ring 1.35s ease-out forwards;
+}
+
+.wd-play-banner {
+  position: absolute;
+  left: 0;
+  top: 0;
+  white-space: nowrap;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 2px solid var(--wd-outline);
+  background: var(--wd-gold);
+  color: #1e260d;
+  font: 800 14px/1.2 var(--mono);
+  box-shadow: 0 5px 0 rgba(41, 42, 35, 0.25);
+  animation: wd-play-banner 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.wd-play-doodle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 56px;
+  animation: wd-play-fly 1.5s cubic-bezier(0.16, 0.84, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+.wd-play-doodle .wd-svg {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 7px 8px var(--wd-shadow));
+}
+
+.wd-play-spark {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+  -webkit-text-stroke: 1px var(--wd-outline);
+  text-shadow: 0 0 8px currentColor;
+  animation: wd-play-spark 1.2s ease-out forwards;
+}
+
+@keyframes wd-play-glow {
+  0% { opacity: 0; transform: scale(0.2); }
+  30% { opacity: 1; transform: scale(2.8); }
+  100% { opacity: 0; transform: scale(6); }
+}
+
+@keyframes wd-play-ring {
+  0% { opacity: 0; transform: scale(0.2) rotate(0deg); }
+  30% { opacity: 1; }
+  100% { opacity: 0; transform: scale(3.6) rotate(90deg); }
+}
+
+@keyframes wd-play-banner {
+  0% { opacity: 0; transform: translate(-50%, -100%) scale(0.6) rotate(-4deg); }
+  22% { opacity: 1; transform: translate(-50%, -170%) scale(1.08) rotate(-4deg); }
+  75% { opacity: 1; transform: translate(-50%, -180%) scale(1) rotate(-4deg); }
+  100% { opacity: 0; transform: translate(-50%, -240%) scale(0.95) rotate(-4deg); }
+}
+
+@keyframes wd-play-fly {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.25); }
+  22% { opacity: 1; }
+  60% { opacity: 1; transform: translate(calc(-50% + var(--wd-mx)), calc(-50% + var(--wd-my))) scale(1.1) rotate(-6deg); }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--wd-px)), calc(-50% + var(--wd-py))) scale(0.7) rotate(14deg); }
+}
+
+@keyframes wd-play-spark {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+  25% { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--wd-px)), calc(-50% + var(--wd-py))) scale(0.2); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wd-cursor, .wd-play-fx { display: none; }
+}
+
+/* ---------- playful click shout ---------- */
+.wd-shout {
+  position: fixed;
+  z-index: 100000;
+  transform: translate(-50%, -100%) rotate(-3deg);
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 2px solid var(--wd-outline);
+  background: var(--wd-lime);
+  color: #1e260d;
+  font: 800 12px/1.2 var(--mono);
+  white-space: nowrap;
+  box-shadow: 0 4px 0 rgba(41, 42, 35, 0.22);
+  animation: wd-sharp 0.95s ease-out forwards;
 }

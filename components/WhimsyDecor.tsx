@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { usePathname } from 'next/navigation';
 import { createPortal } from 'react-dom';
 import { Doodle, type DoodleName } from './WhimsyDoodles';
@@ -88,7 +88,7 @@ function burst(fx: HTMLElement, x: number, y: number, big = false) {
   fx.appendChild(ring);
   removeLater(ring, 700);
 
-  const sparks = big ? 12 : 8;
+  const sparks = big ? 14 : 10;
   for (let i = 0; i < sparks; i += 1) {
     spark(
       fx,
@@ -96,14 +96,15 @@ function burst(fx: HTMLElement, x: number, y: number, big = false) {
       y,
       FX_COLORS[i % 4],
       SPARK_CHARS[i % 2],
-      big ? 20 + Math.random() * 8 : 15 + Math.random() * 6,
+      big ? 20 + Math.random() * 8 : 16 + Math.random() * 6,
       (i / sparks) * Math.PI * 2,
-      big ? 70 + Math.random() * 50 : 38 + Math.random() * 30,
+      big ? 78 + Math.random() * 48 : 44 + Math.random() * 34,
     );
   }
   coin(fx, x, y, Math.PI * 0.2, big ? 90 : 50);
   coin(fx, x, y, Math.PI * 1.2, big ? 110 : 60);
-  if (big) confetti(fx, x, y, 16);
+  coin(fx, x, y, Math.PI * 1.8, big ? 96 : 52);
+  if (big) confetti(fx, x, y, 18);
 }
 
 const SPARKLES = [
@@ -129,6 +130,8 @@ export function WhimsyDecor() {
   const pathname = usePathname();
   const names = useMemo(() => doodlesFor(pathname), [pathname]);
   const fxRef = useRef<HTMLDivElement>(null);
+  const cursorRef = useRef<HTMLDivElement>(null);
+  const [playFx, setPlayFx] = useState<{ x: number; y: number; id: number } | null>(null);
   const [anchors, setAnchors] = useState<Anchors>({ signin: null, auth: null, tourney: null, footer: null, medals: [] });
   const [authRect, setAuthRect] = useState<{ top: number; left: number } | null>(null);
 
@@ -140,10 +143,33 @@ export function WhimsyDecor() {
     };
   }, []);
 
+
+  useEffect(() => {
+    if (!playFx) return;
+    const timer = window.setTimeout(() => setPlayFx(null), 1800);
+    return () => window.clearTimeout(timer);
+  }, [playFx]);
+
   // Cursor trail, click bursts, hover sparkles and playful tooltips.
   useEffect(() => {
     const fx = fxRef.current;
     if (!fx) return;
+    const cursor = FINE() && !REDUCED() ? cursorRef.current : null;
+    const root = document.documentElement;
+    if (cursor) root.classList.add('wd-cursor-on');
+    let cx = -120;
+    let cy = -120;
+    let tx = -120;
+    let ty = -120;
+    let seen = false;
+    let cursorFrame = 0;
+    const cursorLoop = () => {
+      cx += (tx - cx) * 0.24;
+      cy += (ty - cy) * 0.24;
+      if (cursor) cursor.style.transform = `translate3d(${cx}px, ${cy}px, 0)`;
+      cursorFrame = window.requestAnimationFrame(cursorLoop);
+    };
+    if (cursor) cursorFrame = window.requestAnimationFrame(cursorLoop);
     let lastTrail = 0;
     let tip: HTMLElement | null = null;
 
@@ -154,6 +180,14 @@ export function WhimsyDecor() {
 
     const onMove = (event: PointerEvent) => {
       if (REDUCED() || !FINE()) return;
+      tx = event.clientX;
+      ty = event.clientY;
+      if (cursor && !seen) {
+        seen = true;
+        cx = tx;
+        cy = ty;
+        cursor.style.opacity = '1';
+      }
       const now = performance.now();
       if (now - lastTrail < 55) return;
       lastTrail = now;
@@ -176,16 +210,24 @@ export function WhimsyDecor() {
       const rect = target.getBoundingClientRect();
       const x = event.clientX || rect.left + rect.width / 2;
       const y = event.clientY || rect.top + rect.height / 2;
-      const text = (target.textContent || '').toLowerCase();
+      const text = (target.textContent || '').toLowerCase().trim();
+      const isPlay = Boolean(target.closest('.hero .actions')) && text.includes('play');
       const big = Boolean(target.closest('.hero .actions')) || text.includes('play now') || text.includes('create free account');
-      burst(fx, x, y, big);
-      if (big) {
-        const label = node('span', 'wd-sharp');
-        label.textContent = 'Sharp sharp!';
-        label.style.left = `${x}px`;
-        label.style.top = `${y - 34}px`;
-        fx.appendChild(label);
-        removeLater(label, 950);
+      cursor?.classList.add('is-clicking');
+      window.setTimeout(() => cursor?.classList.remove('is-clicking'), 180);
+      if (isPlay) {
+        setPlayFx({ x, y, id: Date.now() });
+      } else {
+        burst(fx, x, y, big);
+        if (target.matches('.btn, .ghost, .nav-signin, button, summary')) {
+          const phrases = ['Sharp sharp!', 'Oya!', 'Correct!', 'E sweet!', 'No wahala!'];
+          const shout = node('span', 'wd-shout');
+          shout.textContent = phrases[Math.floor(Math.random() * phrases.length)];
+          shout.style.left = `${x}px`;
+          shout.style.top = `${y - 34}px`;
+          fx.appendChild(shout);
+          removeLater(shout, 1000);
+        }
       }
       hideTip();
       target.classList.remove('wd-squish');
@@ -219,6 +261,11 @@ export function WhimsyDecor() {
       }
     };
 
+    const onLeave = () => {
+      if (cursor) cursor.style.opacity = '0';
+      seen = false;
+    };
+
     const onOut = (event: PointerEvent) => {
       const target = event.target as Element | null;
       if (!target?.closest?.('.btn, .ghost, .nav-signin, .nav nav a')) return;
@@ -229,13 +276,17 @@ export function WhimsyDecor() {
     document.addEventListener('pointerdown', onDown, { capture: true, passive: true });
     document.addEventListener('pointerover', onOver, { passive: true });
     document.addEventListener('pointerout', onOut, { passive: true });
+    document.addEventListener('pointerleave', onLeave);
     window.addEventListener('scroll', hideTip, { passive: true });
     return () => {
       window.removeEventListener('pointermove', onMove);
       document.removeEventListener('pointerdown', onDown, true);
       document.removeEventListener('pointerover', onOver);
       document.removeEventListener('pointerout', onOut);
+      document.removeEventListener('pointerleave', onLeave);
       window.removeEventListener('scroll', hideTip);
+      window.cancelAnimationFrame(cursorFrame);
+      root.classList.remove('wd-cursor-on');
       hideTip();
     };
   }, []);
@@ -395,12 +446,25 @@ export function WhimsyDecor() {
         ))}
       </div>
 
-      <div className="wd-runner">
-        <span className="wd-runner-road" />
-        <Doodle name="danfo" className="wd-runner-bus" />
-      </div>
+      {pathname === '/' && (
+        <div className="wd-runner">
+          <Doodle name="danfo" className="wd-runner-bus" />
+        </div>
+      )}
 
       <div className="wd-fx" ref={fxRef} />
+
+      <div ref={cursorRef} className="wd-cursor">
+        <svg viewBox="0 0 46 58" width="46" height="58" aria-hidden="true">
+          <path d="M12 52 32 26" stroke="var(--wd-outline)" strokeWidth="10" strokeLinecap="round" />
+          <path d="M12 52 32 26" stroke="var(--wd-gold)" strokeWidth="5" strokeLinecap="round" />
+          <path d="M31 7l3.6 9.4L44 20l-9.4 3.6L31 33l-3.6-9.4L18 20l9.4-3.6Z" fill="var(--wd-lime)" stroke="var(--wd-outline)" strokeWidth="2.2" strokeLinejoin="round" />
+          <circle cx="39" cy="8" r="2.2" fill="var(--wd-red)" />
+          <circle cx="23" cy="9" r="1.6" fill="var(--wd-teal)" />
+        </svg>
+      </div>
+
+      {playFx ? <PlayCelebration fx={playFx} /> : null}
 
       {pathname === '/' && (
         <div className="wd-home-mascot">
@@ -472,5 +536,59 @@ function FooterProps() {
       </svg>
       <span className="wd-signoff">No wahala ✦</span>
     </>
+  );
+}
+
+function PlayCelebration({ fx }: { fx: { x: number; y: number } }) {
+  const doodles: DoodleName[] = ['danfo', 'jollof', 'mango', 'suya', 'puff', 'zobo'];
+  return (
+    <div className="wd-play-fx" style={{ left: fx.x, top: fx.y }} aria-hidden="true">
+      <span className="wd-play-glow" />
+      <span className="wd-play-ring" />
+      <span className="wd-play-banner">{"Oya, let's play! ✦"}</span>
+      {doodles.map((name, index) => {
+        const angle = (index / doodles.length) * Math.PI * 2 - Math.PI / 2;
+        const distance = 118 + (index % 3) * 28;
+        const dx = Math.cos(angle) * distance;
+        const dy = Math.sin(angle) * distance;
+        return (
+          <span
+            key={name}
+            className={`wd-play-doodle wd-pd${index + 1}`}
+            style={
+              {
+                '--wd-px': `${dx}px`,
+                '--wd-py': `${dy}px`,
+                '--wd-mx': `${dx * 0.6}px`,
+                '--wd-my': `${dy * 0.6}px`,
+                animationDelay: `${index * 24}ms`,
+              } as CSSProperties
+            }
+          >
+            <Doodle name={name} />
+          </span>
+        );
+      })}
+      {Array.from({ length: 12 }).map((_, index) => {
+        const angle = (index / 12) * Math.PI * 2;
+        const distance = 82 + (index % 4) * 24;
+        return (
+          <span
+            key={index}
+            className="wd-play-spark"
+            style={
+              {
+                '--wd-px': `${Math.cos(angle) * distance}px`,
+                '--wd-py': `${Math.sin(angle) * distance}px`,
+                color: ['var(--wd-spark-1)', 'var(--wd-spark-2)', 'var(--wd-spark-3)', 'var(--wd-spark-4)'][index % 4],
+                animationDelay: `${index * 18}ms`,
+              } as CSSProperties
+            }
+          >
+            {index % 2 ? '✦' : '✧'}
+          </span>
+        );
+      })}
+    </div>
   );
 }
