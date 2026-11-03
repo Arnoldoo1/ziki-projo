@@ -116,13 +116,24 @@ Screenshots: `home.jpg`, `games.jpg`, `tournament.jpg`, `leaderboard.jpg`,
 `creators.jpg`, `docs.jpg`, `signin.jpg`, `footer.jpg`, `404.jpg`,
 `mobile-*.jpg`, `dark-home.jpg`.
 
-## Deployment status
+## Revision (current)
 
-Deployed to the **existing** Vercel project `nimble-xenon-4wygl2l`:
+Deployed to the existing Vercel project `nimble-xenon-4wygl2l`:
 
-**https://nimble-xenon-4wygl2l-anm17.vercel.app**
+- **https://nimble-xenon-4wygl2l-anm17.vercel.app**
 
-The legacy anonymous hostname `https://nimble-xenon-4wygl2l.tmp.now/` is an
-immutable anonymous-deployment domain. Vercel refuses to reassign it
-(`You don't have access to the domain ... under anm17`), so it still serves the
-older build. The project itself is live and public at the production URL above.
+Removed: custom wand cursor + sparkle trail and every `cursor: none`; the
+Sign-in oval/ring and coin spinner; all fruit/food/coin/vehicle doodles
+(mango, jollof, suya, puff puff, zobo, coin, danfo/bus/car) from margins,
+hero, Play overlay, footer skyline, loader and 404; the straight-line
+top runner/road; the hero oval orbit; page-edge/section lines.
+
+Added: accessible word-by-word headline hover on every page, a single
+eye-tracking *Naija vibes* mascot on every page (blink, brows, speech,
+wiggle, touch auto-look), and one scroll-driven danfo in the side margin
+(wavy path, idle bounce, spinning wheels, star puffs, 25% over text,
+parked under reduced motion).
+
+Kept: stars, tournament trophy + clock, leaderboard medals, footer
+skyline, hero underline, reveals, microcopy, card hover, click sparkles
+and shouts.

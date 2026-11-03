@@ -1,7 +1,7 @@
 From 4ae3548436ff7bfd73a3a59ef032e3f7731bbf55 Mon Sep 17 00:00:00 2001
 From: Arnold Nyamongo <arnoldnyams@gmail.com>
 Date: Sun, 1 Nov 2026 12:30:55 +0000
-Subject: [PATCH 1/3] Add a decoration-only Naija whimsy layer to every route
+Subject: [PATCH 1/4] Add a decoration-only Naija whimsy layer to every route
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -1674,7 +1674,7 @@ index 0000000..77bc0c8
 From 273ce8f86391c52b9643dcc881c02f17152e9936 Mon Sep 17 00:00:00 2001
 From: Arnold Nyamongo <arnoldnyams@gmail.com>
 Date: Mon, 2 Nov 2026 15:46:23 +0000
-Subject: [PATCH 2/3] Turn the hero into a whimsical set-piece and Play now
+Subject: [PATCH 2/4] Turn the hero into a whimsical set-piece and Play now
  into a celebration
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -2480,7 +2480,7 @@ index 79a07b0..38974fa 100644
 From 703ee8a0c48a9aad56f3153a5d623dfb704029a9 Mon Sep 17 00:00:00 2001
 From: Arnold Nyamongo <arnoldnyams@gmail.com>
 Date: Mon, 2 Nov 2026 15:49:06 +0000
-Subject: [PATCH 3/3] Let the curvy danfo loop across the hero
+Subject: [PATCH 3/4] Let the curvy danfo loop across the hero
 
 The whimsical offset-path ride now repeats every nine seconds with a
 short off-screen pause, so the wavy danfo street is part of the page's
@@ -2515,6 +2515,2732 @@ index 43b4872..cd9e164 100644
    100% { offset-distance: 100%; opacity: 0; }
  }
  
+-- 
+2.39.5
+
+
+From dbaf00dd90ff1d44ee6b701965338772ae37e477 Mon Sep 17 00:00:00 2001
+From: Arnold Nyamongo <arnoldnyams@gmail.com>
+Date: Tue, 3 Nov 2026 19:11:42 +0000
+Subject: [PATCH 4/4] Revise the whimsy layer: word hover, eye-tracking mascot,
+ scroll danfo; remove doodles and custom cursor
+
+PART 1 removals (code deleted, not hidden):
+- custom wand cursor and sparkle trail, every cursor:none, and the
+  cursor-follower element/effect; the browser default cursor is restored
+- the Sign-in oval/ring and spinning-coin loader
+- every fruit, food, coin and vehicle doodle (mango, jollof, suya, puff
+  puff, zobo, coin, danfo/bus/car) from the margins, hero, Play overlay,
+  footer skyline, loader and 404; the doodle library now only has trophy,
+  crown, medal and clock
+- the old straight-line danfo runner/road, the hover-tilt margin system,
+  and the hero oval orbit
+
+PART 3:
+- the home headline is split into accessible word spans; a MutationObserver
+  enhancer wraps every other page's main h1 into word spans (aria-label on
+  the heading, aria-hidden spans)
+- each word lifts/tilts/bounces with per-word colour and drawn underline;
+  tiny sparkles pop; tap works on touch; no layout shift
+
+PART 4:
+- one Naija vibes mascot on every page: big tracking pupils, random blinking,
+  eyebrows that lift when the pointer is near, bob, speech bubble on hover,
+  wiggle on click, self-directed eyes on touch, reduced-motion safe
+
+PART 5:
+- one scroll-driven yellow/black-striped danfo in the side margin on a wavy
+  path; idle bounce and spinning wheels; faces direction; tiny star puffs;
+  25% opacity over text; low z-index behind content; parked under reduced
+  motion
+
+Kept: stars, tournament trophy/clock, leaderboard medals, footer skyline,
+hero underline, reveals, microcopy, card hover and click sparkles/shouts.
+Verified every route in light mode (0 overflow, 0 blocked controls), mobile,
+dark and reduced-motion.
+---
+ README.md                    |   23 +-
+ app/(site)/page.tsx          |   10 +-
+ app/loading.tsx              |    6 +-
+ app/not-found.tsx            |    2 -
+ app/whimsy.css               | 1224 ++++++++++++----------------------
+ components/HeroMagic.tsx     |   13 +-
+ components/NaijaMascot.tsx   |  135 ++++
+ components/ScrollDanfo.tsx   |  127 ++++
+ components/WhimsyDecor.tsx   |  371 ++---------
+ components/WhimsyDoodles.tsx |  113 +---
+ components/WordHover.tsx     |  138 ++++
+ 11 files changed, 904 insertions(+), 1258 deletions(-)
+ create mode 100644 components/NaijaMascot.tsx
+ create mode 100644 components/ScrollDanfo.tsx
+ create mode 100644 components/WordHover.tsx
+
+diff --git a/README.md b/README.md
+index b648ca0..e039bac 100644
+--- a/README.md
++++ b/README.md
+@@ -10,16 +10,27 @@ A working recreation of [start.ng](https://start.ng), Nigeria's home for browser
+ - **Docs rendered from the original:** https://startng-three.vercel.app/docs
+ - **Plain-text docs for AI:** https://startng-three.vercel.app/docs.md
+ 
+-## The Naija whimsy layer
++## The Naija whimsy layer (revised)
+ 
+-Every route now carries a decoration-only whimsy layer: bold outlined Naija doodles in the margins, a fixed sparkle field, a danfo that drives across the top once, card/page sparkles, wavy section dividers, hover tilt + sparkle bursts, a sparkle cursor trail, click ripples/confetti, a sign-in mascot with “Oya, come in!”, tournament trophy + ticking clock, leaderboard medals/crown, a footer skyline and sign-off, scroll reveals, a playful loader, and a 404 sticker.
++A decoration-only layer that keeps the original start.ng theme, fonts, copy, layout and functionality intact:
++
++- **Headlines** — every main heading splits into words; each word lifts, tilts, changes to a saturated brand color, draws a colored underline and pops tiny sparkles on hover or tap. The home hero keeps its sunburst halo and ✦/✧ stars.
++- **Naija vibes mascot** — one corner mascot on every page with big tracking eyes (pointer-driven), random blinking, eyebrows that lift when the pointer is close, a floating bob, a speech bubble (“Sharp sharp!”, “Oya, play!”, “No wahala!”), and a happy wiggle on click. Touch devices let the eyes wander; reduced motion removes the bob and eases the eyes instantly.
++- **One danfo** — a yellow, black-striped danfo drives down the side margin with the scroll on a gently curving path, idles with bouncing wheels, faces its direction and leaves tiny ✦ puffs. It fades to 25% over text-heavy areas, sits behind the content and is parked under reduced motion.
++- **Kept** — the fixed twinkling ✦/✧ stars, the tournament trophy + ticking clock, leaderboard crown/medals, footer skyline/sign-off, hero double underline, scroll reveals, playful microcopy, card hovers, and click sparkles/shouts. Play now keeps a stars-and-banner celebration (no doodles).
+ 
+ - `app/whimsy.css` — the single, clearly marked stylesheet.
+-- `components/WhimsyDecor.tsx` — fixed doodles/sparkles, click effects, cursor trail, reveals, tooltips and the path-specific mascot/awards/skyline portals.
+-- `components/WhimsyDoodles.tsx` — outlined SVG danfo, jollof, suya, puff puff, mango, zobo, coin, mascot, trophy, crown, medal and clock.
+-- Mounted once in `app/layout.tsx`; `app/loading.tsx` adds the spinning-coin loader and `app/not-found.tsx` gets the “Wahala!” sticker.
++- `components/WhimsyDecor.tsx` — stars, click effects, awards portals, footer strip and reveals.
++- `components/WhimsyDoodles.tsx` — only trophy, crown, medal and clock.
++- `components/HeroMagic.tsx` — the hero sunburst halo and stars.
++- `components/WordHover.tsx` — accessible word-splitting hover enhancer.
++- `components/NaijaMascot.tsx` — the eye-tracking mascot.
++- `components/ScrollDanfo.tsx` — the one scroll-driven danfo.
++- Mounted once in `app/layout.tsx`; `app/loading.tsx` uses stars only, and `app/not-found.tsx` keeps the “Wahala!” line.
++
++**Removed completely:** the custom wand cursor and sparkle trail; every `cursor: none`; the Sign-in ring/oval and spinner coin; all fruit, food, coin and vehicle doodles (mango, jollof, suya, puff puff, zobo, coin, bus/car) from the margins, hero, Play celebration, footer skyline, loader and 404; the old hover-tilt doodle margin system; the top straight-line danfo runner/road; the oval hero orbit; and the page-edge/section line decorations.
+ 
+-It does not change the site’s fonts, colour palette, logo, layout structure, existing copy, routes, links or functionality. All decorations are `pointer-events: none`, and every animation is disabled under `prefers-reduced-motion`.
++Decorations use `pointer-events: none` (the mascot is the only clickable one), sit behind/beside content with no text overlap, and respect `prefers-reduced-motion`. No fonts, palette, copy, routes, links or functionality changed.
+ 
+ ## What is included
+ 
+diff --git a/app/(site)/page.tsx b/app/(site)/page.tsx
+index 5dada47..0e5e0b9 100644
+--- a/app/(site)/page.tsx
++++ b/app/(site)/page.tsx
+@@ -22,7 +22,15 @@ export default function HomePage() {
+       <section className="container hero wd-hero-magic-on">
+         <HeroMagic />
+         <p className="eyebrow">Big imagination. Played everywhere.</p>
+-        <h1>Good vibes.<br /><mark>Good games.</mark></h1>
++        <h1 aria-label="Good vibes. Good games." data-wd-words="1">
++          <span className="wd-word" data-wi="0" aria-hidden="true">Good</span>{' '}
++          <span className="wd-word" data-wi="1" aria-hidden="true">vibes.</span>
++          <br />
++          <mark>
++            <span className="wd-word" data-wi="2" aria-hidden="true">Good</span>{' '}
++            <span className="wd-word" data-wi="3" aria-hidden="true">games.</span>
++          </mark>
++        </h1>
+         <p className="lead">
+           Games made by builders in the community.<br />
+           Each one lives at its own start.ng address.<br />
+diff --git a/app/loading.tsx b/app/loading.tsx
+index aff61bf..c4ca097 100644
+--- a/app/loading.tsx
++++ b/app/loading.tsx
+@@ -1,10 +1,8 @@
+-import { Doodle } from '@/components/WhimsyDoodles';
+-
+ export default function Loading() {
+   return (
+     <div className="wd-loading">
+-      <span className="wd-loading-coin">
+-        <Doodle name="coin" />
++      <span className="wd-loading-sparks" aria-hidden="true">
++        <span>✦</span><span>✧</span><span>✦</span>
+       </span>
+       <p>Sharp sharp, loading…</p>
+       <small>The vibes are warming up.</small>
+diff --git a/app/not-found.tsx b/app/not-found.tsx
+index 36ed753..fb00357 100644
+--- a/app/not-found.tsx
++++ b/app/not-found.tsx
+@@ -1,5 +1,4 @@
+ import Link from 'next/link';
+-import { Doodle } from '@/components/WhimsyDoodles';
+ 
+ export default function NotFound() {
+   return (
+@@ -9,7 +8,6 @@ export default function NotFound() {
+         <h1>This page is out playing.</h1>
+         <p>The link you followed does not exist, or the game packed up and went home. Try the games shelf instead.</p>
+         <p className="wd-404-line">Wahala! This page is on a hustle. Go back home.</p>
+-        <div className="wd-404-doodle"><Doodle name="danfo" /></div>
+         <div className="actions" style={{ justifyContent: 'center' }}>
+           <Link className="btn" href="/games">Browse all games</Link>
+           <Link className="ghost" href="/">Back home</Link>
+diff --git a/app/whimsy.css b/app/whimsy.css
+index cd9e164..8483a45 100644
+--- a/app/whimsy.css
++++ b/app/whimsy.css
+@@ -1,8 +1,9 @@
+ /* ==========================================================================
+-   start.ng — The Naija Whimsy Layer
+-   Decoration-only. Nothing here changes the site's fonts, palette, layout,
+-   copy, routes, links or functionality. Every decoration is positioned
+-   beside/behind content and is pointer-events: none.
++   start.ng — Naija whimsy (revised)
++   Decorations only: no fonts, palette, copy, layout, routes or functionality
++   changes. Every decoration is pointer-events: none unless it is the
++   intentionally clickable mascot. No food, fruit, coin or vehicle doodles
++   remain except the one scroll-driven danfo.
+    ========================================================================== */
+ 
+ :root {
+@@ -23,16 +24,8 @@
+   --wd-spark-3: #b02a1e;
+   --wd-spark-4: #0f6b63;
+   --wd-shadow: rgba(41, 42, 35, 0.28);
+-}
+-
+-.wd-decor *,
+-.wd-signin-mascot,
+-.wd-tourney-props,
+-.wd-medal,
+-.wd-skyline,
+-.wd-signoff,
+-.wd-speech {
+-  pointer-events: none !important;
++  --wd-wave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='10' viewBox='0 0 26 10'%3E%3Cpath d='M1 6c3-4 6-4 9 0s6 4 9 0 6-4 9 0' fill='none' stroke='%234f7a00' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
++  --wd-wave-gold: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='10' viewBox='0 0 26 10'%3E%3Cpath d='M1 6c3-4 6-4 9 0s6 4 9 0 6-4 9 0' fill='none' stroke='%23c98a00' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
+ }
+ 
+ :root[data-theme="dark"] {
+@@ -53,59 +46,21 @@
+   --wd-spark-3: #ff8a7d;
+   --wd-spark-4: #5ee7ff;
+   --wd-shadow: rgba(0, 0, 0, 0.55);
+-}
+-
+-/* Shared wave divider (light stroke; dark override below). */
+-:root {
+-  --wd-wave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='10' viewBox='0 0 26 10'%3E%3Cpath d='M1 6c3-4 6-4 9 0s6 4 9 0 6-4 9 0' fill='none' stroke='%234f7a00' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
+-}
+-
+-:root[data-theme="dark"] {
+   --wd-wave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='10' viewBox='0 0 26 10'%3E%3Cpath d='M1 6c3-4 6-4 9 0s6 4 9 0 6-4 9 0' fill='none' stroke='%23d8fd71' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
++  --wd-wave-gold: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='10' viewBox='0 0 26 10'%3E%3Cpath d='M1 6c3-4 6-4 9 0s6 4 9 0 6-4 9 0' fill='none' stroke='%23ffd84d' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
+ }
+ 
+-.wd-decor {
+-  pointer-events: none;
+-}
+-
+-/* ---------- fixed margin doodles (desktop margins only) ---------- */
+-.wd-margin-layer {
+-  position: fixed;
+-  inset: 0;
+-  z-index: 4;
+-  pointer-events: none;
+-}
+-
+-.wd-doodle {
+-  display: block;
+-  line-height: 0;
+-}
+-
+-.wd-doodle .wd-svg {
+-  display: block;
+-  width: 100%;
+-  height: auto;
+-  overflow: visible;
+-  filter: drop-shadow(0 6px 8px var(--wd-shadow));
+-}
+-
+-.wd-margin {
+-  position: fixed;
+-  width: 94px;
+-  animation: wd-float 6s ease-in-out infinite;
+-  will-change: translate;
+-}
+-
+-.wd-margin-0 { left: 1.4%; top: 16%; rotate: -3deg; }
+-.wd-margin-1 { right: 1.4%; top: 20%; width: 88px; rotate: 3deg; animation-delay: -1.6s; }
+-.wd-margin-2 { left: 2%; top: 61%; width: 78px; rotate: 2deg; animation-delay: -3.1s; }
+-.wd-margin-3 { right: 2.2%; top: 65%; width: 84px; rotate: -2deg; animation-delay: -4.4s; }
++.wd-decor { pointer-events: none; }
+ 
+-@media (max-width: 1199px) {
+-  .wd-margin-layer { display: none; }
++/* Keep page content above the fixed danfo/mascot decorations. */
++main,
++footer,
++.sm-world {
++  position: relative;
++  z-index: 1;
+ }
+ 
+-/* ---------- bold fixed sparkles ---------- */
++/* ---------- fixed twinkling stars (kept) ---------- */
+ .wd-spark-layer {
+   position: fixed;
+   inset: 0;
+@@ -137,52 +92,13 @@
+   .wd-fixed-spark:nth-child(4) { left: auto !important; right: 0.5% !important; top: 80% !important; }
+ }
+ 
+-/* ---------- the danfo follows a curly street across the hero ---------- */
+-.wd-runner {
+-  position: fixed;
+-  inset: 0;
+-  z-index: 35;
+-  pointer-events: none;
+-  overflow: hidden;
+-}
+-
+-.wd-runner-bus {
+-  position: fixed;
+-  left: 0;
+-  top: 0;
+-  width: 42px;
+-  offset-path: path("M -80 92 C 160 42, 320 138, 560 84 S 860 34, 1120 118 S 1360 58, 1500 94");
+-  offset-rotate: auto;
+-  animation: wd-curvy-drive 9s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0.35s infinite;
+-  will-change: offset-distance, opacity;
+-}
+-
+-.wd-runner-bus .wd-svg {
+-  animation: wd-bus-bounce 0.7s ease-in-out infinite;
+-  filter: drop-shadow(0 6px 7px var(--wd-shadow));
+-}
+-
+-@keyframes wd-curvy-drive {
+-  0% { offset-distance: 0%; opacity: 0; }
+-  6% { opacity: 1; }
+-  88% { offset-distance: 100%; opacity: 1; }
+-  94% { offset-distance: 100%; opacity: 0; }
+-  100% { offset-distance: 100%; opacity: 0; }
+-}
+-
+-@keyframes wd-bus-bounce {
+-  0%, 100% { translate: 0 0; }
+-  50% { translate: 0 -3px; }
+-}
+-
+-@media (max-width: 760px) {
+-  .wd-runner-bus {
+-    width: 32px;
+-    offset-path: path("M -40 84 C 60 58, 110 112, 200 78 S 320 54, 430 98");
+-  }
++@media (min-width: 761px) and (max-width: 1199px) {
++  .wd-fixed-spark { font-size: 15px !important; }
++  .wd-fixed-spark:nth-child(odd) { left: 0.5% !important; right: auto !important; }
++  .wd-fixed-spark:nth-child(even) { left: auto !important; right: 0.5% !important; }
+ }
+ 
+-/* ---------- click bursts, trail, tooltip ---------- */
++/* ---------- click sparkles, ripple, sticker shouts, tooltip ---------- */
+ .wd-fx {
+   position: fixed;
+   inset: 0;
+@@ -201,18 +117,6 @@
+   animation: wd-fly 0.65s cubic-bezier(0.16, 0.84, 0.3, 1) forwards;
+ }
+ 
+-.wd-fx-coin {
+-  position: fixed;
+-  width: 11px;
+-  height: 11px;
+-  margin: -5.5px 0 0 -5.5px;
+-  border-radius: 50%;
+-  background: var(--wd-yellow);
+-  border: 2px solid var(--wd-outline);
+-  box-shadow: 0 0 6px rgba(201, 138, 0, 0.75);
+-  animation: wd-fly 0.7s cubic-bezier(0.16, 0.84, 0.3, 1) forwards;
+-}
+-
+ .wd-fx-confetti {
+   position: fixed;
+   margin: -2px 0 0 -3px;
+@@ -231,28 +135,19 @@
+   animation: wd-ring 0.55s ease-out forwards;
+ }
+ 
+-.wd-sharp {
++.wd-shout {
+   position: fixed;
+-  transform: translate(-50%, -100%) rotate(-4deg);
+-  background: var(--wd-gold);
+-  color: #1e260d;
+-  border: 2px solid var(--wd-outline);
+-  border-radius: 999px;
++  z-index: 100000;
++  transform: translate(-50%, -100%) rotate(-3deg);
+   padding: 4px 10px;
++  border-radius: 999px;
++  border: 2px solid var(--wd-outline);
++  background: var(--wd-lime);
++  color: #1e260d;
+   font: 800 12px/1.2 var(--mono);
+-  letter-spacing: 0.04em;
+   white-space: nowrap;
+-  box-shadow: 0 4px 0 rgba(41, 42, 35, 0.25);
+-  animation: wd-sharp 0.9s ease-out forwards;
+-}
+-
+-.wd-trail {
+-  position: fixed;
+-  transform: translate(-50%, -50%);
+-  font-weight: 800;
+-  line-height: 1;
+-  text-shadow: 0 0 6px currentColor;
+-  animation: wd-trail 0.65s ease-out forwards;
++  box-shadow: 0 4px 0 rgba(41, 42, 35, 0.22);
++  animation: wd-shout 0.95s ease-out forwards;
+ }
+ 
+ .wd-tip {
+@@ -285,240 +180,409 @@
+   100% { opacity: 0; transform: scale(2.8); }
+ }
+ 
+-@keyframes wd-sharp {
++@keyframes wd-shout {
+   0% { opacity: 0; transform: translate(-50%, -80%) rotate(-4deg) scale(0.8); }
+   20% { opacity: 1; transform: translate(-50%, -130%) rotate(-4deg) scale(1.05); }
+   100% { opacity: 0; transform: translate(-50%, -210%) rotate(-4deg) scale(1); }
+ }
+ 
+-@keyframes wd-trail {
+-  0% { opacity: 0.95; transform: translate(-50%, -50%) scale(1); }
+-  100% { opacity: 0; transform: translate(calc(-50% + var(--wd-dx)), calc(-50% + var(--wd-dy))) scale(0.3); }
+-}
+-
+ @keyframes wd-tip {
+   from { opacity: 0; transform: translate(-50%, -80%) scale(0.9); }
+   to { opacity: 1; transform: translate(-50%, -100%) scale(1); }
+ }
+ 
+-/* ---------- the home “Naija vibes” mascot ---------- */
+-.wd-home-mascot {
+-  position: fixed;
+-  right: 18px;
+-  bottom: 88px;
+-  width: 94px;
+-  z-index: 30;
+-  pointer-events: none;
+-  animation: wd-bob 4.4s ease-in-out infinite;
++@keyframes wd-twinkle {
++  0%, 100% { opacity: 0.35; scale: 0.82; }
++  50% { opacity: 1; scale: 1.12; }
+ }
+ 
+-.wd-home-mascot .wd-svg { width: 100%; height: auto; }
++/* ---------- hero: sunburst halo + stars (kept) ---------- */
++.wd-hero-magic-on {
++  position: relative;
++  isolation: isolate;
++}
++
++.wd-hero-magic-on > *:not(.wd-hero-magic) {
++  position: relative;
++  z-index: 1;
++}
+ 
+-.wd-speech {
++.wd-hero-magic {
+   position: absolute;
+-  background: var(--wd-lime);
+-  color: #1e260d;
+-  border: 2px solid var(--wd-outline);
+-  border-radius: 999px;
+-  padding: 5px 9px;
+-  font: 800 11px/1.25 var(--mono);
+-  white-space: nowrap;
+-  box-shadow: 0 4px 0 rgba(41, 42, 35, 0.22);
++  inset: 0;
++  z-index: 0;
+   pointer-events: none;
++  overflow: hidden;
+ }
+ 
+-.wd-speech-home {
+-  right: 76px;
+-  bottom: 56px;
+-  transform: rotate(-3deg);
++.wd-hero-halo {
++  position: absolute;
++  left: 50%;
++  top: 46%;
++  width: min(860px, 96%);
++  aspect-ratio: 1;
++  transform: translate(-50%, -50%);
++  border-radius: 50%;
++  background:
++    repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--wd-gold) 30%, transparent) 0deg 3.5deg, transparent 3.5deg 13deg),
++    radial-gradient(circle, color-mix(in srgb, var(--wd-lime) 34%, transparent) 0%, transparent 64%);
++  -webkit-mask-image: radial-gradient(circle, transparent 0 26%, #000 43%, transparent 72%);
++  mask-image: radial-gradient(circle, transparent 0 26%, #000 43%, transparent 72%);
++  opacity: 0.95;
++  animation: wd-halo-spin 70s linear infinite;
+ }
+ 
+-@media (max-width: 1199px) {
+-  .wd-home-mascot { display: none; }
+-}
+ 
+-/* ---------- sign-in mascot peeking over the form ---------- */
+-.wd-anchor { position: relative; }
+ 
+-.wd-signin-mascot {
++.wd-hero-spark {
+   position: absolute;
+-  top: -60px;
+-  right: 12px;
+-  width: 84px;
+-  z-index: 6;
+-  pointer-events: none;
+-  animation: wd-bob 4.6s ease-in-out infinite;
++  z-index: 2;
++  font-size: 22px;
++  font-weight: 800;
++  line-height: 1;
++  color: var(--wd-gold);
++  -webkit-text-stroke: 1px var(--wd-outline);
++  text-shadow: 0 0 9px currentColor;
++  animation: wd-twinkle 3.6s ease-in-out infinite;
+ }
+ 
+-.wd-signin-mascot-modal { right: 88px; }
++.wd-hsp1 { left: 6%; top: 30%; color: var(--wd-spark-2); }
++.wd-hsp2 { right: 6%; top: 24%; color: var(--wd-spark-1); animation-delay: -1.1s; }
++.wd-hsp3 { left: 16%; bottom: 18%; color: var(--wd-spark-3); font-size: 18px; animation-delay: -2.2s; }
++.wd-hsp4 { right: 15%; bottom: 22%; color: var(--wd-spark-4); font-size: 18px; animation-delay: -0.7s; }
++.wd-hsp5 { left: 26%; top: 4%; color: var(--wd-spark-3); font-size: 16px; animation-delay: -2.7s; }
++.wd-hsp6 { right: 26%; top: 4%; color: var(--wd-spark-1); font-size: 16px; animation-delay: -1.7s; }
+ 
+-.wd-signin-mascot .wd-svg { width: 100%; height: auto; }
++@keyframes wd-halo-spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+ 
+-.wd-speech-signin {
+-  right: 76px;
+-  top: -10px;
+-  transform: rotate(-3deg);
++@media (max-width: 760px) {
++  .wd-hero-halo { width: 150%; top: 48%; opacity: 0.6; }
++  .wd-hero-spark { font-size: 16px; }
++  .wd-hsp3, .wd-hsp4 { display: none; }
+ }
+ 
+-@media (max-width: 600px) {
+-  .wd-signin-mascot,
+-  .wd-signin-mascot-modal {
+-    top: -48px;
+-    left: 8px;
+-    right: auto;
+-    width: 64px;
+-  }
+-
+-  .wd-speech-signin {
+-    left: 58px;
+-    right: auto;
+-    top: -8px;
+-    padding: 3px 7px;
+-    font-size: 9px;
+-  }
++/* hand-drawn double underline + star on “Good games.” */
++[data-whimsy] .hero h1 mark {
++  position: relative;
++  display: inline-block;
+ }
+ 
+-/* ---------- tournament trophy + ticking clock ---------- */
+-.wd-tourney-props {
++[data-whimsy] .hero h1 mark::after {
++  content: "";
+   position: absolute;
+-  top: -22px;
+-  right: 0;
+-  display: flex;
+-  align-items: flex-start;
+-  gap: 6px;
+-  z-index: 4;
++  left: -1%;
++  right: -1%;
++  bottom: -14px;
++  height: 14px;
++  background-image: var(--wd-wave), var(--wd-wave-gold);
++  background-repeat: repeat-x;
++  background-position: 0 0, 5px 5px;
++  background-size: 26px 10px, 26px 10px;
+   pointer-events: none;
+ }
+ 
+-.wd-trophy,
+-.wd-clock {
+-  display: block;
+-  width: 34px;
++[data-whimsy] .hero h1 mark::before {
++  content: "✦";
++  position: absolute;
++  right: -10px;
++  top: -14px;
++  font-size: 18px;
++  color: var(--wd-gold);
++  -webkit-text-stroke: 0.8px var(--wd-outline);
++  text-shadow: 0 0 8px currentColor;
++  pointer-events: none;
++  animation: wd-twinkle 3.2s ease-in-out infinite;
+ }
+ 
+-.wd-trophy .wd-svg,
+-.wd-clock .wd-svg { width: 100%; height: auto; }
+-
+-.wd-trophy { animation: wd-bounce 2.6s ease-in-out infinite; }
+-
+-.wd-clock-hand {
+-  transform-origin: 50px 50px;
+-  animation: wd-tick 2s steps(12, end) infinite;
++/* ---------- word-by-word hover ---------- */
++.wd-word-fx {
++  position: fixed;
++  inset: 0;
++  z-index: 6;
++  pointer-events: none;
++  overflow: hidden;
+ }
+ 
+-@media (max-width: 600px) {
+-  .wd-tourney-props { top: -18px; right: 4px; gap: 4px; }
+-  .wd-trophy, .wd-clock { width: 26px; }
++.wd-word-spark {
++  position: fixed;
++  font-weight: 800;
++  line-height: 1;
++  -webkit-text-stroke: 0.7px var(--wd-outline);
++  text-shadow: 0 0 7px currentColor;
++  animation: wd-word-spark 0.65s ease-out forwards;
+ }
+ 
+-/* ---------- footer skyline + sign-off ---------- */
+-.wd-has-skyline { position: relative; }
+-
+-.wd-has-skyline .footer-grid,
+-.wd-has-skyline .footer-bottom {
++.wd-word {
+   position: relative;
+-  z-index: 1;
++  display: inline-block;
++  color: inherit;
++  transition:
++    transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1),
++    color 0.2s ease;
++  will-change: transform;
+ }
+ 
+-.wd-skyline {
++.wd-word::after {
++  content: "";
+   position: absolute;
+   left: 0;
+   right: 0;
+-  top: 10px;
+-  width: 100%;
+-  height: 20px;
+-  z-index: 0;
++  bottom: -3px;
++  height: 3px;
++  border-radius: 3px;
++  background: currentColor;
++  transform: scaleX(0);
++  transform-origin: left center;
++  transition: transform 0.24s ease;
+   pointer-events: none;
+-  filter: drop-shadow(0 2px 0 rgba(41, 42, 35, 0.12));
+ }
+ 
+-.wd-signoff {
+-  position: absolute;
+-  right: 16px;
+-  top: 12px;
+-  z-index: 2;
+-  transform: rotate(-2deg);
+-  background: var(--wd-lime);
+-  color: #1e260d;
+-  border: 2px solid var(--wd-outline);
+-  border-radius: 999px;
+-  padding: 2px 8px;
+-  font: 800 10px/1.4 var(--mono);
+-  box-shadow: 0 3px 0 rgba(41, 42, 35, 0.2);
++.wd-word[data-wi="0"] { --wd-word: var(--wd-spark-1); --wd-rot: -4deg; }
++.wd-word[data-wi="1"] { --wd-word: var(--wd-spark-2); --wd-rot: 3deg; }
++.wd-word[data-wi="2"] { --wd-word: var(--wd-spark-3); --wd-rot: -2deg; }
++.wd-word[data-wi="3"] { --wd-word: var(--wd-spark-4); --wd-rot: 5deg; }
++
++.wd-word:hover,
++.wd-word.is-live {
++  color: var(--wd-word);
++  transform: translateY(-6px) rotate(var(--wd-rot)) scale(1.04);
+ }
+ 
+-@media (max-width: 760px) {
+-  .wd-signoff { display: none; }
+-  .wd-skyline { top: 10px; height: 18px; }
++.wd-word:hover::after,
++.wd-word.is-live::after {
++  transform: scaleX(1);
+ }
+ 
+-/* ---------- top-three medals ---------- */
+-.wd-medal-anchor { position: relative; }
++.wd-word[data-wi="0"]:hover,
++.wd-word[data-wi="0"].is-live { animation: wd-word-bounce 0.55s cubic-bezier(0.34, 1.56, 0.64, 1); }
++.wd-word[data-wi="1"]:hover,
++.wd-word[data-wi="1"].is-live { animation: wd-word-wiggle 0.5s ease-in-out; }
++.wd-word[data-wi="2"]:hover,
++.wd-word[data-wi="2"].is-live { animation: wd-word-spin 0.5s ease-in-out; }
++.wd-word[data-wi="3"]:hover,
++.wd-word[data-wi="3"].is-live { animation: wd-word-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+ 
+-.wd-medal {
+-  position: absolute;
+-  left: -26px;
+-  top: 50%;
+-  width: 24px;
+-  transform: translateY(-50%);
+-  z-index: 2;
+-  animation: wd-bob 4s ease-in-out infinite;
++@keyframes wd-word-bounce {
++  0% { transform: translateY(0) rotate(0) scale(1); }
++  40% { transform: translateY(-10px) rotate(-4deg) scale(1.07); }
++  70% { transform: translateY(-3px) rotate(-2deg) scale(1.02); }
++  100% { transform: translateY(-6px) rotate(-4deg) scale(1.04); }
+ }
+ 
+-.wd-medal .wd-svg { width: 100%; height: auto; }
+-
+-.wd-medal-spark {
+-  position: absolute;
+-  top: -8px;
+-  right: -7px;
+-  font-size: 14px;
+-  color: var(--wd-gold);
+-  -webkit-text-stroke: 0.8px var(--wd-outline);
+-  animation: wd-twinkle 3s ease-in-out infinite;
++@keyframes wd-word-wiggle {
++  0% { transform: translateY(0) rotate(0) scale(1); }
++  25% { transform: translateY(-6px) rotate(5deg) scale(1.04); }
++  55% { transform: translateY(-6px) rotate(-5deg) scale(1.04); }
++  100% { transform: translateY(-6px) rotate(3deg) scale(1.04); }
+ }
+ 
+-.wd-medal-2 { --wd-gold: #8d99a6; --wd-yellow: #c3ccd4; }
+-.wd-medal-3 { --wd-gold: #a9662b; --wd-yellow: #d99a5b; }
++@keyframes wd-word-spin {
++  0% { transform: translateY(0) rotate(0) scale(1); }
++  55% { transform: translateY(-7px) rotate(-8deg) scale(1.06); }
++  100% { transform: translateY(-6px) rotate(-2deg) scale(1.04); }
++}
+ 
+-@media (max-width: 760px) {
+-  .wd-medal { display: none; }
++@keyframes wd-word-pop {
++  0% { transform: translateY(0) scale(1); }
++  50% { transform: translateY(-7px) scale(1.1) rotate(5deg); }
++  100% { transform: translateY(-6px) scale(1.04) rotate(5deg); }
+ }
+ 
+-/* ==========================================================================
+-   UI-side whimsy (effects only; no typography, palette, spacing or layout)
+-   ========================================================================== */
++@keyframes wd-word-spark {
++  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
++  25% { opacity: 1; }
++  100% { opacity: 0; transform: translate(calc(-50% + var(--wd-word-dx)), calc(-50% + var(--wd-word-dy))) scale(0.2); }
++}
+ 
+-/* Wavy hand-drawn underline under “Good games.” */
+-[data-whimsy] .hero h1 mark {
+-  position: relative;
+-  display: inline-block;
++/* ---------- Naija vibes mascot (arms every page corner) ---------- */
++.wd-mascot {
++  position: fixed;
++  right: 14px;
++  bottom: 78px;
++  width: 96px;
++  z-index: 30;
++  pointer-events: auto;
++  animation: wd-mascot-bob 4.4s ease-in-out infinite;
++  filter: drop-shadow(0 10px 14px var(--wd-shadow));
+ }
+ 
+-[data-whimsy] .hero h1 mark::after {
+-  content: "";
++.wd-mascot-svg { width: 100%; height: auto; overflow: visible; }
++
++.wd-mascot-bubble {
+   position: absolute;
+-  left: -1%;
+-  right: -1%;
+-  bottom: -11px;
+-  height: 10px;
+-  background-image: var(--wd-wave);
+-  background-repeat: repeat-x;
+-  background-size: 26px 10px;
++  right: 0;
++  bottom: calc(100% + 6px);
++  opacity: 0;
++  transform: translateY(6px) rotate(-3deg);
++  transition: opacity 0.18s ease, transform 0.18s ease;
++  padding: 5px 9px;
++  border-radius: 999px;
++  border: 2px solid var(--wd-outline);
++  background: var(--wd-lime);
++  color: #1e260d;
++  font: 800 11px/1.25 var(--mono);
++  white-space: nowrap;
++  box-shadow: 0 4px 0 rgba(41, 42, 35, 0.22);
+   pointer-events: none;
+ }
+ 
+-/* Wavy section dividers + a bold sparkle by every section/page heading. */
+-[data-whimsy] .section-head,
+-[data-whimsy] .page-head,
+-[data-whimsy] .cat-hero,
+-[data-whimsy] .tourney-top,
+-[data-whimsy] .lb-page,
+-[data-whimsy] .profile-head,
+-[data-whimsy] .docs-content h1,
+-[data-whimsy] .about-page h1 {
+-  position: relative;
++.wd-mascot-bubble.is-talking { opacity: 1; transform: translateY(0) rotate(-3deg); }
++
++.wd-mascot.is-blinking .wd-mascot-eyes {
++  transform: scaleY(0.08);
++  transform-box: fill-box;
++  transform-origin: center;
+ }
+ 
++.wd-mascot.is-near .wd-mascot-brow {
++  transform: translateY(-4px);
++  transform-box: fill-box;
++  transform-origin: center;
++}
++
++.wd-mascot.is-wiggling .wd-mascot-svg { animation: wd-mascot-wiggle 0.62s ease-in-out; }
++
++@keyframes wd-mascot-bob {
++  0%, 100% { translate: 0 0; }
++  50% { translate: 0 -6px; }
++}
++
++@keyframes wd-mascot-wiggle {
++  0%, 100% { rotate: 0deg; }
++  25% { rotate: -6deg; }
++  55% { rotate: 6deg; }
++  75% { rotate: -3deg; }
++}
++
++@media (max-width: 1199px) {
++  .wd-mascot {
++    width: 64px;
++    right: 6px;
++    bottom: 70px;
++    z-index: 0;
++  }
++
++  .wd-mascot-bubble {
++    right: 0;
++    bottom: calc(100% + 4px);
++    padding: 4px 7px;
++    font-size: 9px;
++  }
++}
++
++/* ---------- the one danfo: scroll-driven in the side margin ---------- */
++.wd-danfo-wrap {
++  position: fixed;
++  inset: 0;
++  z-index: 0;
++  pointer-events: none;
++}
++
++.wd-danfo {
++  position: fixed;
++  left: calc(50vw - 480px - 84px);
++  top: 0;
++  width: 68px;
++  z-index: 0;
++  pointer-events: none;
++  transition: opacity 0.25s ease;
++  filter: drop-shadow(0 7px 9px var(--wd-shadow));
++  will-change: transform;
++}
++
++.wd-danfo.is-over-text { opacity: 0.25; }
++.wd-danfo .wd-svg { width: 100%; height: auto; }
++.wd-danfo-body { transform-box: fill-box; transform-origin: center bottom; }
++.wd-danfo.is-idle .wd-danfo-body { animation: wd-danfo-idle 0.65s ease-in-out infinite; }
++
++.wd-danfo-wheel {
++  transform-box: fill-box;
++  transform-origin: center;
++  animation: wd-wheel-spin 1.7s linear infinite;
++}
++
++.wd-danfo.is-driving .wd-danfo-wheel { animation-duration: 0.5s; }
++.wd-danfo.is-parked .wd-danfo-body,
++.wd-danfo.is-parked .wd-danfo-wheel { animation: none; }
++
++.wd-danfo-puffs { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
++
++.wd-danfo-puff {
++  position: fixed;
++  font-weight: 800;
++  line-height: 1;
++  -webkit-text-stroke: 0.7px var(--wd-outline);
++  text-shadow: 0 0 6px currentColor;
++  animation: wd-danfo-puff 0.9s ease-out forwards;
++}
++
++@keyframes wd-danfo-idle {
++  0%, 100% { translate: 0 0; }
++  50% { translate: 0 -3px; }
++}
++
++@keyframes wd-wheel-spin { to { transform: rotate(360deg); } }
++
++@keyframes wd-danfo-puff {
++  0% { opacity: 0.9; transform: translate(-50%, -50%) scale(1); }
++  100% { opacity: 0; transform: translate(-50%, calc(-50% - 28px)) scale(0.3); }
++}
++
++@media (max-width: 1199px) {
++  .wd-danfo { left: 4px; width: 42px; }
++}
++
++/* ---------- Play now celebration (stars only) ---------- */
++.wd-play-fx { position: fixed; z-index: 99998; width: 0; height: 0; pointer-events: none; }
++.wd-play-glow { position: absolute; left: 0; top: 0; width: 44px; height: 44px; margin: -22px; border-radius: 50%; background: radial-gradient(circle, var(--wd-lime) 0%, var(--wd-gold) 46%, transparent 72%); filter: blur(2px); animation: wd-play-glow 1.5s ease-out forwards; }
++.wd-play-ring { position: absolute; left: 0; top: 0; width: 58px; height: 58px; margin: -29px; border-radius: 50%; border: 3px dashed var(--wd-gold); animation: wd-play-ring 1.35s ease-out forwards; }
++.wd-play-banner { position: absolute; left: 0; top: 0; white-space: nowrap; padding: 8px 16px; border-radius: 999px; border: 2px solid var(--wd-outline); background: var(--wd-gold); color: #1e260d; font: 800 14px/1.2 var(--mono); box-shadow: 0 5px 0 rgba(41, 42, 35, 0.25); animation: wd-play-banner 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
++.wd-play-spark { position: absolute; left: 0; top: 0; font-size: 20px; font-weight: 800; line-height: 1; -webkit-text-stroke: 1px var(--wd-outline); text-shadow: 0 0 8px currentColor; animation: wd-play-spark 1.2s ease-out forwards; }
++
++@keyframes wd-play-glow { 0% { opacity: 0; transform: scale(0.2); } 30% { opacity: 1; transform: scale(2.8); } 100% { opacity: 0; transform: scale(6); } }
++@keyframes wd-play-ring { 0% { opacity: 0; transform: scale(0.2) rotate(0deg); } 30% { opacity: 1; } 100% { opacity: 0; transform: scale(3.6) rotate(90deg); } }
++@keyframes wd-play-banner { 0% { opacity: 0; transform: translate(-50%, -100%) scale(0.6) rotate(-4deg); } 22% { opacity: 1; transform: translate(-50%, -170%) scale(1.08) rotate(-4deg); } 75% { opacity: 1; transform: translate(-50%, -180%) scale(1) rotate(-4deg); } 100% { opacity: 0; transform: translate(-50%, -240%) scale(0.95) rotate(-4deg); } }
++@keyframes wd-play-spark { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); } 25% { opacity: 1; } 100% { opacity: 0; transform: translate(calc(-50% + var(--wd-px)), calc(-50% + var(--wd-py))) scale(0.2); } }
++
++/* ---------- tournament trophy + clock + medals (kept) ---------- */
++.wd-anchor { position: relative; }
++.wd-tourney-props { position: absolute; top: 0; right: -78px; display: flex; align-items: flex-start; gap: 6px; z-index: 4; pointer-events: none; }
++.wd-trophy, .wd-clock { display: block; width: 34px; }
++.wd-trophy .wd-svg, .wd-clock .wd-svg { width: 100%; height: auto; }
++.wd-trophy { animation: wd-bounce 2.6s ease-in-out infinite; }
++.wd-clock-hand { transform-origin: 50px 50px; animation: wd-tick 2s steps(12, end) infinite; }
++@keyframes wd-tick { to { transform: rotate(360deg); } }
++@keyframes wd-bounce { 0%, 100% { translate: 0 0; } 50% { translate: 0 -7px; } }
++@media (max-width: 1199px) { .wd-tourney-props { top: 4px; right: 4px; gap: 4px; } .wd-trophy, .wd-clock { width: 26px; } }
++
++.wd-medal-anchor { position: relative; }
++.wd-medal { position: absolute; left: -26px; top: 50%; width: 24px; transform: translateY(-50%); z-index: 2; animation: wd-bounce 4s ease-in-out infinite; }
++.wd-medal .wd-svg { width: 100%; height: auto; }
++.wd-medal-spark { position: absolute; top: -8px; right: -7px; font-size: 14px; color: var(--wd-gold); -webkit-text-stroke: 0.8px var(--wd-outline); animation: wd-twinkle 3s ease-in-out infinite; }
++.wd-medal-2 { --wd-gold: #8d99a6; --wd-yellow: #c3ccd4; }
++.wd-medal-3 { --wd-gold: #a9662b; --wd-yellow: #d99a5b; }
++@media (max-width: 760px) { .wd-medal { display: none; } }
++
++.wd-doodle { display: block; line-height: 0; }
++.wd-doodle .wd-svg { display: block; width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 6px 8px var(--wd-shadow)); }
++
++/* ---------- footer skyline + sign-off (kept, no danfo) ---------- */
++.wd-has-skyline { position: relative; }
++.wd-has-skyline .footer-grid, .wd-has-skyline .footer-bottom { position: relative; z-index: 1; }
++.wd-skyline { position: absolute; left: 0; right: 0; top: 10px; width: 100%; height: 20px; z-index: 0; pointer-events: none; filter: drop-shadow(0 2px 0 rgba(41, 42, 35, 0.12)); }
++.wd-signoff { position: absolute; right: 16px; top: 12px; z-index: 2; transform: rotate(-2deg); background: var(--wd-lime); color: #1e260d; border: 2px solid var(--wd-outline); border-radius: 999px; padding: 2px 8px; font: 800 10px/1.4 var(--mono); box-shadow: 0 3px 0 rgba(41, 42, 35, 0.2); }
++@media (max-width: 760px) { .wd-signoff { display: none; } .wd-skyline { top: 10px; height: 18px; } }
++
++/* ---------- kept UI-side sparkles / hover effects ---------- */
++[data-whimsy] .section-head,
++[data-whimsy] .page-head,
++[data-whimsy] .cat-hero,
++[data-whimsy] .tourney-top,
++[data-whimsy] .lb-page,
++[data-whimsy] .profile-head,
++[data-whimsy] .docs-content h1,
++[data-whimsy] .about-page h1 { position: relative; }
++
+ [data-whimsy] .section-head::before,
+ [data-whimsy] .page-head::before,
+ [data-whimsy] .cat-hero::before,
+@@ -541,12 +605,9 @@
+   animation: wd-twinkle 4s ease-in-out infinite;
+ }
+ 
+-/* Bold corner sparkle on every card, plus a gentle tilt on hover. */
+ [data-whimsy] .game,
+ [data-whimsy] .tag-tile,
+-[data-whimsy] .promo {
+-  position: relative;
+-}
++[data-whimsy] .promo { position: relative; }
+ 
+ [data-whimsy] .game::after,
+ [data-whimsy] .tag-tile::after,
+@@ -572,21 +633,12 @@
+ [data-whimsy] .tourney-panel:hover,
+ [data-whimsy] .panel:hover,
+ [data-whimsy] .board-card:hover,
+-[data-whimsy] .step:hover {
+-  rotate: -0.7deg;
+-}
+-
+-/* Wiggling NEW sticker. */
+-[data-whimsy] .new-badge {
+-  animation: wd-wiggle 3.2s ease-in-out infinite;
+-  transform-origin: center;
+-}
++[data-whimsy] .step:hover { rotate: -0.7deg; }
+ 
++[data-whimsy] .new-badge { animation: wd-wiggle 3.2s ease-in-out infinite; transform-origin: center; }
+ [data-whimsy] .new-badge::before { content: "✦ "; }
+ 
+-/* Sparkle shimmer on the logo, using the existing brand colours. */
+ [data-whimsy] .logo-mark { position: relative; }
+-
+ [data-whimsy] .logo:hover .logo-mark::after {
+   content: "✦";
+   position: absolute;
+@@ -600,17 +652,11 @@
+   animation: wd-pop 0.55s ease-out;
+ }
+ 
+-/* Bouncy hero buttons + squish on any click. */
+ [data-whimsy] .hero .actions .btn:hover,
+-[data-whimsy] .hero .actions .ghost:hover {
+-  animation: wd-btn-bounce 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+-}
++[data-whimsy] .hero .actions .ghost:hover { animation: wd-btn-bounce 0.55s cubic-bezier(0.34, 1.56, 0.64, 1); }
+ 
+-[data-whimsy] .wd-squish {
+-  animation: wd-squish 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+-}
++[data-whimsy] .wd-squish { animation: wd-squish 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) !important; }
+ 
+-/* Visible lime focus glow on every form field. */
+ [data-whimsy] .signin-card input:focus,
+ [data-whimsy] .auth-card input:focus,
+ [data-whimsy] .auth-card select:focus,
+@@ -623,7 +669,6 @@
+   outline-offset: 1px;
+ }
+ 
+-/* Playful empty-state sticker (added beside the existing copy). */
+ [data-whimsy] .profile-empty::after,
+ [data-whimsy] .empty::after {
+   content: "No wahala — something sharp is coming.";
+@@ -634,41 +679,15 @@
+   font-weight: 800;
+ }
+ 
+-/* Scroll reveals (only applied by JS to below-the-fold blocks). */
+-[data-whimsy] .wd-reveal {
+-  opacity: 0;
+-  transform: translateY(18px);
+-}
++[data-whimsy] .wd-reveal { opacity: 0; transform: translateY(18px); }
++[data-whimsy] .wd-reveal.wd-in { opacity: 1; transform: none; transition: opacity 0.55s ease, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+ 
+-[data-whimsy] .wd-reveal.wd-in {
+-  opacity: 1;
+-  transform: none;
+-  transition: opacity 0.55s ease, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+-}
++@keyframes wd-wiggle { 0%, 100% { rotate: 0deg; } 25% { rotate: -6deg; } 50% { rotate: 5deg; } 75% { rotate: -3deg; } }
++@keyframes wd-pop { 0% { opacity: 0; scale: 0.2; rotate: -40deg; } 60% { opacity: 1; scale: 1.25; } 100% { opacity: 1; scale: 1; rotate: 0deg; } }
++@keyframes wd-btn-bounce { 0%, 100% { translate: 0 0; scale: 1; } 30% { translate: 0 -5px; scale: 1.04; } 60% { translate: 0 1px; scale: 0.99; } }
++@keyframes wd-squish { 0% { scale: 1; } 35% { scale: 0.94; } 70% { scale: 1.03; } 100% { scale: 1; } }
+ 
+-/* Fixed mascot for the auto-opened sign-in modal (above the overlay). */
+-.wd-auth-mascot {
+-  position: fixed;
+-  z-index: 95;
+-  width: 84px;
+-  pointer-events: none;
+-  animation: wd-bob 4.6s ease-in-out infinite;
+-}
+-
+-.wd-auth-mascot .wd-svg { width: 100%; height: auto; }
+-
+-.wd-speech-auth {
+-  left: 76px;
+-  top: -8px;
+-  transform: rotate(-3deg);
+-}
+-
+-@media (max-width: 600px) {
+-  .wd-auth-mascot { width: 64px; }
+-  .wd-speech-auth { left: 56px; top: -6px; padding: 3px 7px; font-size: 9px; }
+-}
+-
+-/* ---------- loader + 404 ---------- */
++/* ---------- loader + 404 (no coin, ring or doodle) ---------- */
+ .wd-loading {
+   display: grid;
+   place-items: center;
+@@ -678,142 +697,30 @@
+   text-align: center;
+ }
+ 
+-.wd-loading-coin {
+-  width: 64px;
+-  animation: wd-spin 1.6s linear infinite;
+-}
+-
+-.wd-loading-coin .wd-svg { width: 100%; height: auto; }
+-
+-.wd-loading p {
+-  margin: 0;
+-  color: var(--ink);
+-  font: 800 0.8rem/1.4 var(--mono);
+-  letter-spacing: 0.12em;
+-  text-transform: uppercase;
+-}
+-
+-.wd-loading small {
+-  color: var(--muted);
+-  font-size: 0.8rem;
+-  font-weight: 700;
+-}
+-
+-.wd-404-line {
+-  margin: 12px 0 0 !important;
+-  color: var(--wd-lime-deep) !important;
+-  font-weight: 800;
+-}
+-
+-.wd-404-doodle {
+-  width: 86px;
+-  margin: 16px auto 0;
+-  animation: wd-bob 4s ease-in-out infinite;
+-}
+-
+-/* ---------- motion ---------- */
+-@keyframes wd-float {
+-  0%, 100% { translate: 0 0; }
+-  50% { translate: 0 -9px; }
+-}
+-
+-@keyframes wd-bob {
+-  0%, 100% { translate: 0 0; }
+-  50% { translate: 0 -6px; }
+-}
+-
+-@keyframes wd-twinkle {
+-  0%, 100% { opacity: 0.35; scale: 0.82; }
+-  50% { opacity: 1; scale: 1.12; }
+-}
+-
+-@keyframes wd-bounce {
+-  0%, 100% { translate: 0 0; }
+-  50% { translate: 0 -7px; }
+-}
++.wd-loading-sparks { display: inline-flex; gap: 8px; color: var(--wd-spark-2); font-size: 28px; line-height: 1; }
++.wd-loading-sparks span { display: inline-block; animation: wd-twinkle 1.6s ease-in-out infinite; }
++.wd-loading-sparks span:nth-child(2) { color: var(--wd-spark-1); animation-delay: -0.5s; }
++.wd-loading-sparks span:nth-child(3) { color: var(--wd-spark-3); animation-delay: -1s; }
++.wd-loading p { margin: 0; color: var(--ink); font: 800 0.8rem/1.4 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; }
++.wd-loading small { color: var(--muted); font-size: 0.8rem; font-weight: 700; }
++.wd-404-line { margin: 12px 0 0 !important; color: var(--wd-lime-deep) !important; font-weight: 800; }
+ 
+-@keyframes wd-tick {
+-  to { transform: rotate(360deg); }
+-}
+-
+-@keyframes wd-wiggle {
+-  0%, 100% { rotate: 0deg; }
+-  25% { rotate: -6deg; }
+-  50% { rotate: 5deg; }
+-  75% { rotate: -3deg; }
+-}
+-
+-@keyframes wd-pop {
+-  0% { opacity: 0; scale: 0.2; rotate: -40deg; }
+-  60% { opacity: 1; scale: 1.25; }
+-  100% { opacity: 1; scale: 1; rotate: 0deg; }
+-}
+-
+-@keyframes wd-btn-bounce {
+-  0%, 100% { translate: 0 0; scale: 1; }
+-  30% { translate: 0 -5px; scale: 1.04; }
+-  60% { translate: 0 1px; scale: 0.99; }
+-}
+-
+-@keyframes wd-squish {
+-  0% { scale: 1; }
+-  35% { scale: 0.94; }
+-  70% { scale: 1.03; }
+-  100% { scale: 1; }
+-}
+-
+-@keyframes wd-spin {
+-  to { transform: rotate(360deg); }
+-}
+-
+-.wd-wave {
+-  transform-box: view-box;
+-  transform-origin: 76px 50px;
+-  animation: wd-wave 2.4s ease-in-out infinite;
+-}
+-
+-@keyframes wd-wave {
+-  0%, 100% { transform: rotate(0deg); }
+-  50% { transform: rotate(-16deg); }
+-}
+-
+-/* ---------- reduced motion: keep decoration, drop animation ---------- */
++/* ---------- touch / reduced motion ---------- */
+ @media (prefers-reduced-motion: reduce) {
+-  .wd-runner { display: none !important; }
+-
+-  .wd-decor *,
+-  .wd-decor *::before,
+-  .wd-decor *::after,
+-  [data-whimsy] .wd-squish,
+-  [data-whimsy] .hero .actions .btn,
+-  [data-whimsy] .hero .actions .ghost {
+-    animation: none !important;
+-    transition: none !important;
+-  }
+-
+-  [data-whimsy] .game:hover,
+-  [data-whimsy] .tag-tile:hover,
+-  [data-whimsy] .promo:hover,
+-  [data-whimsy] .tourney-panel:hover,
+-  [data-whimsy] .panel:hover,
+-  [data-whimsy] .board-card:hover,
+-  [data-whimsy] .step:hover {
+-    rotate: none;
+-  }
+-
+-  [data-whimsy] .wd-reveal {
+-    opacity: 1 !important;
+-    transform: none !important;
+-  }
+-
+   .wd-hero-halo,
+-  .wd-hero-orbit,
+-  .wd-hero-doodle,
+   .wd-hero-spark,
+-  [data-whimsy] .hero h1 mark::before {
+-    animation: none !important;
+-  }
+-
++  .wd-fixed-spark,
++  .wd-mascot,
++  .wd-mascot-svg,
++  .wd-mascot-bubble,
++  .wd-danfo-body,
++  .wd-danfo-wheel,
++  .wd-trophy,
++  .wd-clock-hand,
++  .wd-medal,
++  .wd-medal-spark,
++  .wd-word,
++  [data-whimsy] .hero h1 mark::before,
+   [data-whimsy] .section-head::before,
+   [data-whimsy] .page-head::before,
+   [data-whimsy] .cat-hero::before,
+@@ -826,336 +733,33 @@
+   [data-whimsy] .tag-tile::after,
+   [data-whimsy] .promo::after,
+   [data-whimsy] .new-badge,
+-  .wd-tourney-props *,
+-  .wd-medal,
+-  .wd-medal *,
+-  .wd-signin-mascot,
+-  .wd-signin-mascot *,
+-  .wd-auth-mascot,
+-  .wd-auth-mascot *,
+-  .wd-wave {
++  [data-whimsy] .hero .actions .btn,
++  [data-whimsy] .hero .actions .ghost {
+     animation: none !important;
+     transition: none !important;
+   }
+-}
+-
+-/* Tablet widths: keep the corner sparkles inside the page padding. */
+-@media (min-width: 761px) and (max-width: 1199px) {
+-  .wd-fixed-spark { font-size: 15px !important; }
+-  .wd-fixed-spark:nth-child(odd) { left: 0.5% !important; right: auto !important; }
+-  .wd-fixed-spark:nth-child(even) { left: auto !important; right: 0.5% !important; }
+-}
+-
+-/* ==========================================================================
+-   Wand cursor, hero set-piece, Play celebration and click shouts
+-   ========================================================================== */
+ 
+-/* ---------- the wand cursor ---------- */
+-.wd-cursor {
+-  position: fixed;
+-  left: 0;
+-  top: 0;
+-  z-index: 100000;
+-  width: 46px;
+-  height: 58px;
+-  margin-left: -31px;
+-  margin-top: -20px;
+-  pointer-events: none;
+-  opacity: 0;
+-  transition: opacity 0.2s ease;
+-  will-change: transform;
+-}
+-
+-.wd-cursor svg {
+-  width: 100%;
+-  height: 100%;
+-  overflow: visible;
+-  filter: drop-shadow(0 0 6px rgba(185, 233, 74, 0.95)) drop-shadow(0 0 16px rgba(201, 138, 0, 0.7));
+-  animation: wd-wand-wiggle 2.8s ease-in-out infinite;
+-}
+-
+-.wd-cursor.is-clicking svg { animation: wd-cursor-pop 0.3s ease-out; }
+-
+-.wd-cursor-on,
+-.wd-cursor-on body,
+-.wd-cursor-on a,
+-.wd-cursor-on button,
+-.wd-cursor-on summary,
+-.wd-cursor-on label,
+-.wd-cursor-on [role="button"] { cursor: none; }
+-
+-.wd-cursor-on input,
+-.wd-cursor-on textarea,
+-.wd-cursor-on select { cursor: auto; }
+-
+-@media (hover: none) {
+-  .wd-cursor { display: none; }
+-}
+-
+-@keyframes wd-wand-wiggle {
+-  0%, 100% { rotate: -4deg; }
+-  50% { rotate: 6deg; }
+-}
+-
+-@keyframes wd-cursor-pop {
+-  0% { scale: 1; }
+-  45% { scale: 1.28; }
+-  100% { scale: 1; }
+-}
+-
+-/* ---------- hero set-piece ---------- */
+-.wd-hero-magic-on {
+-  position: relative;
+-  isolation: isolate;
+-}
+-
+-.wd-hero-magic-on > *:not(.wd-hero-magic) {
+-  position: relative;
+-  z-index: 1;
+-}
+-
+-.wd-hero-magic {
+-  position: absolute;
+-  inset: 0;
+-  z-index: 0;
+-  pointer-events: none;
+-  overflow: hidden;
+-}
+-
+-.wd-hero-halo {
+-  position: absolute;
+-  left: 50%;
+-  top: 46%;
+-  width: min(860px, 96%);
+-  aspect-ratio: 1;
+-  transform: translate(-50%, -50%);
+-  border-radius: 50%;
+-  background:
+-    repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--wd-gold) 30%, transparent) 0deg 3.5deg, transparent 3.5deg 13deg),
+-    radial-gradient(circle, color-mix(in srgb, var(--wd-lime) 34%, transparent) 0%, transparent 64%);
+-  -webkit-mask-image: radial-gradient(circle, transparent 0 26%, #000 43%, transparent 72%);
+-  mask-image: radial-gradient(circle, transparent 0 26%, #000 43%, transparent 72%);
+-  opacity: 0.95;
+-  animation: wd-halo-spin 70s linear infinite;
+-}
+-
+-.wd-hero-orbit {
+-  position: absolute;
+-  left: 50%;
+-  top: 41%;
+-  width: min(900px, 100%);
+-  height: min(380px, 72%);
+-  transform: translate(-50%, -50%);
+-  border: 2px dashed color-mix(in srgb, var(--wd-gold) 72%, transparent);
+-  border-radius: 50%;
+-  opacity: 0.85;
+-  animation: wd-orbit-spin 80s linear infinite reverse;
+-}
+-
+-.wd-hero-doodle {
+-  position: absolute;
+-  width: 72px;
+-  animation: wd-float 6s ease-in-out infinite;
+-  filter: drop-shadow(0 7px 9px var(--wd-shadow));
+-}
+-
+-.wd-hero-doodle .wd-svg { width: 100%; height: auto; }
+-
+-.wd-hd1 { left: 1%; top: 20%; rotate: -4deg; }
+-.wd-hd2 { right: 1%; top: 15%; width: 66px; rotate: 4deg; animation-delay: -1.4s; }
+-.wd-hd3 { left: 3%; top: 62%; width: 60px; rotate: 2deg; animation-delay: -2.6s; }
+-.wd-hd4 { right: 2%; top: 58%; width: 64px; rotate: -3deg; animation-delay: -3.4s; }
+-.wd-hd5 { left: 12%; top: 6%; width: 46px; rotate: 3deg; animation-delay: -0.8s; }
+-.wd-hd6 { right: 12%; top: 6%; width: 46px; rotate: -2deg; animation-delay: -2s; }
+-
+-.wd-hero-spark {
+-  position: absolute;
+-  z-index: 2;
+-  font-size: 22px;
+-  font-weight: 800;
+-  line-height: 1;
+-  color: var(--wd-gold);
+-  -webkit-text-stroke: 1px var(--wd-outline);
+-  text-shadow: 0 0 9px currentColor;
+-  animation: wd-twinkle 3.6s ease-in-out infinite;
+-}
+-
+-.wd-hsp1 { left: 6%; top: 30%; color: var(--wd-spark-2); }
+-.wd-hsp2 { right: 6%; top: 24%; color: var(--wd-spark-1); animation-delay: -1.1s; }
+-.wd-hsp3 { left: 16%; bottom: 18%; color: var(--wd-spark-3); font-size: 18px; animation-delay: -2.2s; }
+-.wd-hsp4 { right: 15%; bottom: 22%; color: var(--wd-spark-4); font-size: 18px; animation-delay: -0.7s; }
+-.wd-hsp5 { left: 26%; top: 4%; color: var(--wd-spark-3); font-size: 16px; animation-delay: -2.7s; }
+-.wd-hsp6 { right: 26%; top: 4%; color: var(--wd-spark-1); font-size: 16px; animation-delay: -1.7s; }
+-
+-@keyframes wd-halo-spin {
+-  to { transform: translate(-50%, -50%) rotate(360deg); }
+-}
+-
+-@keyframes wd-orbit-spin {
+-  to { transform: translate(-50%, -50%) rotate(360deg); }
+-}
+-
+-@media (max-width: 760px) {
+-  .wd-hero-halo { width: 150%; top: 48%; opacity: 0.6; }
+-  .wd-hero-orbit { display: none; }
+-  .wd-hero-doodle { width: 44px; }
+-  .wd-hd1 { left: 0; top: 0; }
+-  .wd-hd2 { right: 0; top: 0; width: 44px; }
+-  .wd-hd3, .wd-hd4, .wd-hd5, .wd-hd6 { display: none; }
+-  .wd-hero-spark { font-size: 16px; }
+-  .wd-hsp3, .wd-hsp4 { display: none; }
+-}
+-
+-/* a double hand-drawn underline + star for the hero highlight */
+-:root {
+-  --wd-wave-gold: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='10' viewBox='0 0 26 10'%3E%3Cpath d='M1 6c3-4 6-4 9 0s6 4 9 0 6-4 9 0' fill='none' stroke='%23c98a00' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
+-}
+-
+-[data-whimsy] .hero h1 mark::after {
+-  height: 14px;
+-  bottom: -14px;
+-  background-image: var(--wd-wave), var(--wd-wave-gold);
+-  background-position: 0 0, 5px 5px;
+-  background-size: 26px 10px, 26px 10px;
+-}
+-
+-[data-whimsy] .hero h1 mark::before {
+-  content: "✦";
+-  position: absolute;
+-  right: -10px;
+-  top: -14px;
+-  font-size: 18px;
+-  color: var(--wd-gold);
+-  -webkit-text-stroke: 0.8px var(--wd-outline);
+-  text-shadow: 0 0 8px currentColor;
+-  pointer-events: none;
+-  animation: wd-twinkle 3.2s ease-in-out infinite;
+-}
+-
+-/* ---------- Play now celebration ---------- */
+-.wd-play-fx {
+-  position: fixed;
+-  z-index: 99998;
+-  width: 0;
+-  height: 0;
+-  pointer-events: none;
+-}
+-
+-.wd-play-glow {
+-  position: absolute;
+-  left: 0;
+-  top: 0;
+-  width: 44px;
+-  height: 44px;
+-  margin: -22px;
+-  border-radius: 50%;
+-  background: radial-gradient(circle, var(--wd-lime) 0%, var(--wd-gold) 46%, transparent 72%);
+-  filter: blur(2px);
+-  animation: wd-play-glow 1.5s ease-out forwards;
+-}
+-
+-.wd-play-ring {
+-  position: absolute;
+-  left: 0;
+-  top: 0;
+-  width: 58px;
+-  height: 58px;
+-  margin: -29px;
+-  border-radius: 50%;
+-  border: 3px dashed var(--wd-gold);
+-  animation: wd-play-ring 1.35s ease-out forwards;
+-}
+-
+-.wd-play-banner {
+-  position: absolute;
+-  left: 0;
+-  top: 0;
+-  white-space: nowrap;
+-  padding: 8px 16px;
+-  border-radius: 999px;
+-  border: 2px solid var(--wd-outline);
+-  background: var(--wd-gold);
+-  color: #1e260d;
+-  font: 800 14px/1.2 var(--mono);
+-  box-shadow: 0 5px 0 rgba(41, 42, 35, 0.25);
+-  animation: wd-play-banner 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+-}
+-
+-.wd-play-doodle {
+-  position: absolute;
+-  left: 0;
+-  top: 0;
+-  width: 56px;
+-  animation: wd-play-fly 1.5s cubic-bezier(0.16, 0.84, 0.3, 1) forwards;
+-  will-change: transform, opacity;
+-}
+-
+-.wd-play-doodle .wd-svg {
+-  width: 100%;
+-  height: auto;
+-  filter: drop-shadow(0 7px 8px var(--wd-shadow));
+-}
+-
+-.wd-play-spark {
+-  position: absolute;
+-  left: 0;
+-  top: 0;
+-  font-size: 20px;
+-  font-weight: 800;
+-  line-height: 1;
+-  -webkit-text-stroke: 1px var(--wd-outline);
+-  text-shadow: 0 0 8px currentColor;
+-  animation: wd-play-spark 1.2s ease-out forwards;
+-}
+-
+-@keyframes wd-play-glow {
+-  0% { opacity: 0; transform: scale(0.2); }
+-  30% { opacity: 1; transform: scale(2.8); }
+-  100% { opacity: 0; transform: scale(6); }
+-}
+-
+-@keyframes wd-play-ring {
+-  0% { opacity: 0; transform: scale(0.2) rotate(0deg); }
+-  30% { opacity: 1; }
+-  100% { opacity: 0; transform: scale(3.6) rotate(90deg); }
+-}
+-
+-@keyframes wd-play-banner {
+-  0% { opacity: 0; transform: translate(-50%, -100%) scale(0.6) rotate(-4deg); }
+-  22% { opacity: 1; transform: translate(-50%, -170%) scale(1.08) rotate(-4deg); }
+-  75% { opacity: 1; transform: translate(-50%, -180%) scale(1) rotate(-4deg); }
+-  100% { opacity: 0; transform: translate(-50%, -240%) scale(0.95) rotate(-4deg); }
+-}
++  .wd-word:hover,
++  .wd-word.is-live {
++    transform: none;
++  }
+ 
+-@keyframes wd-play-fly {
+-  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.25); }
+-  22% { opacity: 1; }
+-  60% { opacity: 1; transform: translate(calc(-50% + var(--wd-mx)), calc(-50% + var(--wd-my))) scale(1.1) rotate(-6deg); }
+-  100% { opacity: 0; transform: translate(calc(-50% + var(--wd-px)), calc(-50% + var(--wd-py))) scale(0.7) rotate(14deg); }
+-}
++  .wd-play-fx { display: none; }
+ 
+-@keyframes wd-play-spark {
+-  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+-  25% { opacity: 1; }
+-  100% { opacity: 0; transform: translate(calc(-50% + var(--wd-px)), calc(-50% + var(--wd-py))) scale(0.2); }
++  [data-whimsy] .wd-reveal {
++    opacity: 1 !important;
++    transform: none !important;
++  }
+ }
+ 
+-@media (prefers-reduced-motion: reduce) {
+-  .wd-cursor, .wd-play-fx { display: none; }
++/* The Sun Market has its own heading styles; keep the word hover visible there. */
++.sm-world .wd-word.is-live,
++.sm-world .wd-word:hover {
++  color: var(--wd-word) !important;
++  transform: translateY(-6px) rotate(var(--wd-rot)) scale(1.04) !important;
+ }
+ 
+-/* ---------- playful click shout ---------- */
+-.wd-shout {
+-  position: fixed;
+-  z-index: 100000;
+-  transform: translate(-50%, -100%) rotate(-3deg);
+-  padding: 4px 10px;
+-  border-radius: 999px;
+-  border: 2px solid var(--wd-outline);
+-  background: var(--wd-lime);
+-  color: #1e260d;
+-  font: 800 12px/1.2 var(--mono);
+-  white-space: nowrap;
+-  box-shadow: 0 4px 0 rgba(41, 42, 35, 0.22);
+-  animation: wd-sharp 0.95s ease-out forwards;
++.sm-world .wd-word.is-live::after,
++.sm-world .wd-word:hover::after {
++  transform: scaleX(1) !important;
+ }
+diff --git a/components/HeroMagic.tsx b/components/HeroMagic.tsx
+index 8058d76..b9ee63d 100644
+--- a/components/HeroMagic.tsx
++++ b/components/HeroMagic.tsx
+@@ -1,25 +1,16 @@
+ 'use client';
+ 
+-import { Doodle, type DoodleName } from './WhimsyDoodles';
+-
+-const DOODLES: DoodleName[] = ['danfo', 'jollof', 'mango', 'suya', 'puff', 'zobo'];
+ const SPARKS = ['✦', '✧', '✦', '✧', '✦', '✧'];
+ 
+-/** Decoration-only layer inside the home hero. Sits behind the existing
+- *  content and changes no layout, copy, fonts, colours or functionality. */
++/** Decoration-only hero layer: a clipped sunburst halo and six bold ✦/✧
++ *  sparkles. No food, fruit or vehicle doodles, and no oval/ring. */
+ export function HeroMagic() {
+   return (
+     <div className="wd-hero-magic" aria-hidden="true">
+       <span className="wd-hero-halo" />
+-      <span className="wd-hero-orbit" />
+       {SPARKS.map((char, index) => (
+         <span key={index} className={`wd-hero-spark wd-hsp${index + 1}`}>{char}</span>
+       ))}
+-      {DOODLES.map((name, index) => (
+-        <span key={name} className={`wd-hero-doodle wd-hd${index + 1}`}>
+-          <Doodle name={name} />
+-        </span>
+-      ))}
+     </div>
+   );
+ }
+diff --git a/components/NaijaMascot.tsx b/components/NaijaMascot.tsx
+new file mode 100644
+index 0000000..d8de19a
+--- /dev/null
++++ b/components/NaijaMascot.tsx
+@@ -0,0 +1,135 @@
++'use client';
++
++import { useEffect, useRef, useState } from 'react';
++
++const PHRASES = ['Sharp sharp!', 'Oya, play!', 'No wahala!', 'E sweet!', 'Correct!'];
++
++/** The single Naija vibes mascot. Eyes track the pointer (or wander slowly on
++ *  touch), eyebrows lift when the pointer is close, it blinks, bobs, talks on
++ *  hover and wiggles when clicked. Decorative and corner-docked. */
++export function NaijaMascot() {
++  const rootRef = useRef<HTMLDivElement>(null);
++  const leftPupil = useRef<SVGCircleElement>(null);
++  const rightPupil = useRef<SVGCircleElement>(null);
++  const [phrase, setPhrase] = useState(PHRASES[0]);
++  const [talking, setTalking] = useState(false);
++  const [wiggling, setWiggling] = useState(false);
++  const [blinking, setBlinking] = useState(false);
++  const talkTimer = useRef(0);
++
++  const talk = () => {
++    setPhrase(PHRASES[Math.floor(Math.random() * PHRASES.length)]);
++    setTalking(true);
++    window.clearTimeout(talkTimer.current);
++    talkTimer.current = window.setTimeout(() => setTalking(false), 1900);
++  };
++
++  const poke = () => {
++    talk();
++    setWiggling(true);
++    window.setTimeout(() => setWiggling(false), 640);
++  };
++
++  useEffect(() => {
++    const root = rootRef.current;
++    if (!root) return;
++    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
++    const fine = window.matchMedia('(pointer: fine)').matches;
++    let frame = 0;
++    let pointer = false;
++    let tx = 0;
++    let ty = 0;
++    let cx = 0;
++    let cy = 0;
++
++    const follow = () => {
++      let dx: number;
++      let dy: number;
++      if (fine && pointer) {
++        const r = root.getBoundingClientRect();
++        const ex = r.left + r.width / 2;
++        const ey = r.top + r.height * 0.42;
++        const vx = tx - ex;
++        const vy = ty - ey;
++        const len = Math.max(1, Math.hypot(vx, vy));
++        const reach = Math.min(1, len / 260);
++        dx = (vx / len) * 4.6 * reach;
++        dy = (vy / len) * 3.6 * reach;
++        root.classList.toggle('is-near', len < 280);
++      } else {
++        const t = performance.now();
++        dx = Math.sin(t / 1600) * 4.2;
++        dy = Math.sin(t / 2300) * 2.8;
++        root.classList.remove('is-near');
++      }
++      const ease = reduced ? 1 : 0.18;
++      cx += (dx - cx) * ease;
++      cy += (dy - cy) * ease;
++      const value = `translate(${cx.toFixed(2)} ${cy.toFixed(2)})`;
++      leftPupil.current?.setAttribute('transform', value);
++      rightPupil.current?.setAttribute('transform', value);
++      frame = window.requestAnimationFrame(follow);
++    };
++
++    const onMove = (event: PointerEvent) => {
++      pointer = true;
++      tx = event.clientX;
++      ty = event.clientY;
++    };
++
++    frame = window.requestAnimationFrame(follow);
++    window.addEventListener('pointermove', onMove, { passive: true });
++
++    let blinkTimer = 0;
++    const scheduleBlink = () => {
++      blinkTimer = window.setTimeout(() => {
++        setBlinking(true);
++        window.setTimeout(() => setBlinking(false), 140);
++        scheduleBlink();
++      }, 2800 + Math.random() * 3200);
++    };
++    scheduleBlink();
++
++    return () => {
++      window.cancelAnimationFrame(frame);
++      window.clearTimeout(blinkTimer);
++      window.clearTimeout(talkTimer.current);
++      window.removeEventListener('pointermove', onMove);
++    };
++  }, []);
++
++  return (
++    <div
++      ref={rootRef}
++      className={`wd-mascot${wiggling ? ' is-wiggling' : ''}${blinking ? ' is-blinking' : ''}`}
++      role="button"
++      tabIndex={0}
++      aria-label="Naija vibes mascot"
++      onClick={poke}
++      onPointerEnter={talk}
++      onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); poke(); } }}
++    >
++      <span className={`wd-mascot-bubble${talking ? ' is-talking' : ''}`}>{phrase}</span>
++      <svg viewBox="0 0 120 150" className="wd-mascot-svg" aria-hidden="true">
++        <path d="M30 146c0-26 13-38 30-38s30 12 30 38" fill="var(--wd-lime)" stroke="var(--wd-outline)" strokeWidth="2.2" vectorEffect="non-scaling-stroke" />
++        <path d="M44 110c4-12 28-12 32 0" fill="var(--wd-gold)" stroke="var(--wd-outline)" strokeWidth="2.2" vectorEffect="non-scaling-stroke" />
++        <path d="M24 124c-8-4-12-12-10-20M96 124c8-4 12-12 10-20" fill="none" stroke="var(--wd-outline)" strokeWidth="7" strokeLinecap="round" />
++        <circle cx="60" cy="64" r="43" fill="var(--wd-gold)" stroke="var(--wd-outline)" strokeWidth="2.2" vectorEffect="non-scaling-stroke" />
++        <path d="M18 56C20 26 40 14 60 14s40 12 42 42c-12-10-26-14-42-14S30 46 18 56Z" fill="var(--wd-lime)" stroke="var(--wd-outline)" strokeWidth="2.2" vectorEffect="non-scaling-stroke" />
++        <path className="wd-mascot-brow" d="M30 44c7-7 17-8 24-2M66 42c7-6 17-5 24 2" fill="none" stroke="var(--wd-outline)" strokeWidth="3.2" strokeLinecap="round" />
++        <g className="wd-mascot-eyes">
++          <circle className="wd-mascot-eye" cx="43" cy="68" r="15" fill="#fffdf6" stroke="var(--wd-outline)" strokeWidth="2.2" vectorEffect="non-scaling-stroke" />
++          <circle className="wd-mascot-eye" cx="77" cy="68" r="15" fill="#fffdf6" stroke="var(--wd-outline)" strokeWidth="2.2" vectorEffect="non-scaling-stroke" />
++          <circle ref={leftPupil} className="wd-mascot-pupil" cx="43" cy="68" r="6.6" fill="var(--wd-outline)" />
++          <circle ref={rightPupil} className="wd-mascot-pupil" cx="77" cy="68" r="6.6" fill="var(--wd-outline)" />
++          <circle cx="46" cy="64" r="2" fill="#fffdf6" />
++          <circle cx="80" cy="64" r="2" fill="#fffdf6" />
++        </g>
++        <path d="M46 88c5 6 23 6 28 0" fill="none" stroke="var(--wd-outline)" strokeWidth="3.2" strokeLinecap="round" />
++        <circle cx="28" cy="82" r="6" fill="var(--wd-red)" opacity=".85" />
++        <circle cx="92" cy="82" r="6" fill="var(--wd-red)" opacity=".85" />
++        <path d="M60 104l4 9 9 1.4-6.6 6.4 1.6 9L60 125.4l-8 4.2 1.6-9-6.6-6.4 9-1.4Z" fill="var(--wd-gold)" stroke="var(--wd-outline)" strokeWidth="2" />
++      </svg>
++    </div>
++  );
++}
+diff --git a/components/ScrollDanfo.tsx b/components/ScrollDanfo.tsx
+new file mode 100644
+index 0000000..6fc4381
+--- /dev/null
++++ b/components/ScrollDanfo.tsx
+@@ -0,0 +1,127 @@
++'use client';
++
++import { useEffect, useRef } from 'react';
++
++function puff(container: HTMLDivElement, rect: DOMRect) {
++  const el = document.createElement('span');
++  el.className = 'wd-danfo-puff';
++  el.textContent = '✦';
++  el.style.left = `${rect.left + rect.width * (0.2 + Math.random() * 0.4)}px`;
++  el.style.top = `${rect.top + rect.height * 0.55}px`;
++  el.style.fontSize = `${10 + Math.random() * 5}px`;
++  el.style.color = Math.random() > 0.5 ? 'var(--wd-spark-1)' : 'var(--wd-spark-2)';
++  container.appendChild(el);
++  const remove = () => el.remove();
++  el.addEventListener('animationend', remove, { once: true });
++  window.setTimeout(remove, 900);
++}
++
++/** The only vehicle: a yellow danfo with a black stripe, driving down the
++ *  side margin as the page scrolls, idling with bouncing wheels when stopped.
++ *  It is fixed, pointer-events: none, and fades to 25% over text-heavy areas. */
++export function ScrollDanfo() {
++  const rootRef = useRef<HTMLDivElement>(null);
++  const puffsRef = useRef<HTMLDivElement>(null);
++
++  useEffect(() => {
++    const root = rootRef.current;
++    const puffs = puffsRef.current;
++    if (!root || !puffs) return;
++    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
++    if (reduced) {
++      root.classList.add('is-parked');
++      root.style.transform = 'translate3d(0, 42vh, 0)';
++      return;
++    }
++
++    let frame = 0;
++    let idleTimer = 0;
++    let lastY = window.scrollY;
++    let lastPuff = 0;
++
++    const update = () => {
++      frame = 0;
++      const sy = window.scrollY;
++      const travel = Math.max(240, window.innerHeight - 190);
++      const y = 82 + ((sy * 0.42) % travel);
++      const wave = Math.sin(sy / 170) * 16;
++      const tilt = Math.cos(sy / 170) * 5;
++      const direction = sy >= lastY ? 1 : -1;
++      lastY = sy;
++      root.style.transform = `translate3d(${wave.toFixed(2)}px, ${y.toFixed(2)}px, 0) rotate(${tilt.toFixed(2)}deg) scaleX(${direction})`;
++      root.classList.add('is-driving');
++      root.classList.remove('is-idle');
++      window.clearTimeout(idleTimer);
++      idleTimer = window.setTimeout(() => {
++        root.classList.remove('is-driving');
++        root.classList.add('is-idle');
++      }, 160);
++
++      const rect = root.getBoundingClientRect();
++      let overText = false;
++      const probes: [number, number][] = [
++        [rect.left + rect.width / 2, rect.top + 10],
++        [rect.left + rect.width / 2, rect.top + rect.height / 2],
++        [rect.left + rect.width / 2, rect.top + rect.height - 10],
++        [rect.left + 6, rect.top + rect.height / 2],
++        [rect.right - 6, rect.top + rect.height / 2],
++      ];
++      for (const [px, py] of probes) {
++        const el = document.elementFromPoint(px, py);
++        if (el?.closest('h1,h2,h3,p,a,button,input,label,select,textarea,.game,.card,.panel,.tag-tile,.promo,.board-card,.lb-table,.docs-content,.auth-card')) {
++          overText = true;
++          break;
++        }
++      }
++      root.classList.toggle('is-over-text', overText);
++
++      const now = performance.now();
++      if (now - lastPuff > 130) {
++        lastPuff = now;
++        puff(puffs, rect);
++      }
++    };
++
++    const onScroll = () => { if (!frame) frame = window.requestAnimationFrame(update); };
++    update();
++    window.addEventListener('scroll', onScroll, { passive: true });
++    window.addEventListener('resize', onScroll);
++    return () => {
++      window.cancelAnimationFrame(frame);
++      window.clearTimeout(idleTimer);
++      window.removeEventListener('scroll', onScroll);
++      window.removeEventListener('resize', onScroll);
++      puffs.replaceChildren();
++    };
++  }, []);
++
++  return (
++    <div className="wd-danfo-wrap" aria-hidden="true">
++      <div ref={rootRef} className="wd-danfo is-idle">
++        <svg viewBox="0 0 120 78" className="wd-svg">
++          <g className="wd-danfo-body">
++            <rect x="6" y="24" width="108" height="36" rx="10" fill="var(--wd-yellow)" stroke="var(--wd-outline)" strokeWidth="2.2" vectorEffect="non-scaling-stroke" />
++            <path d="M20 24 31 8h42l11 16" fill="var(--wd-yellow)" stroke="var(--wd-outline)" strokeWidth="2.2" vectorEffect="non-scaling-stroke" />
++            <rect x="37" y="11" width="13" height="9" rx="2" fill="var(--wd-teal)" stroke="var(--wd-outline)" strokeWidth="2" vectorEffect="non-scaling-stroke" />
++            <rect x="54" y="11" width="13" height="9" rx="2" fill="var(--wd-teal)" stroke="var(--wd-outline)" strokeWidth="2" vectorEffect="non-scaling-stroke" />
++            <path d="M6 42h108" stroke="#1b1c14" strokeWidth="9" />
++            <path d="M6 42h108" stroke="var(--wd-lime)" strokeWidth="2" opacity=".55" />
++            <rect x="14" y="29" width="17" height="7" rx="2" fill="var(--wd-orange)" stroke="var(--wd-outline)" strokeWidth="1.8" vectorEffect="non-scaling-stroke" />
++            <circle cx="106" cy="33" r="3.4" fill="#fffdf6" stroke="var(--wd-outline)" strokeWidth="1.8" />
++            <g className="wd-danfo-wheel">
++              <circle cx="30" cy="62" r="9" fill="var(--wd-outline)" />
++              <circle cx="30" cy="62" r="4" fill="var(--wd-gold)" />
++              <path d="M30 55v14M23 62h14" stroke="var(--wd-gold)" strokeWidth="2" />
++            </g>
++            <g className="wd-danfo-wheel">
++              <circle cx="92" cy="62" r="9" fill="var(--wd-outline)" />
++              <circle cx="92" cy="62" r="4" fill="var(--wd-gold)" />
++              <path d="M92 55v14M85 62h14" stroke="var(--wd-gold)" strokeWidth="2" />
++            </g>
++          </g>
++        </svg>
++      </div>
++      <div ref={puffsRef} className="wd-danfo-puffs" />
++    </div>
++  );
++}
+diff --git a/components/WhimsyDecor.tsx b/components/WhimsyDecor.tsx
+index 38974fa..8f3d455 100644
+--- a/components/WhimsyDecor.tsx
++++ b/components/WhimsyDecor.tsx
+@@ -1,33 +1,33 @@
+ 'use client';
+ 
+-import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
++import { Fragment, useEffect, useRef, useState, type CSSProperties } from 'react';
+ import { usePathname } from 'next/navigation';
+ import { createPortal } from 'react-dom';
+-import { Doodle, type DoodleName } from './WhimsyDoodles';
++import { Doodle } from './WhimsyDoodles';
++import { NaijaMascot } from './NaijaMascot';
++import { ScrollDanfo } from './ScrollDanfo';
++import { WordHover } from './WordHover';
+ 
+-const FX_COLORS = ['#7a9a00', '#c98a00', '#c0392b', '#0f766e', '#292a23'];
++const FX_COLORS = ['#8fbf00', '#d99a00', '#d1452f', '#0f8f84'];
+ const SPARK_CHARS = ['✦', '✧'];
++const SHOUTS = ['Sharp sharp!', 'Oya!', 'Correct!', 'E sweet!', 'No wahala!'];
+ const REDUCED = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const FINE = () => typeof window !== 'undefined' && window.matchMedia('(pointer: fine)').matches;
+ 
+-const DOODLES_BY_ROUTE: { test: (path: string) => boolean; names: DoodleName[] }[] = [
+-  { test: (p) => p === '/', names: ['danfo', 'jollof', 'mango', 'trophy'] },
+-  { test: (p) => p === '/tournament', names: ['trophy', 'crown', 'clock', 'coin'] },
+-  { test: (p) => p === '/leaderboard', names: ['crown', 'medal', 'coin', 'mango'] },
+-  { test: (p) => p === '/creators' || p.startsWith('/creators/'), names: ['zobo', 'puff', 'mango', 'coin'] },
+-  { test: (p) => p === '/docs', names: ['coin', 'danfo', 'puff', 'jollof'] },
+-  { test: (p) => p === '/about', names: ['suya', 'zobo', 'jollof', 'mango'] },
+-  { test: (p) => p === '/signin', names: ['puff', 'zobo', 'coin', 'jollof'] },
+-  { test: (p) => p === '/hangout', names: ['danfo', 'puff', 'coin', 'mango'] },
+-  { test: (p) => p.startsWith('/toybox'), names: ['mango', 'zobo', 'coin', 'danfo'] },
+-  { test: (p) => p.startsWith('/games') || p.startsWith('/categories'), names: ['coin', 'puff', 'mango', 'danfo'] },
++const SPARKLES = [
++  { x: '2.4%', y: '15%', size: 22, char: '✦', tone: 'wd-s1', delay: '0s', dur: '4.8s' },
++  { x: '96.8%', y: '12%', size: 18, char: '✧', tone: 'wd-s2', delay: '-1.4s', dur: '5.6s' },
++  { x: '3.2%', y: '46%', size: 16, char: '✧', tone: 'wd-s3', delay: '-2.6s', dur: '4.2s' },
++  { x: '96.2%', y: '42%', size: 24, char: '✦', tone: 'wd-s4', delay: '-0.8s', dur: '6.2s' },
++  { x: '2.8%', y: '76%', size: 18, char: '✦', tone: 'wd-s2', delay: '-3.2s', dur: '5.2s' },
++  { x: '96.6%', y: '74%', size: 16, char: '✧', tone: 'wd-s1', delay: '-2s', dur: '4.6s' },
++  { x: '7%', y: '90%', size: 20, char: '✦', tone: 'wd-s3', delay: '-1.1s', dur: '5.8s' },
++  { x: '91%', y: '88%', size: 18, char: '✧', tone: 'wd-s4', delay: '-3.8s', dur: '5s' },
+ ];
+ 
+-function doodlesFor(pathname: string) {
+-  return DOODLES_BY_ROUTE.find((row) => row.test(pathname))?.names ?? ['danfo', 'jollof', 'coin', 'mango'];
+-}
++type Anchors = { tourney: HTMLElement | null; footer: HTMLElement | null; medals: HTMLElement[] };
+ 
+-function node<K extends keyof HTMLElementTagNameMap>(tag: K, className: string) {
++function node(tag: string, className: string) {
+   const el = document.createElement(tag);
+   el.className = className;
+   return el;
+@@ -51,16 +51,6 @@ function spark(fx: HTMLElement, x: number, y: number, color: string, char: strin
+   removeLater(el, 750);
+ }
+ 
+-function coin(fx: HTMLElement, x: number, y: number, angle: number, distance: number) {
+-  const el = node('span', 'wd-fx-coin');
+-  el.style.left = `${x}px`;
+-  el.style.top = `${y}px`;
+-  el.style.setProperty('--wd-dx', `${Math.cos(angle) * distance}px`);
+-  el.style.setProperty('--wd-dy', `${Math.sin(angle) * distance}px`);
+-  fx.appendChild(el);
+-  removeLater(el, 750);
+-}
+-
+ function confetti(fx: HTMLElement, x: number, y: number, count = 18) {
+   for (let i = 0; i < count; i += 1) {
+     const el = node('span', 'wd-fx-confetti');
+@@ -84,124 +74,41 @@ function burst(fx: HTMLElement, x: number, y: number, big = false) {
+   const ring = node('span', 'wd-fx-ring');
+   ring.style.left = `${x}px`;
+   ring.style.top = `${y}px`;
+-  ring.style.setProperty('--wd-ring', big ? '#c98a00' : '#7a9a00');
++  ring.style.setProperty('--wd-ring', big ? '#d99a00' : '#8fbf00');
+   fx.appendChild(ring);
+   removeLater(ring, 700);
+ 
+   const sparks = big ? 14 : 10;
+   for (let i = 0; i < sparks; i += 1) {
+-    spark(
+-      fx,
+-      x,
+-      y,
+-      FX_COLORS[i % 4],
+-      SPARK_CHARS[i % 2],
+-      big ? 20 + Math.random() * 8 : 16 + Math.random() * 6,
+-      (i / sparks) * Math.PI * 2,
+-      big ? 78 + Math.random() * 48 : 44 + Math.random() * 34,
+-    );
++    spark(fx, x, y, FX_COLORS[i % 4], SPARK_CHARS[i % 2], big ? 20 + Math.random() * 8 : 16 + Math.random() * 6, (i / sparks) * Math.PI * 2, big ? 78 + Math.random() * 48 : 44 + Math.random() * 34);
+   }
+-  coin(fx, x, y, Math.PI * 0.2, big ? 90 : 50);
+-  coin(fx, x, y, Math.PI * 1.2, big ? 110 : 60);
+-  coin(fx, x, y, Math.PI * 1.8, big ? 96 : 52);
+   if (big) confetti(fx, x, y, 18);
+ }
+ 
+-const SPARKLES = [
+-  { x: '2.4%', y: '15%', size: 22, char: '✦', tone: 'wd-s1', delay: '0s', dur: '4.8s' },
+-  { x: '96.8%', y: '12%', size: 18, char: '✧', tone: 'wd-s2', delay: '-1.4s', dur: '5.6s' },
+-  { x: '3.2%', y: '46%', size: 16, char: '✧', tone: 'wd-s3', delay: '-2.6s', dur: '4.2s' },
+-  { x: '96.2%', y: '42%', size: 24, char: '✦', tone: 'wd-s4', delay: '-0.8s', dur: '6.2s' },
+-  { x: '2.8%', y: '76%', size: 18, char: '✦', tone: 'wd-s2', delay: '-3.2s', dur: '5.2s' },
+-  { x: '96.6%', y: '74%', size: 16, char: '✧', tone: 'wd-s1', delay: '-2s', dur: '4.6s' },
+-  { x: '7%', y: '90%', size: 20, char: '✦', tone: 'wd-s3', delay: '-1.1s', dur: '5.8s' },
+-  { x: '91%', y: '88%', size: 18, char: '✧', tone: 'wd-s4', delay: '-3.8s', dur: '5s' },
+-];
+-
+-type Anchors = {
+-  signin: HTMLElement | null;
+-  auth: HTMLElement | null;
+-  tourney: HTMLElement | null;
+-  footer: HTMLElement | null;
+-  medals: HTMLElement[];
+-};
+-
+ export function WhimsyDecor() {
+   const pathname = usePathname();
+-  const names = useMemo(() => doodlesFor(pathname), [pathname]);
+   const fxRef = useRef<HTMLDivElement>(null);
+-  const cursorRef = useRef<HTMLDivElement>(null);
+   const [playFx, setPlayFx] = useState<{ x: number; y: number; id: number } | null>(null);
+-  const [anchors, setAnchors] = useState<Anchors>({ signin: null, auth: null, tourney: null, footer: null, medals: [] });
+-  const [authRect, setAuthRect] = useState<{ top: number; left: number } | null>(null);
++  const [anchors, setAnchors] = useState<Anchors>({ tourney: null, footer: null, medals: [] });
+ 
+   useEffect(() => {
+     const root = document.documentElement;
+     root.dataset.whimsy = 'on';
+-    return () => {
+-      delete root.dataset.whimsy;
+-    };
++    return () => { delete root.dataset.whimsy; };
+   }, []);
+ 
+-
+   useEffect(() => {
+     if (!playFx) return;
+     const timer = window.setTimeout(() => setPlayFx(null), 1800);
+     return () => window.clearTimeout(timer);
+   }, [playFx]);
+ 
+-  // Cursor trail, click bursts, hover sparkles and playful tooltips.
++  // Click sparkles, sticker shouts, hover sparkles and playful tooltips.
+   useEffect(() => {
+     const fx = fxRef.current;
+     if (!fx) return;
+-    const cursor = FINE() && !REDUCED() ? cursorRef.current : null;
+-    const root = document.documentElement;
+-    if (cursor) root.classList.add('wd-cursor-on');
+-    let cx = -120;
+-    let cy = -120;
+-    let tx = -120;
+-    let ty = -120;
+-    let seen = false;
+-    let cursorFrame = 0;
+-    const cursorLoop = () => {
+-      cx += (tx - cx) * 0.24;
+-      cy += (ty - cy) * 0.24;
+-      if (cursor) cursor.style.transform = `translate3d(${cx}px, ${cy}px, 0)`;
+-      cursorFrame = window.requestAnimationFrame(cursorLoop);
+-    };
+-    if (cursor) cursorFrame = window.requestAnimationFrame(cursorLoop);
+-    let lastTrail = 0;
+     let tip: HTMLElement | null = null;
+-
+-    const hideTip = () => {
+-      tip?.remove();
+-      tip = null;
+-    };
+-
+-    const onMove = (event: PointerEvent) => {
+-      if (REDUCED() || !FINE()) return;
+-      tx = event.clientX;
+-      ty = event.clientY;
+-      if (cursor && !seen) {
+-        seen = true;
+-        cx = tx;
+-        cy = ty;
+-        cursor.style.opacity = '1';
+-      }
+-      const now = performance.now();
+-      if (now - lastTrail < 55) return;
+-      lastTrail = now;
+-      const el = node('span', 'wd-trail');
+-      el.textContent = SPARK_CHARS[Math.floor(Math.random() * 2)];
+-      el.style.left = `${event.clientX}px`;
+-      el.style.top = `${event.clientY}px`;
+-      el.style.fontSize = `${10 + Math.random() * 7}px`;
+-      el.style.color = FX_COLORS[Math.floor(Math.random() * 4)];
+-      el.style.setProperty('--wd-dx', `${(Math.random() - 0.5) * 18}px`);
+-      el.style.setProperty('--wd-dy', `${8 + Math.random() * 14}px`);
+-      fx.appendChild(el);
+-      removeLater(el, 650);
+-    };
++    const hideTip = () => { tip?.remove(); tip = null; };
+ 
+     const onDown = (event: PointerEvent) => {
+       if (REDUCED()) return;
+@@ -213,16 +120,13 @@ export function WhimsyDecor() {
+       const text = (target.textContent || '').toLowerCase().trim();
+       const isPlay = Boolean(target.closest('.hero .actions')) && text.includes('play');
+       const big = Boolean(target.closest('.hero .actions')) || text.includes('play now') || text.includes('create free account');
+-      cursor?.classList.add('is-clicking');
+-      window.setTimeout(() => cursor?.classList.remove('is-clicking'), 180);
+       if (isPlay) {
+         setPlayFx({ x, y, id: Date.now() });
+       } else {
+         burst(fx, x, y, big);
+         if (target.matches('.btn, .ghost, .nav-signin, button, summary')) {
+-          const phrases = ['Sharp sharp!', 'Oya!', 'Correct!', 'E sweet!', 'No wahala!'];
+           const shout = node('span', 'wd-shout');
+-          shout.textContent = phrases[Math.floor(Math.random() * phrases.length)];
++          shout.textContent = SHOUTS[Math.floor(Math.random() * SHOUTS.length)];
+           shout.style.left = `${x}px`;
+           shout.style.top = `${y - 34}px`;
+           fx.appendChild(shout);
+@@ -245,9 +149,7 @@ export function WhimsyDecor() {
+         const from = event.relatedTarget as Node | null;
+         if (from && card.contains(from)) return;
+         const rect = card.getBoundingClientRect();
+-        for (let i = 0; i < 3; i += 1) {
+-          spark(fx, rect.right - 10, rect.top + 10, FX_COLORS[i], SPARK_CHARS[i % 2], 15 + i * 2, -0.6 - i * 0.5, 22 + i * 8);
+-        }
++        for (let i = 0; i < 3; i += 1) spark(fx, rect.right - 10, rect.top + 10, FX_COLORS[i], SPARK_CHARS[i % 2], 15 + i * 2, -0.6 - i * 0.5, 22 + i * 8);
+       }
+       const tipTarget = target.closest<HTMLElement>('.btn, .ghost, .nav-signin, .nav nav a');
+       if (tipTarget && (tipTarget.textContent || '').trim().length > 1) {
+@@ -260,72 +162,36 @@ export function WhimsyDecor() {
+         fx.appendChild(tip);
+       }
+     };
+-
+-    const onLeave = () => {
+-      if (cursor) cursor.style.opacity = '0';
+-      seen = false;
+-    };
+-
+     const onOut = (event: PointerEvent) => {
+       const target = event.target as Element | null;
+       if (!target?.closest?.('.btn, .ghost, .nav-signin, .nav nav a')) return;
+       hideTip();
+     };
+ 
+-    window.addEventListener('pointermove', onMove, { passive: true });
+     document.addEventListener('pointerdown', onDown, { capture: true, passive: true });
+     document.addEventListener('pointerover', onOver, { passive: true });
+     document.addEventListener('pointerout', onOut, { passive: true });
+-    document.addEventListener('pointerleave', onLeave);
+     window.addEventListener('scroll', hideTip, { passive: true });
+     return () => {
+-      window.removeEventListener('pointermove', onMove);
+       document.removeEventListener('pointerdown', onDown, true);
+       document.removeEventListener('pointerover', onOver);
+       document.removeEventListener('pointerout', onOut);
+-      document.removeEventListener('pointerleave', onLeave);
+       window.removeEventListener('scroll', hideTip);
+-      window.cancelAnimationFrame(cursorFrame);
+-      root.classList.remove('wd-cursor-on');
+       hideTip();
+     };
+   }, []);
+ 
+-  // Anchor the sign-in mascot, tournament props, medals and footer strip.
++  // Trophy, footer strip, top-three medals and sign-up confetti.
+   useEffect(() => {
+     let timer = 0;
+-    let authObserver: MutationObserver | null = null;
+-
+-    const computeRect = (el: HTMLElement) => {
+-      const r = el.getBoundingClientRect();
+-      const mobile = window.innerWidth < 600;
+-      const modal = el.classList.contains('auth-card');
+-      const offset = modal ? (mobile ? 62 : 78) : (mobile ? 46 : 60);
+-      return { top: r.top - offset, left: Math.max(8, r.left - 4) };
+-    };
+-    const updateRect = (el: HTMLElement | null) => {
+-      const next = el ? computeRect(el) : null;
+-      setAuthRect((prev) => {
+-        if (!next || !prev) return next;
+-        return Math.abs(prev.top - next.top) < 1 && Math.abs(prev.left - next.left) < 1 ? prev : next;
+-      });
+-    };
+-
+     const apply = () => {
+-      const signin = document.querySelector<HTMLElement>('.signin-card');
+-      const auth = document.querySelector<HTMLElement>('.auth-card');
+       const tourney = document.querySelector<HTMLElement>('.tourney-panel');
+       const footer = document.querySelector<HTMLElement>('footer:not(.sm-footer)');
+-      const medals = Array.from(document.querySelectorAll<HTMLElement>('.lb-table tbody tr'))
+-        .slice(0, 3)
+-        .map((row) => row.querySelector<HTMLElement>('td:first-child'))
+-        .filter((cell): cell is HTMLElement => Boolean(cell));
+-
+-      [signin, auth, tourney, footer].forEach((el) => el?.classList.add('wd-anchor'));
++      const medals = Array.from(document.querySelectorAll<HTMLElement>('.lb-table tbody tr')).slice(0, 3).map((row) => row.querySelector<HTMLElement>('td:first-child')).filter((cell): cell is HTMLElement => Boolean(cell));
++      if (tourney) tourney.classList.add('wd-anchor');
+       medals.forEach((cell) => cell.classList.add('wd-medal-anchor'));
+       footer?.classList.add('wd-has-skyline');
+-      setAnchors({ signin, auth, tourney, footer, medals });
+-      updateRect(auth);
++      setAnchors({ tourney, footer, medals });
+ 
+       if (pathname === '/leaderboard' && !REDUCED() && !sessionStorage.getItem('wd-leader-confetti')) {
+         const table = document.querySelector<HTMLElement>('.lb-table');
+@@ -341,7 +207,6 @@ export function WhimsyDecor() {
+ 
+     const wireAuth = (auth: HTMLElement | null) => {
+       if (!auth) return;
+-      auth.classList.add('wd-anchor');
+       const form = auth.querySelector<HTMLFormElement>('form.character-form');
+       if (!form || form.dataset.wdWired === '1') return;
+       form.dataset.wdWired = '1';
+@@ -358,125 +223,59 @@ export function WhimsyDecor() {
+     };
+ 
+     apply();
+-    timer = window.setTimeout(apply, 180);
+-    const onResize = () => {
+-      updateRect(document.querySelector<HTMLElement>('.auth-card'));
+-    };
+-    window.addEventListener('resize', onResize);
++    timer = window.setTimeout(apply, 200);
+     wireAuth(document.querySelector<HTMLElement>('.auth-card'));
+-
+-    authObserver = new MutationObserver(() => {
+-      const auth = document.querySelector<HTMLElement>('.auth-card');
+-      wireAuth(auth);
+-      setAnchors((prev) => (prev.auth === auth ? prev : { ...prev, auth }));
+-      updateRect(auth);
+-    });
++    const authObserver = new MutationObserver(() => wireAuth(document.querySelector<HTMLElement>('.auth-card')));
+     authObserver.observe(document.body, { childList: true, subtree: true });
+ 
+     return () => {
+       window.clearTimeout(timer);
+-      window.removeEventListener('resize', onResize);
+-      authObserver?.disconnect();
++      authObserver.disconnect();
+       document.querySelectorAll('.wd-anchor').forEach((el) => el.classList.remove('wd-anchor'));
+       document.querySelectorAll('.wd-medal-anchor').forEach((el) => el.classList.remove('wd-medal-anchor'));
+       document.querySelectorAll('.wd-has-skyline').forEach((el) => el.classList.remove('wd-has-skyline'));
+-      setAnchors({ signin: null, auth: null, tourney: null, footer: null, medals: [] });
+-      setAuthRect(null);
++      setAnchors({ tourney: null, footer: null, medals: [] });
+     };
+   }, [pathname]);
+ 
+-  // Gentle scroll reveals for content below the first screen.
++  // Gentle scroll reveals (unchanged).
+   useEffect(() => {
+     if (REDUCED() || pathname === '/hangout' || pathname.startsWith('/toybox') || (pathname.startsWith('/games/') && pathname.endsWith('/play'))) return;
+     let timer = 0;
+     let observer: IntersectionObserver | null = null;
+-
+     const run = () => {
+       const selector = 'main > section, main > div > section, .game, .tag-tile, .panel, .board-card, .step, .promo, .creator-banner, .tourney-panel, .lb-you, .faq details';
+-      const targets = Array.from(document.querySelectorAll<HTMLElement>(selector)).filter((el) => {
+-        const rect = el.getBoundingClientRect();
+-        return rect.top > window.innerHeight && !el.classList.contains('wd-reveal');
+-      });
++      const targets = Array.from(document.querySelectorAll<HTMLElement>(selector)).filter((el) => el.getBoundingClientRect().top > window.innerHeight && !el.classList.contains('wd-reveal'));
+       if (!targets.length) return;
+-      observer = new IntersectionObserver(
+-        (entries) => {
+-          entries.forEach((entry) => {
+-            if (!entry.isIntersecting) return;
+-            entry.target.classList.add('wd-in');
+-            observer?.unobserve(entry.target);
+-          });
+-        },
+-        { threshold: 0.08, rootMargin: '0px 0px -40px 0px' },
+-      );
++      observer = new IntersectionObserver((entries) => {
++        entries.forEach((entry) => { if (entry.isIntersecting) { entry.target.classList.add('wd-in'); observer?.unobserve(entry.target); } });
++      }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+       targets.forEach((el, index) => {
+         el.classList.add('wd-reveal');
+         el.style.transitionDelay = `${Math.min(index % 6, 5) * 55}ms`;
+         observer?.observe(el);
+       });
+     };
+-
+     timer = window.setTimeout(run, 240);
+     return () => {
+       window.clearTimeout(timer);
+       observer?.disconnect();
+-      document.querySelectorAll('.wd-reveal').forEach((el) => {
+-        el.classList.remove('wd-reveal', 'wd-in');
+-        (el as HTMLElement).style.transitionDelay = '';
+-      });
++      document.querySelectorAll('.wd-reveal').forEach((el) => { el.classList.remove('wd-reveal', 'wd-in'); (el as HTMLElement).style.transitionDelay = ''; });
+     };
+   }, [pathname]);
+ 
+   return (
+     <div className="wd-decor" aria-hidden="true">
+-      <div className="wd-margin-layer">
+-        {names.map((name, index) => (
+-          <Doodle key={`${name}-${index}`} name={name} className={`wd-margin wd-margin-${index}`} />
+-        ))}
+-      </div>
+-
+       <div className="wd-spark-layer">
+         {SPARKLES.map((s, index) => (
+-          <span
+-            key={index}
+-            className={`wd-fixed-spark ${s.tone}`}
+-            style={{ left: s.x, top: s.y, fontSize: s.size, animationDelay: s.delay, animationDuration: s.dur }}
+-          >
+-            {s.char}
+-          </span>
++          <span key={index} className={`wd-fixed-spark ${s.tone}`} style={{ left: s.x, top: s.y, fontSize: s.size, animationDelay: s.delay, animationDuration: s.dur }}>{s.char}</span>
+         ))}
+       </div>
+-
+-      {pathname === '/' && (
+-        <div className="wd-runner">
+-          <Doodle name="danfo" className="wd-runner-bus" />
+-        </div>
+-      )}
+-
+       <div className="wd-fx" ref={fxRef} />
+-
+-      <div ref={cursorRef} className="wd-cursor">
+-        <svg viewBox="0 0 46 58" width="46" height="58" aria-hidden="true">
+-          <path d="M12 52 32 26" stroke="var(--wd-outline)" strokeWidth="10" strokeLinecap="round" />
+-          <path d="M12 52 32 26" stroke="var(--wd-gold)" strokeWidth="5" strokeLinecap="round" />
+-          <path d="M31 7l3.6 9.4L44 20l-9.4 3.6L31 33l-3.6-9.4L18 20l9.4-3.6Z" fill="var(--wd-lime)" stroke="var(--wd-outline)" strokeWidth="2.2" strokeLinejoin="round" />
+-          <circle cx="39" cy="8" r="2.2" fill="var(--wd-red)" />
+-          <circle cx="23" cy="9" r="1.6" fill="var(--wd-teal)" />
+-        </svg>
+-      </div>
+-
++      <NaijaMascot />
++      <ScrollDanfo />
++      <WordHover />
+       {playFx ? <PlayCelebration fx={playFx} /> : null}
+-
+-      {pathname === '/' && (
+-        <div className="wd-home-mascot">
+-          <span className="wd-speech wd-speech-home">Naija vibes ✦</span>
+-          <Doodle name="mascot" />
+-        </div>
+-      )}
+-
+-      {anchors.signin && !anchors.auth
+-        ? createPortal(<SigninMascot modal={false} />, anchors.signin)
+-        : null}
+-      {anchors.auth && authRect ? <AuthMascot rect={authRect} /> : null}
+       {anchors.tourney ? createPortal(<TournamentProps />, anchors.tourney) : null}
+       {anchors.footer ? createPortal(<FooterProps />, anchors.footer) : null}
+       {anchors.medals.map((cell, rank) => (
+@@ -486,20 +285,19 @@ export function WhimsyDecor() {
+   );
+ }
+ 
+-function AuthMascot({ rect }: { rect: { top: number; left: number } }) {
+-  return (
+-    <div className='wd-auth-mascot' style={{ top: rect.top, left: rect.left }}>
+-      <span className='wd-speech wd-speech-auth'>Oya, come in!</span>
+-      <Doodle name='mascot' />
+-    </div>
+-  );
+-}
+-
+-function SigninMascot({ modal }: { modal: boolean }) {
++function PlayCelebration({ fx }: { fx: { x: number; y: number } }) {
+   return (
+-    <div className={`wd-signin-mascot${modal ? ' wd-signin-mascot-modal' : ''}`}>
+-      <span className="wd-speech wd-speech-signin">Oya, come in!</span>
+-      <Doodle name="mascot" />
++    <div className="wd-play-fx" style={{ left: fx.x, top: fx.y }}>
++      <span className="wd-play-glow" />
++      <span className="wd-play-ring" />
++      <span className="wd-play-banner">{"Oya, let's play! ✦"}</span>
++      {Array.from({ length: 14 }).map((_, index) => {
++        const angle = (index / 14) * Math.PI * 2;
++        const distance = 84 + (index % 4) * 24;
++        return (
++          <span key={index} className="wd-play-spark" style={{ '--wd-px': `${Math.cos(angle) * distance}px`, '--wd-py': `${Math.sin(angle) * distance}px`, color: ['var(--wd-spark-1)', 'var(--wd-spark-2)', 'var(--wd-spark-3)', 'var(--wd-spark-4)'][index % 4], animationDelay: `${index * 18}ms` } as CSSProperties}>{index % 2 ? '✦' : '✧'}</span>
++        );
++      })}
+     </div>
+   );
+ }
+@@ -529,66 +327,9 @@ function FooterProps() {
+         <path d="M0 40V31h38v-9h22v9h18V18h34v22h16V27h30v13h20V14h36v26h18V24h26v16h14V19h30v21h18V29h34v11h14V13h40v27h18V25h26v15h12V20h30v20h18V28h30v12h14V15h38v25h18V24h26v16h12V19h34v21h18V30h38v10h14V17h42v23h18V26h24v14h12V20h34v20h18V28h30v12h14V16h40v24h16V27h30v13h16V22h34v18h14V29h32v11h12V18h38v22h16V26h30v14h12V21h34v19h14V30h40v10h14V19h34v21h12V27h28v13H0Z" fill="var(--wd-lime)" stroke="var(--wd-outline)" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+         <path d="M96 40V20l16-10 16 10v20M244 40V12l18-9 18 9v28M392 40V17l16-8 16 8v23M560 40V14l18-10 18 10v26M706 40V22l15-9 15 9v18M900 40V15l16-9 16 9v25M1052 40V20l16-10 16 10v20" fill="var(--wd-gold)" stroke="var(--wd-outline)" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+         <path d="M160 40V28h24v12M310 40V31h28v9M470 40V26h22v14M630 40V31h26v9M800 40V25h24v15M980 40V30h30v10M1130 40V26h26v14" fill="var(--wd-red)" stroke="var(--wd-outline)" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+-        <rect x="520" y="29" width="52" height="11" rx="3" fill="var(--wd-orange)" stroke="var(--wd-outline)" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+-        <circle cx="532" cy="40" r="3" fill="var(--wd-outline)" />
+-        <circle cx="560" cy="40" r="3" fill="var(--wd-outline)" />
+         <path d="M1040 40V18l6-12 6 12M1046 10c-7-7-2-13 5-12-1 6-2 10-5 12M1046 10c7-7 12-2 11 5-6-1-9-2-11-5" fill="var(--wd-green)" stroke="var(--wd-outline)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+       </svg>
+       <span className="wd-signoff">No wahala ✦</span>
+     </>
+   );
+ }
+-
+-function PlayCelebration({ fx }: { fx: { x: number; y: number } }) {
+-  const doodles: DoodleName[] = ['danfo', 'jollof', 'mango', 'suya', 'puff', 'zobo'];
+-  return (
+-    <div className="wd-play-fx" style={{ left: fx.x, top: fx.y }} aria-hidden="true">
+-      <span className="wd-play-glow" />
+-      <span className="wd-play-ring" />
+-      <span className="wd-play-banner">{"Oya, let's play! ✦"}</span>
+-      {doodles.map((name, index) => {
+-        const angle = (index / doodles.length) * Math.PI * 2 - Math.PI / 2;
+-        const distance = 118 + (index % 3) * 28;
+-        const dx = Math.cos(angle) * distance;
+-        const dy = Math.sin(angle) * distance;
+-        return (
+-          <span
+-            key={name}
+-            className={`wd-play-doodle wd-pd${index + 1}`}
+-            style={
+-              {
+-                '--wd-px': `${dx}px`,
+-                '--wd-py': `${dy}px`,
+-                '--wd-mx': `${dx * 0.6}px`,
+-                '--wd-my': `${dy * 0.6}px`,
+-                animationDelay: `${index * 24}ms`,
+-              } as CSSProperties
+-            }
+-          >
+-            <Doodle name={name} />
+-          </span>
+-        );
+-      })}
+-      {Array.from({ length: 12 }).map((_, index) => {
+-        const angle = (index / 12) * Math.PI * 2;
+-        const distance = 82 + (index % 4) * 24;
+-        return (
+-          <span
+-            key={index}
+-            className="wd-play-spark"
+-            style={
+-              {
+-                '--wd-px': `${Math.cos(angle) * distance}px`,
+-                '--wd-py': `${Math.sin(angle) * distance}px`,
+-                color: ['var(--wd-spark-1)', 'var(--wd-spark-2)', 'var(--wd-spark-3)', 'var(--wd-spark-4)'][index % 4],
+-                animationDelay: `${index * 18}ms`,
+-              } as CSSProperties
+-            }
+-          >
+-            {index % 2 ? '✦' : '✧'}
+-          </span>
+-        );
+-      })}
+-    </div>
+-  );
+-}
+diff --git a/components/WhimsyDoodles.tsx b/components/WhimsyDoodles.tsx
+index 77bc0c8..693dd91 100644
+--- a/components/WhimsyDoodles.tsx
++++ b/components/WhimsyDoodles.tsx
+@@ -2,19 +2,10 @@
+ 
+ import type { CSSProperties } from 'react';
+ 
+-export type DoodleName =
+-  | 'danfo'
+-  | 'jollof'
+-  | 'suya'
+-  | 'puff'
+-  | 'mango'
+-  | 'zobo'
+-  | 'coin'
+-  | 'mascot'
+-  | 'trophy'
+-  | 'crown'
+-  | 'medal'
+-  | 'clock';
++/** Only the award/time pieces are kept: the tournament trophy, leaderboard
++ *  crown/medal and the ticking clock. Every food, fruit, coin, mascot and
++ *  vehicle doodle has been removed from the project. */
++export type DoodleName = 'trophy' | 'crown' | 'medal' | 'clock';
+ 
+ const outline = {
+   stroke: 'var(--wd-outline)',
+@@ -35,93 +26,6 @@ export function Doodle({
+ }) {
+   return (
+     <span className={`wd-doodle wd-doodle-${name} ${className}`.trim()} style={style} aria-hidden="true">
+-      {name === 'danfo' && (
+-        <svg viewBox="0 0 100 80" className="wd-svg">
+-          <rect x="5" y="26" width="90" height="34" rx="9" fill="var(--wd-yellow)" {...outline} />
+-          <path d="M19 26 29 11h42l10 15" fill="var(--wd-yellow)" {...outline} />
+-          <rect x="35" y="14" width="14" height="9" rx="2" fill="var(--wd-teal)" {...outline} />
+-          <rect x="53" y="14" width="14" height="9" rx="2" fill="var(--wd-teal)" {...outline} />
+-          <path d="M6 46h88" stroke="var(--wd-red)" strokeWidth="7" />
+-          <rect x="14" y="34" width="20" height="8" rx="2" fill="var(--wd-orange)" {...outline} />
+-          <circle cx="27" cy="62" r="8" fill="var(--wd-ink)" {...outline} />
+-          <circle cx="73" cy="62" r="8" fill="var(--wd-ink)" {...outline} />
+-          <circle cx="27" cy="62" r="3" fill="var(--wd-gold)" />
+-          <circle cx="73" cy="62" r="3" fill="var(--wd-gold)" />
+-        </svg>
+-      )}
+-      {name === 'jollof' && (
+-        <svg viewBox="0 0 100 80" className="wd-svg">
+-          <path d="M14 36h72c-2 22-16 33-36 33S16 58 14 36Z" fill="var(--wd-red)" {...outline} />
+-          <path d="M20 36c6-16 54-16 60 0" fill="var(--wd-orange)" {...outline} />
+-          <circle cx="34" cy="31" r="4" fill="var(--wd-gold)" {...outline} />
+-          <circle cx="48" cy="27" r="4" fill="var(--wd-gold)" {...outline} />
+-          <circle cx="62" cy="31" r="4" fill="var(--wd-gold)" {...outline} />
+-          <path d="M62 21c5-8 14-8 18-2-7 1-11 4-13 8" fill="var(--wd-green)" {...outline} />
+-          <path d="M26 54c8 7 40 7 48 0" stroke="var(--wd-outline)" strokeWidth="3" fill="none" />
+-        </svg>
+-      )}
+-      {name === 'suya' && (
+-        <svg viewBox="0 0 100 80" className="wd-svg">
+-          <path d="M16 64 84 12" stroke="var(--wd-brown)" strokeWidth="5" strokeLinecap="round" />
+-          <rect x="25" y="40" width="18" height="15" rx="4" fill="var(--wd-brown)" {...outline} transform="rotate(-38 34 47)" />
+-          <rect x="41" y="30" width="18" height="15" rx="4" fill="var(--wd-red)" {...outline} transform="rotate(-38 50 37)" />
+-          <rect x="57" y="20" width="18" height="15" rx="4" fill="var(--wd-brown)" {...outline} transform="rotate(-38 66 27)" />
+-          <circle cx="38" cy="42" r="2.6" fill="var(--wd-gold)" />
+-          <circle cx="54" cy="32" r="2.6" fill="var(--wd-gold)" />
+-          <circle cx="70" cy="22" r="2.6" fill="var(--wd-gold)" />
+-          <path d="M18 62c-6 2-10 7-11 12" stroke="var(--wd-outline)" strokeWidth="3" fill="none" />
+-        </svg>
+-      )}
+-      {name === 'puff' && (
+-        <svg viewBox="0 0 100 80" className="wd-svg">
+-          <circle cx="30" cy="50" r="17" fill="var(--wd-gold)" {...outline} />
+-          <circle cx="52" cy="38" r="19" fill="var(--wd-orange)" {...outline} />
+-          <circle cx="73" cy="53" r="16" fill="var(--wd-gold)" {...outline} />
+-          <circle cx="26" cy="44" r="3" fill="var(--wd-red)" opacity=".85" />
+-          <circle cx="47" cy="31" r="3.4" fill="var(--wd-red)" opacity=".85" />
+-          <circle cx="69" cy="47" r="3" fill="var(--wd-red)" opacity=".85" />
+-        </svg>
+-      )}
+-      {name === 'mango' && (
+-        <svg viewBox="0 0 100 80" className="wd-svg">
+-          <path d="M50 22c20-8 34 10 30 28-4 19-22 25-33 17-14-9-18-36 3-45Z" fill="var(--wd-orange)" {...outline} />
+-          <path d="M51 22c-2-9 5-15 14-14-1 8-6 13-14 14Z" fill="var(--wd-green)" {...outline} />
+-          <path d="M59 35c6 2 9 7 9 14" stroke="var(--wd-gold)" strokeWidth="5" strokeLinecap="round" />
+-          <circle cx="42" cy="37" r="3" fill="var(--wd-red)" />
+-        </svg>
+-      )}
+-      {name === 'zobo' && (
+-        <svg viewBox="0 0 100 80" className="wd-svg">
+-          <path d="M28 26h44l-6 42H34Z" fill="var(--wd-red)" {...outline} />
+-          <path d="M28 26h44" stroke="var(--wd-outline)" strokeWidth="5" />
+-          <path d="M62 16 52 60" stroke="var(--wd-teal)" strokeWidth="6" strokeLinecap="round" />
+-          <circle cx="46" cy="44" r="7" fill="var(--wd-pink)" {...outline} />
+-          <path d="M42 44 50 44M46 40v8" stroke="var(--wd-gold)" strokeWidth="2.5" />
+-          <path d="M38 21c2-6 8-7 10-2" fill="var(--wd-green)" {...outline} />
+-        </svg>
+-      )}
+-      {name === 'coin' && (
+-        <svg viewBox="0 0 100 80" className="wd-svg">
+-          <circle cx="50" cy="40" r="27" fill="var(--wd-gold)" {...outline} />
+-          <circle cx="50" cy="40" r="19" fill="var(--wd-yellow)" {...outline} />
+-          <path d="M50 26l4.6 9.4 10.4 1.5-7.5 7.3 1.8 10.3L50 49.6l-9.3 4.9 1.8-10.3-7.5-7.3 10.4-1.5Z" fill="var(--wd-outline)" />
+-          <circle cx="34" cy="29" r="2.5" fill="var(--wd-red)" opacity=".85" />
+-        </svg>
+-      )}
+-      {name === 'mascot' && (
+-        <svg viewBox="0 0 100 100" className="wd-svg">
+-          <path d="M26 90c0-19 11-27 24-27s24 8 24 27" fill="var(--wd-lime)" {...outline} />
+-          <circle cx="50" cy="40" r="25" fill="var(--wd-gold)" {...outline} />
+-          <path d="M27 33c2-16 14-23 23-23s21 7 23 23c-8-6-16-8-23-8s-15 2-23 8Z" fill="var(--wd-lime)" {...outline} />
+-          <circle cx="41" cy="41" r="3.4" fill="var(--wd-outline)" />
+-          <circle cx="59" cy="41" r="3.4" fill="var(--wd-outline)" />
+-          <path d="M42 50c4 4 12 4 16 0" stroke="var(--wd-outline)" strokeWidth="3" fill="none" strokeLinecap="round" />
+-          <g className="wd-wave">
+-            <path d="M76 50c8 2 11 10 9 18" stroke="var(--wd-outline)" strokeWidth="7" strokeLinecap="round" fill="none" />
+-            <circle cx="85" cy="70" r="6" fill="var(--wd-gold)" {...outline} />
+-          </g>
+-        </svg>
+-      )}
+       {name === 'trophy' && (
+         <svg viewBox="0 0 100 100" className="wd-svg">
+           <path d="M30 18h40v18c0 15-9 25-20 25S30 51 30 36Z" fill="var(--wd-gold)" {...outline} />
+@@ -166,12 +70,3 @@ export function Doodle({
+     </span>
+   );
+ }
+-
+-/** Bold outlined sparkle used for static and burst effects. */
+-export function Sparkle({ size = 18, color = 'var(--wd-spark-1)', char = '✦' }: { size?: number; color?: string; char?: string }) {
+-  return (
+-    <span className="wd-spark" style={{ fontSize: size, color }} aria-hidden="true">
+-      {char}
+-    </span>
+-  );
+-}
+diff --git a/components/WordHover.tsx b/components/WordHover.tsx
+new file mode 100644
+index 0000000..1633773
+--- /dev/null
++++ b/components/WordHover.tsx
+@@ -0,0 +1,138 @@
++'use client';
++
++import { useEffect, useRef } from 'react';
++import { usePathname } from 'next/navigation';
++
++const WORD_COLORS = ['var(--wd-spark-1)', 'var(--wd-spark-2)', 'var(--wd-spark-3)', 'var(--wd-spark-4)'];
++
++function wordSpark(fx: HTMLDivElement, rect: DOMRect) {
++  for (let i = 0; i < 3; i += 1) {
++    const el = document.createElement('span');
++    el.className = 'wd-word-spark';
++    el.textContent = i % 2 ? '✦' : '✧';
++    el.style.left = `${rect.left + Math.random() * Math.max(8, rect.width)}px`;
++    el.style.top = `${rect.top + Math.random() * Math.max(8, rect.height)}px`;
++    el.style.fontSize = `${11 + Math.random() * 4}px`;
++    el.style.color = WORD_COLORS[i % WORD_COLORS.length];
++    el.style.setProperty('--wd-word-dx', `${(Math.random() - 0.5) * 22}px`);
++    el.style.setProperty('--wd-word-dy', `${-10 - Math.random() * 14}px`);
++    fx.appendChild(el);
++    const remove = () => el.remove();
++    el.addEventListener('animationend', remove, { once: true });
++    window.setTimeout(remove, 700);
++  }
++}
++
++/** Splits the first main heading into words and gives each one its own
++ *  springy lift/tilt/colour/underline + tiny sparkles. The visible spans are
++ *  aria-hidden; the heading keeps its full text in aria-label. */
++export function WordHover() {
++  const pathname = usePathname();
++  const fxRef = useRef<HTMLDivElement>(null);
++
++  useEffect(() => {
++    const fx = fxRef.current;
++    if (!fx) return;
++    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
++    const timers: number[] = [];
++    const disposers: (() => void)[] = [];
++
++    const bind = (word: HTMLElement) => {
++      if (word.dataset.wdBound === '1') return;
++      word.dataset.wdBound = '1';
++      const enter = () => {
++        word.classList.add('is-live');
++        if (!reduce) wordSpark(fx, word.getBoundingClientRect());
++      };
++      const leave = () => word.classList.remove('is-live');
++      const tap = () => {
++        word.classList.add('is-live');
++        if (!reduce) wordSpark(fx, word.getBoundingClientRect());
++        window.setTimeout(() => word.classList.remove('is-live'), 650);
++      };
++      word.addEventListener('pointerenter', enter);
++      word.addEventListener('pointerleave', leave);
++      word.addEventListener('pointerdown', tap);
++      disposers.push(() => {
++        word.removeEventListener('pointerenter', enter);
++        word.removeEventListener('pointerleave', leave);
++        word.removeEventListener('pointerdown', tap);
++        delete word.dataset.wdBound;
++      });
++    };
++
++    let restore: (() => void) | null = null;
++
++    const enhance = () => {
++      const h1 = document.querySelector<HTMLElement>('main h1');
++      if (!h1) return;
++      if (!h1.querySelector('.wd-word')) {
++        const label = (h1.textContent || '').replace(/\s+/g, ' ').trim();
++        const original = h1.innerHTML;
++        h1.setAttribute('aria-label', label);
++        let wi = 0;
++        const walk = (parent: Node) => {
++          for (const child of Array.from(parent.childNodes)) {
++            if (child.nodeType === 3) {
++              const text = child.textContent || '';
++              if (!text.trim()) continue;
++              const fragment = document.createDocumentFragment();
++              text.split(/(\s+)/).forEach((part) => {
++                if (!part) return;
++                if (/^\s+$/.test(part)) {
++                  fragment.appendChild(document.createTextNode(part));
++                } else {
++                  const span = document.createElement('span');
++                  span.className = 'wd-word';
++                  span.dataset.wi = String(wi % 4);
++                  span.setAttribute('aria-hidden', 'true');
++                  span.textContent = part;
++                  wi += 1;
++                  fragment.appendChild(span);
++                }
++              });
++              parent.replaceChild(fragment, child);
++            } else if (child.nodeType === 1) {
++              const el = child as HTMLElement;
++              if (!el.classList.contains('wd-word')) walk(el);
++            }
++          }
++        };
++        walk(h1);
++        h1.setAttribute('data-wd-words', '1');
++        restore = () => {
++          if (!h1.isConnected) return;
++          h1.innerHTML = original;
++          h1.removeAttribute('aria-label');
++          h1.removeAttribute('data-wd-words');
++        };
++      }
++      h1.querySelectorAll<HTMLElement>('.wd-word').forEach(bind);
++    };
++
++    [160, 600, 1200, 2200].forEach((delay) => {
++      timers.push(window.setTimeout(enhance, delay));
++    });
++
++    let debounce = 0;
++    const observer = new MutationObserver(() => {
++      window.clearTimeout(debounce);
++      debounce = window.setTimeout(() => {
++        const h1 = document.querySelector<HTMLElement>('main h1');
++        if (h1 && !h1.querySelector('.wd-word')) enhance();
++      }, 80);
++    });
++    observer.observe(document.body, { childList: true, subtree: true });
++
++    return () => {
++      observer.disconnect();
++      window.clearTimeout(debounce);
++      timers.forEach((timer) => window.clearTimeout(timer));
++      disposers.forEach((dispose) => dispose());
++      restore?.();
++      fx.replaceChildren();
++    };
++  }, [pathname]);
++
++  return <div ref={fxRef} className="wd-word-fx" aria-hidden="true" />;
++}
 -- 
 2.39.5
 
