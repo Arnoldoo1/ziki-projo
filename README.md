@@ -10,16 +10,27 @@ A working recreation of [start.ng](https://start.ng), Nigeria's home for browser
 - **Docs rendered from the original:** https://startng-three.vercel.app/docs
 - **Plain-text docs for AI:** https://startng-three.vercel.app/docs.md
 
-## The Naija whimsy layer
+## The Naija whimsy layer (revised)
 
-Every route now carries a decoration-only whimsy layer: bold outlined Naija doodles in the margins, a fixed sparkle field, a danfo that drives across the top once, card/page sparkles, wavy section dividers, hover tilt + sparkle bursts, a sparkle cursor trail, click ripples/confetti, a sign-in mascot with “Oya, come in!”, tournament trophy + ticking clock, leaderboard medals/crown, a footer skyline and sign-off, scroll reveals, a playful loader, and a 404 sticker.
+A decoration-only layer that keeps the original start.ng theme, fonts, copy, layout and functionality intact:
+
+- **Headlines** — every main heading splits into words; each word lifts, tilts, changes to a saturated brand color, draws a colored underline and pops tiny sparkles on hover or tap. The home hero keeps its sunburst halo and ✦/✧ stars.
+- **Naija vibes mascot** — one corner mascot on every page with big tracking eyes (pointer-driven), random blinking, eyebrows that lift when the pointer is close, a floating bob, a speech bubble (“Sharp sharp!”, “Oya, play!”, “No wahala!”), and a happy wiggle on click. Touch devices let the eyes wander; reduced motion removes the bob and eases the eyes instantly.
+- **One danfo** — a yellow, black-striped danfo drives down the side margin with the scroll on a gently curving path, idles with bouncing wheels, faces its direction and leaves tiny ✦ puffs. It fades to 25% over text-heavy areas, sits behind the content and is parked under reduced motion.
+- **Kept** — the fixed twinkling ✦/✧ stars, the tournament trophy + ticking clock, leaderboard crown/medals, footer skyline/sign-off, hero double underline, scroll reveals, playful microcopy, card hovers, and click sparkles/shouts. Play now keeps a stars-and-banner celebration (no doodles).
 
 - `app/whimsy.css` — the single, clearly marked stylesheet.
-- `components/WhimsyDecor.tsx` — fixed doodles/sparkles, click effects, cursor trail, reveals, tooltips and the path-specific mascot/awards/skyline portals.
-- `components/WhimsyDoodles.tsx` — outlined SVG danfo, jollof, suya, puff puff, mango, zobo, coin, mascot, trophy, crown, medal and clock.
-- Mounted once in `app/layout.tsx`; `app/loading.tsx` adds the spinning-coin loader and `app/not-found.tsx` gets the “Wahala!” sticker.
+- `components/WhimsyDecor.tsx` — stars, click effects, awards portals, footer strip and reveals.
+- `components/WhimsyDoodles.tsx` — only trophy, crown, medal and clock.
+- `components/HeroMagic.tsx` — the hero sunburst halo and stars.
+- `components/WordHover.tsx` — accessible word-splitting hover enhancer.
+- `components/NaijaMascot.tsx` — the eye-tracking mascot.
+- `components/ScrollDanfo.tsx` — the one scroll-driven danfo.
+- Mounted once in `app/layout.tsx`; `app/loading.tsx` uses stars only, and `app/not-found.tsx` keeps the “Wahala!” line.
 
-It does not change the site’s fonts, colour palette, logo, layout structure, existing copy, routes, links or functionality. All decorations are `pointer-events: none`, and every animation is disabled under `prefers-reduced-motion`.
+**Removed completely:** the custom wand cursor and sparkle trail; every `cursor: none`; the Sign-in ring/oval and spinner coin; all fruit, food, coin and vehicle doodles (mango, jollof, suya, puff puff, zobo, coin, bus/car) from the margins, hero, Play celebration, footer skyline, loader and 404; the old hover-tilt doodle margin system; the top straight-line danfo runner/road; the oval hero orbit; and the page-edge/section line decorations.
+
+Decorations use `pointer-events: none` (the mascot is the only clickable one), sit behind/beside content with no text overlap, and respect `prefers-reduced-motion`. No fonts, palette, copy, routes, links or functionality changed.
 
 ## What is included
 

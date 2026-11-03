@@ -1,8 +1,9 @@
 /* ==========================================================================
-   start.ng — The Naija Whimsy Layer
-   Decoration-only. Nothing here changes the site's fonts, palette, layout,
-   copy, routes, links or functionality. Every decoration is positioned
-   beside/behind content and is pointer-events: none.
+   start.ng — Naija whimsy (revised)
+   Decorations only: no fonts, palette, copy, layout, routes or functionality
+   changes. Every decoration is pointer-events: none unless it is the
+   intentionally clickable mascot. No food, fruit, coin or vehicle doodles
+   remain except the one scroll-driven danfo.
    ========================================================================== */
 
 :root {
@@ -23,16 +24,8 @@
   --wd-spark-3: #b02a1e;
   --wd-spark-4: #0f6b63;
   --wd-shadow: rgba(41, 42, 35, 0.28);
-}
-
-.wd-decor *,
-.wd-signin-mascot,
-.wd-tourney-props,
-.wd-medal,
-.wd-skyline,
-.wd-signoff,
-.wd-speech {
-  pointer-events: none !important;
+  --wd-wave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='10' viewBox='0 0 26 10'%3E%3Cpath d='M1 6c3-4 6-4 9 0s6 4 9 0 6-4 9 0' fill='none' stroke='%234f7a00' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  --wd-wave-gold: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='10' viewBox='0 0 26 10'%3E%3Cpath d='M1 6c3-4 6-4 9 0s6 4 9 0 6-4 9 0' fill='none' stroke='%23c98a00' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
 }
 
 :root[data-theme="dark"] {
@@ -53,59 +46,21 @@
   --wd-spark-3: #ff8a7d;
   --wd-spark-4: #5ee7ff;
   --wd-shadow: rgba(0, 0, 0, 0.55);
-}
-
-/* Shared wave divider (light stroke; dark override below). */
-:root {
-  --wd-wave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='10' viewBox='0 0 26 10'%3E%3Cpath d='M1 6c3-4 6-4 9 0s6 4 9 0 6-4 9 0' fill='none' stroke='%234f7a00' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
-}
-
-:root[data-theme="dark"] {
   --wd-wave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='10' viewBox='0 0 26 10'%3E%3Cpath d='M1 6c3-4 6-4 9 0s6 4 9 0 6-4 9 0' fill='none' stroke='%23d8fd71' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  --wd-wave-gold: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='10' viewBox='0 0 26 10'%3E%3Cpath d='M1 6c3-4 6-4 9 0s6 4 9 0 6-4 9 0' fill='none' stroke='%23ffd84d' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
 }
 
-.wd-decor {
-  pointer-events: none;
+.wd-decor { pointer-events: none; }
+
+/* Keep page content above the fixed danfo/mascot decorations. */
+main,
+footer,
+.sm-world {
+  position: relative;
+  z-index: 1;
 }
 
-/* ---------- fixed margin doodles (desktop margins only) ---------- */
-.wd-margin-layer {
-  position: fixed;
-  inset: 0;
-  z-index: 4;
-  pointer-events: none;
-}
-
-.wd-doodle {
-  display: block;
-  line-height: 0;
-}
-
-.wd-doodle .wd-svg {
-  display: block;
-  width: 100%;
-  height: auto;
-  overflow: visible;
-  filter: drop-shadow(0 6px 8px var(--wd-shadow));
-}
-
-.wd-margin {
-  position: fixed;
-  width: 94px;
-  animation: wd-float 6s ease-in-out infinite;
-  will-change: translate;
-}
-
-.wd-margin-0 { left: 1.4%; top: 16%; rotate: -3deg; }
-.wd-margin-1 { right: 1.4%; top: 20%; width: 88px; rotate: 3deg; animation-delay: -1.6s; }
-.wd-margin-2 { left: 2%; top: 61%; width: 78px; rotate: 2deg; animation-delay: -3.1s; }
-.wd-margin-3 { right: 2.2%; top: 65%; width: 84px; rotate: -2deg; animation-delay: -4.4s; }
-
-@media (max-width: 1199px) {
-  .wd-margin-layer { display: none; }
-}
-
-/* ---------- bold fixed sparkles ---------- */
+/* ---------- fixed twinkling stars (kept) ---------- */
 .wd-spark-layer {
   position: fixed;
   inset: 0;
@@ -137,52 +92,13 @@
   .wd-fixed-spark:nth-child(4) { left: auto !important; right: 0.5% !important; top: 80% !important; }
 }
 
-/* ---------- the danfo follows a curly street across the hero ---------- */
-.wd-runner {
-  position: fixed;
-  inset: 0;
-  z-index: 35;
-  pointer-events: none;
-  overflow: hidden;
+@media (min-width: 761px) and (max-width: 1199px) {
+  .wd-fixed-spark { font-size: 15px !important; }
+  .wd-fixed-spark:nth-child(odd) { left: 0.5% !important; right: auto !important; }
+  .wd-fixed-spark:nth-child(even) { left: auto !important; right: 0.5% !important; }
 }
 
-.wd-runner-bus {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 42px;
-  offset-path: path("M -80 92 C 160 42, 320 138, 560 84 S 860 34, 1120 118 S 1360 58, 1500 94");
-  offset-rotate: auto;
-  animation: wd-curvy-drive 9s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0.35s infinite;
-  will-change: offset-distance, opacity;
-}
-
-.wd-runner-bus .wd-svg {
-  animation: wd-bus-bounce 0.7s ease-in-out infinite;
-  filter: drop-shadow(0 6px 7px var(--wd-shadow));
-}
-
-@keyframes wd-curvy-drive {
-  0% { offset-distance: 0%; opacity: 0; }
-  6% { opacity: 1; }
-  88% { offset-distance: 100%; opacity: 1; }
-  94% { offset-distance: 100%; opacity: 0; }
-  100% { offset-distance: 100%; opacity: 0; }
-}
-
-@keyframes wd-bus-bounce {
-  0%, 100% { translate: 0 0; }
-  50% { translate: 0 -3px; }
-}
-
-@media (max-width: 760px) {
-  .wd-runner-bus {
-    width: 32px;
-    offset-path: path("M -40 84 C 60 58, 110 112, 200 78 S 320 54, 430 98");
-  }
-}
-
-/* ---------- click bursts, trail, tooltip ---------- */
+/* ---------- click sparkles, ripple, sticker shouts, tooltip ---------- */
 .wd-fx {
   position: fixed;
   inset: 0;
@@ -199,18 +115,6 @@
   -webkit-text-stroke: 1px rgba(41, 42, 35, 0.6);
   text-shadow: 0 2px 0 rgba(41, 42, 35, 0.18), 0 0 7px currentColor;
   animation: wd-fly 0.65s cubic-bezier(0.16, 0.84, 0.3, 1) forwards;
-}
-
-.wd-fx-coin {
-  position: fixed;
-  width: 11px;
-  height: 11px;
-  margin: -5.5px 0 0 -5.5px;
-  border-radius: 50%;
-  background: var(--wd-yellow);
-  border: 2px solid var(--wd-outline);
-  box-shadow: 0 0 6px rgba(201, 138, 0, 0.75);
-  animation: wd-fly 0.7s cubic-bezier(0.16, 0.84, 0.3, 1) forwards;
 }
 
 .wd-fx-confetti {
@@ -231,28 +135,19 @@
   animation: wd-ring 0.55s ease-out forwards;
 }
 
-.wd-sharp {
+.wd-shout {
   position: fixed;
-  transform: translate(-50%, -100%) rotate(-4deg);
-  background: var(--wd-gold);
-  color: #1e260d;
-  border: 2px solid var(--wd-outline);
-  border-radius: 999px;
+  z-index: 100000;
+  transform: translate(-50%, -100%) rotate(-3deg);
   padding: 4px 10px;
+  border-radius: 999px;
+  border: 2px solid var(--wd-outline);
+  background: var(--wd-lime);
+  color: #1e260d;
   font: 800 12px/1.2 var(--mono);
-  letter-spacing: 0.04em;
   white-space: nowrap;
-  box-shadow: 0 4px 0 rgba(41, 42, 35, 0.25);
-  animation: wd-sharp 0.9s ease-out forwards;
-}
-
-.wd-trail {
-  position: fixed;
-  transform: translate(-50%, -50%);
-  font-weight: 800;
-  line-height: 1;
-  text-shadow: 0 0 6px currentColor;
-  animation: wd-trail 0.65s ease-out forwards;
+  box-shadow: 0 4px 0 rgba(41, 42, 35, 0.22);
+  animation: wd-shout 0.95s ease-out forwards;
 }
 
 .wd-tip {
@@ -285,15 +180,10 @@
   100% { opacity: 0; transform: scale(2.8); }
 }
 
-@keyframes wd-sharp {
+@keyframes wd-shout {
   0% { opacity: 0; transform: translate(-50%, -80%) rotate(-4deg) scale(0.8); }
   20% { opacity: 1; transform: translate(-50%, -130%) rotate(-4deg) scale(1.05); }
   100% { opacity: 0; transform: translate(-50%, -210%) rotate(-4deg) scale(1); }
-}
-
-@keyframes wd-trail {
-  0% { opacity: 0.95; transform: translate(-50%, -50%) scale(1); }
-  100% { opacity: 0; transform: translate(calc(-50% + var(--wd-dx)), calc(-50% + var(--wd-dy))) scale(0.3); }
 }
 
 @keyframes wd-tip {
@@ -301,609 +191,12 @@
   to { opacity: 1; transform: translate(-50%, -100%) scale(1); }
 }
 
-/* ---------- the home “Naija vibes” mascot ---------- */
-.wd-home-mascot {
-  position: fixed;
-  right: 18px;
-  bottom: 88px;
-  width: 94px;
-  z-index: 30;
-  pointer-events: none;
-  animation: wd-bob 4.4s ease-in-out infinite;
-}
-
-.wd-home-mascot .wd-svg { width: 100%; height: auto; }
-
-.wd-speech {
-  position: absolute;
-  background: var(--wd-lime);
-  color: #1e260d;
-  border: 2px solid var(--wd-outline);
-  border-radius: 999px;
-  padding: 5px 9px;
-  font: 800 11px/1.25 var(--mono);
-  white-space: nowrap;
-  box-shadow: 0 4px 0 rgba(41, 42, 35, 0.22);
-  pointer-events: none;
-}
-
-.wd-speech-home {
-  right: 76px;
-  bottom: 56px;
-  transform: rotate(-3deg);
-}
-
-@media (max-width: 1199px) {
-  .wd-home-mascot { display: none; }
-}
-
-/* ---------- sign-in mascot peeking over the form ---------- */
-.wd-anchor { position: relative; }
-
-.wd-signin-mascot {
-  position: absolute;
-  top: -60px;
-  right: 12px;
-  width: 84px;
-  z-index: 6;
-  pointer-events: none;
-  animation: wd-bob 4.6s ease-in-out infinite;
-}
-
-.wd-signin-mascot-modal { right: 88px; }
-
-.wd-signin-mascot .wd-svg { width: 100%; height: auto; }
-
-.wd-speech-signin {
-  right: 76px;
-  top: -10px;
-  transform: rotate(-3deg);
-}
-
-@media (max-width: 600px) {
-  .wd-signin-mascot,
-  .wd-signin-mascot-modal {
-    top: -48px;
-    left: 8px;
-    right: auto;
-    width: 64px;
-  }
-
-  .wd-speech-signin {
-    left: 58px;
-    right: auto;
-    top: -8px;
-    padding: 3px 7px;
-    font-size: 9px;
-  }
-}
-
-/* ---------- tournament trophy + ticking clock ---------- */
-.wd-tourney-props {
-  position: absolute;
-  top: -22px;
-  right: 0;
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  z-index: 4;
-  pointer-events: none;
-}
-
-.wd-trophy,
-.wd-clock {
-  display: block;
-  width: 34px;
-}
-
-.wd-trophy .wd-svg,
-.wd-clock .wd-svg { width: 100%; height: auto; }
-
-.wd-trophy { animation: wd-bounce 2.6s ease-in-out infinite; }
-
-.wd-clock-hand {
-  transform-origin: 50px 50px;
-  animation: wd-tick 2s steps(12, end) infinite;
-}
-
-@media (max-width: 600px) {
-  .wd-tourney-props { top: -18px; right: 4px; gap: 4px; }
-  .wd-trophy, .wd-clock { width: 26px; }
-}
-
-/* ---------- footer skyline + sign-off ---------- */
-.wd-has-skyline { position: relative; }
-
-.wd-has-skyline .footer-grid,
-.wd-has-skyline .footer-bottom {
-  position: relative;
-  z-index: 1;
-}
-
-.wd-skyline {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 10px;
-  width: 100%;
-  height: 20px;
-  z-index: 0;
-  pointer-events: none;
-  filter: drop-shadow(0 2px 0 rgba(41, 42, 35, 0.12));
-}
-
-.wd-signoff {
-  position: absolute;
-  right: 16px;
-  top: 12px;
-  z-index: 2;
-  transform: rotate(-2deg);
-  background: var(--wd-lime);
-  color: #1e260d;
-  border: 2px solid var(--wd-outline);
-  border-radius: 999px;
-  padding: 2px 8px;
-  font: 800 10px/1.4 var(--mono);
-  box-shadow: 0 3px 0 rgba(41, 42, 35, 0.2);
-}
-
-@media (max-width: 760px) {
-  .wd-signoff { display: none; }
-  .wd-skyline { top: 10px; height: 18px; }
-}
-
-/* ---------- top-three medals ---------- */
-.wd-medal-anchor { position: relative; }
-
-.wd-medal {
-  position: absolute;
-  left: -26px;
-  top: 50%;
-  width: 24px;
-  transform: translateY(-50%);
-  z-index: 2;
-  animation: wd-bob 4s ease-in-out infinite;
-}
-
-.wd-medal .wd-svg { width: 100%; height: auto; }
-
-.wd-medal-spark {
-  position: absolute;
-  top: -8px;
-  right: -7px;
-  font-size: 14px;
-  color: var(--wd-gold);
-  -webkit-text-stroke: 0.8px var(--wd-outline);
-  animation: wd-twinkle 3s ease-in-out infinite;
-}
-
-.wd-medal-2 { --wd-gold: #8d99a6; --wd-yellow: #c3ccd4; }
-.wd-medal-3 { --wd-gold: #a9662b; --wd-yellow: #d99a5b; }
-
-@media (max-width: 760px) {
-  .wd-medal { display: none; }
-}
-
-/* ==========================================================================
-   UI-side whimsy (effects only; no typography, palette, spacing or layout)
-   ========================================================================== */
-
-/* Wavy hand-drawn underline under “Good games.” */
-[data-whimsy] .hero h1 mark {
-  position: relative;
-  display: inline-block;
-}
-
-[data-whimsy] .hero h1 mark::after {
-  content: "";
-  position: absolute;
-  left: -1%;
-  right: -1%;
-  bottom: -11px;
-  height: 10px;
-  background-image: var(--wd-wave);
-  background-repeat: repeat-x;
-  background-size: 26px 10px;
-  pointer-events: none;
-}
-
-/* Wavy section dividers + a bold sparkle by every section/page heading. */
-[data-whimsy] .section-head,
-[data-whimsy] .page-head,
-[data-whimsy] .cat-hero,
-[data-whimsy] .tourney-top,
-[data-whimsy] .lb-page,
-[data-whimsy] .profile-head,
-[data-whimsy] .docs-content h1,
-[data-whimsy] .about-page h1 {
-  position: relative;
-}
-
-[data-whimsy] .section-head::before,
-[data-whimsy] .page-head::before,
-[data-whimsy] .cat-hero::before,
-[data-whimsy] .tourney-top::before,
-[data-whimsy] .lb-page::before,
-[data-whimsy] .profile-head::before,
-[data-whimsy] .docs-content h1::before,
-[data-whimsy] .about-page h1::before {
-  content: "✦";
-  position: absolute;
-  right: 0;
-  top: -16px;
-  z-index: 2;
-  font-size: 20px;
-  line-height: 1;
-  color: var(--wd-gold);
-  -webkit-text-stroke: 1px var(--wd-outline);
-  text-shadow: 0 0 9px currentColor;
-  pointer-events: none;
-  animation: wd-twinkle 4s ease-in-out infinite;
-}
-
-/* Bold corner sparkle on every card, plus a gentle tilt on hover. */
-[data-whimsy] .game,
-[data-whimsy] .tag-tile,
-[data-whimsy] .promo {
-  position: relative;
-}
-
-[data-whimsy] .game::after,
-[data-whimsy] .tag-tile::after,
-[data-whimsy] .promo::after {
-  content: "✦";
-  position: absolute;
-  top: 8px;
-  right: 10px;
-  z-index: 5;
-  font-size: 15px;
-  font-weight: 800;
-  line-height: 1;
-  color: var(--wd-gold);
-  -webkit-text-stroke: 0.8px var(--wd-outline);
-  text-shadow: 0 0 8px currentColor;
-  pointer-events: none;
-  animation: wd-twinkle 3.8s ease-in-out infinite;
-}
-
-[data-whimsy] .game:hover,
-[data-whimsy] .tag-tile:hover,
-[data-whimsy] .promo:hover,
-[data-whimsy] .tourney-panel:hover,
-[data-whimsy] .panel:hover,
-[data-whimsy] .board-card:hover,
-[data-whimsy] .step:hover {
-  rotate: -0.7deg;
-}
-
-/* Wiggling NEW sticker. */
-[data-whimsy] .new-badge {
-  animation: wd-wiggle 3.2s ease-in-out infinite;
-  transform-origin: center;
-}
-
-[data-whimsy] .new-badge::before { content: "✦ "; }
-
-/* Sparkle shimmer on the logo, using the existing brand colours. */
-[data-whimsy] .logo-mark { position: relative; }
-
-[data-whimsy] .logo:hover .logo-mark::after {
-  content: "✦";
-  position: absolute;
-  top: -7px;
-  right: -7px;
-  font-size: 14px;
-  color: var(--wd-gold);
-  -webkit-text-stroke: 0.7px var(--wd-outline);
-  text-shadow: 0 0 6px currentColor;
-  pointer-events: none;
-  animation: wd-pop 0.55s ease-out;
-}
-
-/* Bouncy hero buttons + squish on any click. */
-[data-whimsy] .hero .actions .btn:hover,
-[data-whimsy] .hero .actions .ghost:hover {
-  animation: wd-btn-bounce 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-[data-whimsy] .wd-squish {
-  animation: wd-squish 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-}
-
-/* Visible lime focus glow on every form field. */
-[data-whimsy] .signin-card input:focus,
-[data-whimsy] .auth-card input:focus,
-[data-whimsy] .auth-card select:focus,
-[data-whimsy] .search-box input:focus,
-[data-whimsy] .field input:focus,
-[data-whimsy] .field textarea:focus,
-[data-whimsy] .builder-group select:focus {
-  box-shadow: 0 0 0 3px rgba(143, 191, 0, 0.55), 0 0 12px rgba(143, 191, 0, 0.3);
-  outline: 2px solid var(--wd-lime-deep);
-  outline-offset: 1px;
-}
-
-/* Playful empty-state sticker (added beside the existing copy). */
-[data-whimsy] .profile-empty::after,
-[data-whimsy] .empty::after {
-  content: "No wahala — something sharp is coming.";
-  display: block;
-  margin-top: 8px;
-  color: var(--wd-lime-deep);
-  font-size: 0.78rem;
-  font-weight: 800;
-}
-
-/* Scroll reveals (only applied by JS to below-the-fold blocks). */
-[data-whimsy] .wd-reveal {
-  opacity: 0;
-  transform: translateY(18px);
-}
-
-[data-whimsy] .wd-reveal.wd-in {
-  opacity: 1;
-  transform: none;
-  transition: opacity 0.55s ease, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-/* Fixed mascot for the auto-opened sign-in modal (above the overlay). */
-.wd-auth-mascot {
-  position: fixed;
-  z-index: 95;
-  width: 84px;
-  pointer-events: none;
-  animation: wd-bob 4.6s ease-in-out infinite;
-}
-
-.wd-auth-mascot .wd-svg { width: 100%; height: auto; }
-
-.wd-speech-auth {
-  left: 76px;
-  top: -8px;
-  transform: rotate(-3deg);
-}
-
-@media (max-width: 600px) {
-  .wd-auth-mascot { width: 64px; }
-  .wd-speech-auth { left: 56px; top: -6px; padding: 3px 7px; font-size: 9px; }
-}
-
-/* ---------- loader + 404 ---------- */
-.wd-loading {
-  display: grid;
-  place-items: center;
-  gap: 10px;
-  min-height: 60vh;
-  padding: 70px 24px;
-  text-align: center;
-}
-
-.wd-loading-coin {
-  width: 64px;
-  animation: wd-spin 1.6s linear infinite;
-}
-
-.wd-loading-coin .wd-svg { width: 100%; height: auto; }
-
-.wd-loading p {
-  margin: 0;
-  color: var(--ink);
-  font: 800 0.8rem/1.4 var(--mono);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.wd-loading small {
-  color: var(--muted);
-  font-size: 0.8rem;
-  font-weight: 700;
-}
-
-.wd-404-line {
-  margin: 12px 0 0 !important;
-  color: var(--wd-lime-deep) !important;
-  font-weight: 800;
-}
-
-.wd-404-doodle {
-  width: 86px;
-  margin: 16px auto 0;
-  animation: wd-bob 4s ease-in-out infinite;
-}
-
-/* ---------- motion ---------- */
-@keyframes wd-float {
-  0%, 100% { translate: 0 0; }
-  50% { translate: 0 -9px; }
-}
-
-@keyframes wd-bob {
-  0%, 100% { translate: 0 0; }
-  50% { translate: 0 -6px; }
-}
-
 @keyframes wd-twinkle {
   0%, 100% { opacity: 0.35; scale: 0.82; }
   50% { opacity: 1; scale: 1.12; }
 }
 
-@keyframes wd-bounce {
-  0%, 100% { translate: 0 0; }
-  50% { translate: 0 -7px; }
-}
-
-@keyframes wd-tick {
-  to { transform: rotate(360deg); }
-}
-
-@keyframes wd-wiggle {
-  0%, 100% { rotate: 0deg; }
-  25% { rotate: -6deg; }
-  50% { rotate: 5deg; }
-  75% { rotate: -3deg; }
-}
-
-@keyframes wd-pop {
-  0% { opacity: 0; scale: 0.2; rotate: -40deg; }
-  60% { opacity: 1; scale: 1.25; }
-  100% { opacity: 1; scale: 1; rotate: 0deg; }
-}
-
-@keyframes wd-btn-bounce {
-  0%, 100% { translate: 0 0; scale: 1; }
-  30% { translate: 0 -5px; scale: 1.04; }
-  60% { translate: 0 1px; scale: 0.99; }
-}
-
-@keyframes wd-squish {
-  0% { scale: 1; }
-  35% { scale: 0.94; }
-  70% { scale: 1.03; }
-  100% { scale: 1; }
-}
-
-@keyframes wd-spin {
-  to { transform: rotate(360deg); }
-}
-
-.wd-wave {
-  transform-box: view-box;
-  transform-origin: 76px 50px;
-  animation: wd-wave 2.4s ease-in-out infinite;
-}
-
-@keyframes wd-wave {
-  0%, 100% { transform: rotate(0deg); }
-  50% { transform: rotate(-16deg); }
-}
-
-/* ---------- reduced motion: keep decoration, drop animation ---------- */
-@media (prefers-reduced-motion: reduce) {
-  .wd-runner { display: none !important; }
-
-  .wd-decor *,
-  .wd-decor *::before,
-  .wd-decor *::after,
-  [data-whimsy] .wd-squish,
-  [data-whimsy] .hero .actions .btn,
-  [data-whimsy] .hero .actions .ghost {
-    animation: none !important;
-    transition: none !important;
-  }
-
-  [data-whimsy] .game:hover,
-  [data-whimsy] .tag-tile:hover,
-  [data-whimsy] .promo:hover,
-  [data-whimsy] .tourney-panel:hover,
-  [data-whimsy] .panel:hover,
-  [data-whimsy] .board-card:hover,
-  [data-whimsy] .step:hover {
-    rotate: none;
-  }
-
-  [data-whimsy] .wd-reveal {
-    opacity: 1 !important;
-    transform: none !important;
-  }
-
-  .wd-hero-halo,
-  .wd-hero-orbit,
-  .wd-hero-doodle,
-  .wd-hero-spark,
-  [data-whimsy] .hero h1 mark::before {
-    animation: none !important;
-  }
-
-  [data-whimsy] .section-head::before,
-  [data-whimsy] .page-head::before,
-  [data-whimsy] .cat-hero::before,
-  [data-whimsy] .tourney-top::before,
-  [data-whimsy] .lb-page::before,
-  [data-whimsy] .profile-head::before,
-  [data-whimsy] .docs-content h1::before,
-  [data-whimsy] .about-page h1::before,
-  [data-whimsy] .game::after,
-  [data-whimsy] .tag-tile::after,
-  [data-whimsy] .promo::after,
-  [data-whimsy] .new-badge,
-  .wd-tourney-props *,
-  .wd-medal,
-  .wd-medal *,
-  .wd-signin-mascot,
-  .wd-signin-mascot *,
-  .wd-auth-mascot,
-  .wd-auth-mascot *,
-  .wd-wave {
-    animation: none !important;
-    transition: none !important;
-  }
-}
-
-/* Tablet widths: keep the corner sparkles inside the page padding. */
-@media (min-width: 761px) and (max-width: 1199px) {
-  .wd-fixed-spark { font-size: 15px !important; }
-  .wd-fixed-spark:nth-child(odd) { left: 0.5% !important; right: auto !important; }
-  .wd-fixed-spark:nth-child(even) { left: auto !important; right: 0.5% !important; }
-}
-
-/* ==========================================================================
-   Wand cursor, hero set-piece, Play celebration and click shouts
-   ========================================================================== */
-
-/* ---------- the wand cursor ---------- */
-.wd-cursor {
-  position: fixed;
-  left: 0;
-  top: 0;
-  z-index: 100000;
-  width: 46px;
-  height: 58px;
-  margin-left: -31px;
-  margin-top: -20px;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  will-change: transform;
-}
-
-.wd-cursor svg {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  filter: drop-shadow(0 0 6px rgba(185, 233, 74, 0.95)) drop-shadow(0 0 16px rgba(201, 138, 0, 0.7));
-  animation: wd-wand-wiggle 2.8s ease-in-out infinite;
-}
-
-.wd-cursor.is-clicking svg { animation: wd-cursor-pop 0.3s ease-out; }
-
-.wd-cursor-on,
-.wd-cursor-on body,
-.wd-cursor-on a,
-.wd-cursor-on button,
-.wd-cursor-on summary,
-.wd-cursor-on label,
-.wd-cursor-on [role="button"] { cursor: none; }
-
-.wd-cursor-on input,
-.wd-cursor-on textarea,
-.wd-cursor-on select { cursor: auto; }
-
-@media (hover: none) {
-  .wd-cursor { display: none; }
-}
-
-@keyframes wd-wand-wiggle {
-  0%, 100% { rotate: -4deg; }
-  50% { rotate: 6deg; }
-}
-
-@keyframes wd-cursor-pop {
-  0% { scale: 1; }
-  45% { scale: 1.28; }
-  100% { scale: 1; }
-}
-
-/* ---------- hero set-piece ---------- */
+/* ---------- hero: sunburst halo + stars (kept) ---------- */
 .wd-hero-magic-on {
   position: relative;
   isolation: isolate;
@@ -939,34 +232,7 @@
   animation: wd-halo-spin 70s linear infinite;
 }
 
-.wd-hero-orbit {
-  position: absolute;
-  left: 50%;
-  top: 41%;
-  width: min(900px, 100%);
-  height: min(380px, 72%);
-  transform: translate(-50%, -50%);
-  border: 2px dashed color-mix(in srgb, var(--wd-gold) 72%, transparent);
-  border-radius: 50%;
-  opacity: 0.85;
-  animation: wd-orbit-spin 80s linear infinite reverse;
-}
 
-.wd-hero-doodle {
-  position: absolute;
-  width: 72px;
-  animation: wd-float 6s ease-in-out infinite;
-  filter: drop-shadow(0 7px 9px var(--wd-shadow));
-}
-
-.wd-hero-doodle .wd-svg { width: 100%; height: auto; }
-
-.wd-hd1 { left: 1%; top: 20%; rotate: -4deg; }
-.wd-hd2 { right: 1%; top: 15%; width: 66px; rotate: 4deg; animation-delay: -1.4s; }
-.wd-hd3 { left: 3%; top: 62%; width: 60px; rotate: 2deg; animation-delay: -2.6s; }
-.wd-hd4 { right: 2%; top: 58%; width: 64px; rotate: -3deg; animation-delay: -3.4s; }
-.wd-hd5 { left: 12%; top: 6%; width: 46px; rotate: 3deg; animation-delay: -0.8s; }
-.wd-hd6 { right: 12%; top: 6%; width: 46px; rotate: -2deg; animation-delay: -2s; }
 
 .wd-hero-spark {
   position: absolute;
@@ -987,36 +253,32 @@
 .wd-hsp5 { left: 26%; top: 4%; color: var(--wd-spark-3); font-size: 16px; animation-delay: -2.7s; }
 .wd-hsp6 { right: 26%; top: 4%; color: var(--wd-spark-1); font-size: 16px; animation-delay: -1.7s; }
 
-@keyframes wd-halo-spin {
-  to { transform: translate(-50%, -50%) rotate(360deg); }
-}
-
-@keyframes wd-orbit-spin {
-  to { transform: translate(-50%, -50%) rotate(360deg); }
-}
+@keyframes wd-halo-spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
 
 @media (max-width: 760px) {
   .wd-hero-halo { width: 150%; top: 48%; opacity: 0.6; }
-  .wd-hero-orbit { display: none; }
-  .wd-hero-doodle { width: 44px; }
-  .wd-hd1 { left: 0; top: 0; }
-  .wd-hd2 { right: 0; top: 0; width: 44px; }
-  .wd-hd3, .wd-hd4, .wd-hd5, .wd-hd6 { display: none; }
   .wd-hero-spark { font-size: 16px; }
   .wd-hsp3, .wd-hsp4 { display: none; }
 }
 
-/* a double hand-drawn underline + star for the hero highlight */
-:root {
-  --wd-wave-gold: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='10' viewBox='0 0 26 10'%3E%3Cpath d='M1 6c3-4 6-4 9 0s6 4 9 0 6-4 9 0' fill='none' stroke='%23c98a00' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
+/* hand-drawn double underline + star on “Good games.” */
+[data-whimsy] .hero h1 mark {
+  position: relative;
+  display: inline-block;
 }
 
 [data-whimsy] .hero h1 mark::after {
-  height: 14px;
+  content: "";
+  position: absolute;
+  left: -1%;
+  right: -1%;
   bottom: -14px;
+  height: 14px;
   background-image: var(--wd-wave), var(--wd-wave-gold);
+  background-repeat: repeat-x;
   background-position: 0 0, 5px 5px;
   background-size: 26px 10px, 26px 10px;
+  pointer-events: none;
 }
 
 [data-whimsy] .hero h1 mark::before {
@@ -1032,130 +294,472 @@
   animation: wd-twinkle 3.2s ease-in-out infinite;
 }
 
-/* ---------- Play now celebration ---------- */
-.wd-play-fx {
+/* ---------- word-by-word hover ---------- */
+.wd-word-fx {
   position: fixed;
-  z-index: 99998;
-  width: 0;
-  height: 0;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.wd-word-spark {
+  position: fixed;
+  font-weight: 800;
+  line-height: 1;
+  -webkit-text-stroke: 0.7px var(--wd-outline);
+  text-shadow: 0 0 7px currentColor;
+  animation: wd-word-spark 0.65s ease-out forwards;
+}
+
+.wd-word {
+  position: relative;
+  display: inline-block;
+  color: inherit;
+  transition:
+    transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1),
+    color 0.2s ease;
+  will-change: transform;
+}
+
+.wd-word::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 3px;
+  border-radius: 3px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.24s ease;
   pointer-events: none;
 }
 
-.wd-play-glow {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 44px;
-  height: 44px;
-  margin: -22px;
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--wd-lime) 0%, var(--wd-gold) 46%, transparent 72%);
-  filter: blur(2px);
-  animation: wd-play-glow 1.5s ease-out forwards;
+.wd-word[data-wi="0"] { --wd-word: var(--wd-spark-1); --wd-rot: -4deg; }
+.wd-word[data-wi="1"] { --wd-word: var(--wd-spark-2); --wd-rot: 3deg; }
+.wd-word[data-wi="2"] { --wd-word: var(--wd-spark-3); --wd-rot: -2deg; }
+.wd-word[data-wi="3"] { --wd-word: var(--wd-spark-4); --wd-rot: 5deg; }
+
+.wd-word:hover,
+.wd-word.is-live {
+  color: var(--wd-word);
+  transform: translateY(-6px) rotate(var(--wd-rot)) scale(1.04);
 }
 
-.wd-play-ring {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 58px;
-  height: 58px;
-  margin: -29px;
-  border-radius: 50%;
-  border: 3px dashed var(--wd-gold);
-  animation: wd-play-ring 1.35s ease-out forwards;
+.wd-word:hover::after,
+.wd-word.is-live::after {
+  transform: scaleX(1);
 }
 
-.wd-play-banner {
-  position: absolute;
-  left: 0;
-  top: 0;
-  white-space: nowrap;
-  padding: 8px 16px;
-  border-radius: 999px;
-  border: 2px solid var(--wd-outline);
-  background: var(--wd-gold);
-  color: #1e260d;
-  font: 800 14px/1.2 var(--mono);
-  box-shadow: 0 5px 0 rgba(41, 42, 35, 0.25);
-  animation: wd-play-banner 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+.wd-word[data-wi="0"]:hover,
+.wd-word[data-wi="0"].is-live { animation: wd-word-bounce 0.55s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.wd-word[data-wi="1"]:hover,
+.wd-word[data-wi="1"].is-live { animation: wd-word-wiggle 0.5s ease-in-out; }
+.wd-word[data-wi="2"]:hover,
+.wd-word[data-wi="2"].is-live { animation: wd-word-spin 0.5s ease-in-out; }
+.wd-word[data-wi="3"]:hover,
+.wd-word[data-wi="3"].is-live { animation: wd-word-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+@keyframes wd-word-bounce {
+  0% { transform: translateY(0) rotate(0) scale(1); }
+  40% { transform: translateY(-10px) rotate(-4deg) scale(1.07); }
+  70% { transform: translateY(-3px) rotate(-2deg) scale(1.02); }
+  100% { transform: translateY(-6px) rotate(-4deg) scale(1.04); }
 }
 
-.wd-play-doodle {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 56px;
-  animation: wd-play-fly 1.5s cubic-bezier(0.16, 0.84, 0.3, 1) forwards;
-  will-change: transform, opacity;
+@keyframes wd-word-wiggle {
+  0% { transform: translateY(0) rotate(0) scale(1); }
+  25% { transform: translateY(-6px) rotate(5deg) scale(1.04); }
+  55% { transform: translateY(-6px) rotate(-5deg) scale(1.04); }
+  100% { transform: translateY(-6px) rotate(3deg) scale(1.04); }
 }
 
-.wd-play-doodle .wd-svg {
-  width: 100%;
-  height: auto;
-  filter: drop-shadow(0 7px 8px var(--wd-shadow));
+@keyframes wd-word-spin {
+  0% { transform: translateY(0) rotate(0) scale(1); }
+  55% { transform: translateY(-7px) rotate(-8deg) scale(1.06); }
+  100% { transform: translateY(-6px) rotate(-2deg) scale(1.04); }
 }
 
-.wd-play-spark {
-  position: absolute;
-  left: 0;
-  top: 0;
-  font-size: 20px;
-  font-weight: 800;
-  line-height: 1;
-  -webkit-text-stroke: 1px var(--wd-outline);
-  text-shadow: 0 0 8px currentColor;
-  animation: wd-play-spark 1.2s ease-out forwards;
+@keyframes wd-word-pop {
+  0% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-7px) scale(1.1) rotate(5deg); }
+  100% { transform: translateY(-6px) scale(1.04) rotate(5deg); }
 }
 
-@keyframes wd-play-glow {
-  0% { opacity: 0; transform: scale(0.2); }
-  30% { opacity: 1; transform: scale(2.8); }
-  100% { opacity: 0; transform: scale(6); }
-}
-
-@keyframes wd-play-ring {
-  0% { opacity: 0; transform: scale(0.2) rotate(0deg); }
-  30% { opacity: 1; }
-  100% { opacity: 0; transform: scale(3.6) rotate(90deg); }
-}
-
-@keyframes wd-play-banner {
-  0% { opacity: 0; transform: translate(-50%, -100%) scale(0.6) rotate(-4deg); }
-  22% { opacity: 1; transform: translate(-50%, -170%) scale(1.08) rotate(-4deg); }
-  75% { opacity: 1; transform: translate(-50%, -180%) scale(1) rotate(-4deg); }
-  100% { opacity: 0; transform: translate(-50%, -240%) scale(0.95) rotate(-4deg); }
-}
-
-@keyframes wd-play-fly {
-  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.25); }
-  22% { opacity: 1; }
-  60% { opacity: 1; transform: translate(calc(-50% + var(--wd-mx)), calc(-50% + var(--wd-my))) scale(1.1) rotate(-6deg); }
-  100% { opacity: 0; transform: translate(calc(-50% + var(--wd-px)), calc(-50% + var(--wd-py))) scale(0.7) rotate(14deg); }
-}
-
-@keyframes wd-play-spark {
+@keyframes wd-word-spark {
   0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
   25% { opacity: 1; }
-  100% { opacity: 0; transform: translate(calc(-50% + var(--wd-px)), calc(-50% + var(--wd-py))) scale(0.2); }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--wd-word-dx)), calc(-50% + var(--wd-word-dy))) scale(0.2); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .wd-cursor, .wd-play-fx { display: none; }
-}
-
-/* ---------- playful click shout ---------- */
-.wd-shout {
+/* ---------- Naija vibes mascot (arms every page corner) ---------- */
+.wd-mascot {
   position: fixed;
-  z-index: 100000;
-  transform: translate(-50%, -100%) rotate(-3deg);
-  padding: 4px 10px;
+  right: 14px;
+  bottom: 78px;
+  width: 96px;
+  z-index: 30;
+  pointer-events: auto;
+  animation: wd-mascot-bob 4.4s ease-in-out infinite;
+  filter: drop-shadow(0 10px 14px var(--wd-shadow));
+}
+
+.wd-mascot-svg { width: 100%; height: auto; overflow: visible; }
+
+.wd-mascot-bubble {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 6px);
+  opacity: 0;
+  transform: translateY(6px) rotate(-3deg);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  padding: 5px 9px;
   border-radius: 999px;
   border: 2px solid var(--wd-outline);
   background: var(--wd-lime);
   color: #1e260d;
-  font: 800 12px/1.2 var(--mono);
+  font: 800 11px/1.25 var(--mono);
   white-space: nowrap;
   box-shadow: 0 4px 0 rgba(41, 42, 35, 0.22);
-  animation: wd-sharp 0.95s ease-out forwards;
+  pointer-events: none;
+}
+
+.wd-mascot-bubble.is-talking { opacity: 1; transform: translateY(0) rotate(-3deg); }
+
+.wd-mascot.is-blinking .wd-mascot-eyes {
+  transform: scaleY(0.08);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.wd-mascot.is-near .wd-mascot-brow {
+  transform: translateY(-4px);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.wd-mascot.is-wiggling .wd-mascot-svg { animation: wd-mascot-wiggle 0.62s ease-in-out; }
+
+@keyframes wd-mascot-bob {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -6px; }
+}
+
+@keyframes wd-mascot-wiggle {
+  0%, 100% { rotate: 0deg; }
+  25% { rotate: -6deg; }
+  55% { rotate: 6deg; }
+  75% { rotate: -3deg; }
+}
+
+@media (max-width: 1199px) {
+  .wd-mascot {
+    width: 64px;
+    right: 6px;
+    bottom: 70px;
+    z-index: 0;
+  }
+
+  .wd-mascot-bubble {
+    right: 0;
+    bottom: calc(100% + 4px);
+    padding: 4px 7px;
+    font-size: 9px;
+  }
+}
+
+/* ---------- the one danfo: scroll-driven in the side margin ---------- */
+.wd-danfo-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.wd-danfo {
+  position: fixed;
+  left: calc(50vw - 480px - 84px);
+  top: 0;
+  width: 68px;
+  z-index: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  filter: drop-shadow(0 7px 9px var(--wd-shadow));
+  will-change: transform;
+}
+
+.wd-danfo.is-over-text { opacity: 0.25; }
+.wd-danfo .wd-svg { width: 100%; height: auto; }
+.wd-danfo-body { transform-box: fill-box; transform-origin: center bottom; }
+.wd-danfo.is-idle .wd-danfo-body { animation: wd-danfo-idle 0.65s ease-in-out infinite; }
+
+.wd-danfo-wheel {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: wd-wheel-spin 1.7s linear infinite;
+}
+
+.wd-danfo.is-driving .wd-danfo-wheel { animation-duration: 0.5s; }
+.wd-danfo.is-parked .wd-danfo-body,
+.wd-danfo.is-parked .wd-danfo-wheel { animation: none; }
+
+.wd-danfo-puffs { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+.wd-danfo-puff {
+  position: fixed;
+  font-weight: 800;
+  line-height: 1;
+  -webkit-text-stroke: 0.7px var(--wd-outline);
+  text-shadow: 0 0 6px currentColor;
+  animation: wd-danfo-puff 0.9s ease-out forwards;
+}
+
+@keyframes wd-danfo-idle {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -3px; }
+}
+
+@keyframes wd-wheel-spin { to { transform: rotate(360deg); } }
+
+@keyframes wd-danfo-puff {
+  0% { opacity: 0.9; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, calc(-50% - 28px)) scale(0.3); }
+}
+
+@media (max-width: 1199px) {
+  .wd-danfo { left: 4px; width: 42px; }
+}
+
+/* ---------- Play now celebration (stars only) ---------- */
+.wd-play-fx { position: fixed; z-index: 99998; width: 0; height: 0; pointer-events: none; }
+.wd-play-glow { position: absolute; left: 0; top: 0; width: 44px; height: 44px; margin: -22px; border-radius: 50%; background: radial-gradient(circle, var(--wd-lime) 0%, var(--wd-gold) 46%, transparent 72%); filter: blur(2px); animation: wd-play-glow 1.5s ease-out forwards; }
+.wd-play-ring { position: absolute; left: 0; top: 0; width: 58px; height: 58px; margin: -29px; border-radius: 50%; border: 3px dashed var(--wd-gold); animation: wd-play-ring 1.35s ease-out forwards; }
+.wd-play-banner { position: absolute; left: 0; top: 0; white-space: nowrap; padding: 8px 16px; border-radius: 999px; border: 2px solid var(--wd-outline); background: var(--wd-gold); color: #1e260d; font: 800 14px/1.2 var(--mono); box-shadow: 0 5px 0 rgba(41, 42, 35, 0.25); animation: wd-play-banner 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.wd-play-spark { position: absolute; left: 0; top: 0; font-size: 20px; font-weight: 800; line-height: 1; -webkit-text-stroke: 1px var(--wd-outline); text-shadow: 0 0 8px currentColor; animation: wd-play-spark 1.2s ease-out forwards; }
+
+@keyframes wd-play-glow { 0% { opacity: 0; transform: scale(0.2); } 30% { opacity: 1; transform: scale(2.8); } 100% { opacity: 0; transform: scale(6); } }
+@keyframes wd-play-ring { 0% { opacity: 0; transform: scale(0.2) rotate(0deg); } 30% { opacity: 1; } 100% { opacity: 0; transform: scale(3.6) rotate(90deg); } }
+@keyframes wd-play-banner { 0% { opacity: 0; transform: translate(-50%, -100%) scale(0.6) rotate(-4deg); } 22% { opacity: 1; transform: translate(-50%, -170%) scale(1.08) rotate(-4deg); } 75% { opacity: 1; transform: translate(-50%, -180%) scale(1) rotate(-4deg); } 100% { opacity: 0; transform: translate(-50%, -240%) scale(0.95) rotate(-4deg); } }
+@keyframes wd-play-spark { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); } 25% { opacity: 1; } 100% { opacity: 0; transform: translate(calc(-50% + var(--wd-px)), calc(-50% + var(--wd-py))) scale(0.2); } }
+
+/* ---------- tournament trophy + clock + medals (kept) ---------- */
+.wd-anchor { position: relative; }
+.wd-tourney-props { position: absolute; top: 0; right: -78px; display: flex; align-items: flex-start; gap: 6px; z-index: 4; pointer-events: none; }
+.wd-trophy, .wd-clock { display: block; width: 34px; }
+.wd-trophy .wd-svg, .wd-clock .wd-svg { width: 100%; height: auto; }
+.wd-trophy { animation: wd-bounce 2.6s ease-in-out infinite; }
+.wd-clock-hand { transform-origin: 50px 50px; animation: wd-tick 2s steps(12, end) infinite; }
+@keyframes wd-tick { to { transform: rotate(360deg); } }
+@keyframes wd-bounce { 0%, 100% { translate: 0 0; } 50% { translate: 0 -7px; } }
+@media (max-width: 1199px) { .wd-tourney-props { top: 4px; right: 4px; gap: 4px; } .wd-trophy, .wd-clock { width: 26px; } }
+
+.wd-medal-anchor { position: relative; }
+.wd-medal { position: absolute; left: -26px; top: 50%; width: 24px; transform: translateY(-50%); z-index: 2; animation: wd-bounce 4s ease-in-out infinite; }
+.wd-medal .wd-svg { width: 100%; height: auto; }
+.wd-medal-spark { position: absolute; top: -8px; right: -7px; font-size: 14px; color: var(--wd-gold); -webkit-text-stroke: 0.8px var(--wd-outline); animation: wd-twinkle 3s ease-in-out infinite; }
+.wd-medal-2 { --wd-gold: #8d99a6; --wd-yellow: #c3ccd4; }
+.wd-medal-3 { --wd-gold: #a9662b; --wd-yellow: #d99a5b; }
+@media (max-width: 760px) { .wd-medal { display: none; } }
+
+.wd-doodle { display: block; line-height: 0; }
+.wd-doodle .wd-svg { display: block; width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 6px 8px var(--wd-shadow)); }
+
+/* ---------- footer skyline + sign-off (kept, no danfo) ---------- */
+.wd-has-skyline { position: relative; }
+.wd-has-skyline .footer-grid, .wd-has-skyline .footer-bottom { position: relative; z-index: 1; }
+.wd-skyline { position: absolute; left: 0; right: 0; top: 10px; width: 100%; height: 20px; z-index: 0; pointer-events: none; filter: drop-shadow(0 2px 0 rgba(41, 42, 35, 0.12)); }
+.wd-signoff { position: absolute; right: 16px; top: 12px; z-index: 2; transform: rotate(-2deg); background: var(--wd-lime); color: #1e260d; border: 2px solid var(--wd-outline); border-radius: 999px; padding: 2px 8px; font: 800 10px/1.4 var(--mono); box-shadow: 0 3px 0 rgba(41, 42, 35, 0.2); }
+@media (max-width: 760px) { .wd-signoff { display: none; } .wd-skyline { top: 10px; height: 18px; } }
+
+/* ---------- kept UI-side sparkles / hover effects ---------- */
+[data-whimsy] .section-head,
+[data-whimsy] .page-head,
+[data-whimsy] .cat-hero,
+[data-whimsy] .tourney-top,
+[data-whimsy] .lb-page,
+[data-whimsy] .profile-head,
+[data-whimsy] .docs-content h1,
+[data-whimsy] .about-page h1 { position: relative; }
+
+[data-whimsy] .section-head::before,
+[data-whimsy] .page-head::before,
+[data-whimsy] .cat-hero::before,
+[data-whimsy] .tourney-top::before,
+[data-whimsy] .lb-page::before,
+[data-whimsy] .profile-head::before,
+[data-whimsy] .docs-content h1::before,
+[data-whimsy] .about-page h1::before {
+  content: "✦";
+  position: absolute;
+  right: 0;
+  top: -16px;
+  z-index: 2;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--wd-gold);
+  -webkit-text-stroke: 1px var(--wd-outline);
+  text-shadow: 0 0 9px currentColor;
+  pointer-events: none;
+  animation: wd-twinkle 4s ease-in-out infinite;
+}
+
+[data-whimsy] .game,
+[data-whimsy] .tag-tile,
+[data-whimsy] .promo { position: relative; }
+
+[data-whimsy] .game::after,
+[data-whimsy] .tag-tile::after,
+[data-whimsy] .promo::after {
+  content: "✦";
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  z-index: 5;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--wd-gold);
+  -webkit-text-stroke: 0.8px var(--wd-outline);
+  text-shadow: 0 0 8px currentColor;
+  pointer-events: none;
+  animation: wd-twinkle 3.8s ease-in-out infinite;
+}
+
+[data-whimsy] .game:hover,
+[data-whimsy] .tag-tile:hover,
+[data-whimsy] .promo:hover,
+[data-whimsy] .tourney-panel:hover,
+[data-whimsy] .panel:hover,
+[data-whimsy] .board-card:hover,
+[data-whimsy] .step:hover { rotate: -0.7deg; }
+
+[data-whimsy] .new-badge { animation: wd-wiggle 3.2s ease-in-out infinite; transform-origin: center; }
+[data-whimsy] .new-badge::before { content: "✦ "; }
+
+[data-whimsy] .logo-mark { position: relative; }
+[data-whimsy] .logo:hover .logo-mark::after {
+  content: "✦";
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  font-size: 14px;
+  color: var(--wd-gold);
+  -webkit-text-stroke: 0.7px var(--wd-outline);
+  text-shadow: 0 0 6px currentColor;
+  pointer-events: none;
+  animation: wd-pop 0.55s ease-out;
+}
+
+[data-whimsy] .hero .actions .btn:hover,
+[data-whimsy] .hero .actions .ghost:hover { animation: wd-btn-bounce 0.55s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+[data-whimsy] .wd-squish { animation: wd-squish 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) !important; }
+
+[data-whimsy] .signin-card input:focus,
+[data-whimsy] .auth-card input:focus,
+[data-whimsy] .auth-card select:focus,
+[data-whimsy] .search-box input:focus,
+[data-whimsy] .field input:focus,
+[data-whimsy] .field textarea:focus,
+[data-whimsy] .builder-group select:focus {
+  box-shadow: 0 0 0 3px rgba(143, 191, 0, 0.55), 0 0 12px rgba(143, 191, 0, 0.3);
+  outline: 2px solid var(--wd-lime-deep);
+  outline-offset: 1px;
+}
+
+[data-whimsy] .profile-empty::after,
+[data-whimsy] .empty::after {
+  content: "No wahala — something sharp is coming.";
+  display: block;
+  margin-top: 8px;
+  color: var(--wd-lime-deep);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+[data-whimsy] .wd-reveal { opacity: 0; transform: translateY(18px); }
+[data-whimsy] .wd-reveal.wd-in { opacity: 1; transform: none; transition: opacity 0.55s ease, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+@keyframes wd-wiggle { 0%, 100% { rotate: 0deg; } 25% { rotate: -6deg; } 50% { rotate: 5deg; } 75% { rotate: -3deg; } }
+@keyframes wd-pop { 0% { opacity: 0; scale: 0.2; rotate: -40deg; } 60% { opacity: 1; scale: 1.25; } 100% { opacity: 1; scale: 1; rotate: 0deg; } }
+@keyframes wd-btn-bounce { 0%, 100% { translate: 0 0; scale: 1; } 30% { translate: 0 -5px; scale: 1.04; } 60% { translate: 0 1px; scale: 0.99; } }
+@keyframes wd-squish { 0% { scale: 1; } 35% { scale: 0.94; } 70% { scale: 1.03; } 100% { scale: 1; } }
+
+/* ---------- loader + 404 (no coin, ring or doodle) ---------- */
+.wd-loading {
+  display: grid;
+  place-items: center;
+  gap: 10px;
+  min-height: 60vh;
+  padding: 70px 24px;
+  text-align: center;
+}
+
+.wd-loading-sparks { display: inline-flex; gap: 8px; color: var(--wd-spark-2); font-size: 28px; line-height: 1; }
+.wd-loading-sparks span { display: inline-block; animation: wd-twinkle 1.6s ease-in-out infinite; }
+.wd-loading-sparks span:nth-child(2) { color: var(--wd-spark-1); animation-delay: -0.5s; }
+.wd-loading-sparks span:nth-child(3) { color: var(--wd-spark-3); animation-delay: -1s; }
+.wd-loading p { margin: 0; color: var(--ink); font: 800 0.8rem/1.4 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; }
+.wd-loading small { color: var(--muted); font-size: 0.8rem; font-weight: 700; }
+.wd-404-line { margin: 12px 0 0 !important; color: var(--wd-lime-deep) !important; font-weight: 800; }
+
+/* ---------- touch / reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .wd-hero-halo,
+  .wd-hero-spark,
+  .wd-fixed-spark,
+  .wd-mascot,
+  .wd-mascot-svg,
+  .wd-mascot-bubble,
+  .wd-danfo-body,
+  .wd-danfo-wheel,
+  .wd-trophy,
+  .wd-clock-hand,
+  .wd-medal,
+  .wd-medal-spark,
+  .wd-word,
+  [data-whimsy] .hero h1 mark::before,
+  [data-whimsy] .section-head::before,
+  [data-whimsy] .page-head::before,
+  [data-whimsy] .cat-hero::before,
+  [data-whimsy] .tourney-top::before,
+  [data-whimsy] .lb-page::before,
+  [data-whimsy] .profile-head::before,
+  [data-whimsy] .docs-content h1::before,
+  [data-whimsy] .about-page h1::before,
+  [data-whimsy] .game::after,
+  [data-whimsy] .tag-tile::after,
+  [data-whimsy] .promo::after,
+  [data-whimsy] .new-badge,
+  [data-whimsy] .hero .actions .btn,
+  [data-whimsy] .hero .actions .ghost {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .wd-word:hover,
+  .wd-word.is-live {
+    transform: none;
+  }
+
+  .wd-play-fx { display: none; }
+
+  [data-whimsy] .wd-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* The Sun Market has its own heading styles; keep the word hover visible there. */
+.sm-world .wd-word.is-live,
+.sm-world .wd-word:hover {
+  color: var(--wd-word) !important;
+  transform: translateY(-6px) rotate(var(--wd-rot)) scale(1.04) !important;
+}
+
+.sm-world .wd-word.is-live::after,
+.sm-world .wd-word:hover::after {
+  transform: scaleX(1) !important;
 }

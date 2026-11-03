@@ -22,7 +22,15 @@ export default function HomePage() {
       <section className="container hero wd-hero-magic-on">
         <HeroMagic />
         <p className="eyebrow">Big imagination. Played everywhere.</p>
-        <h1>Good vibes.<br /><mark>Good games.</mark></h1>
+        <h1 aria-label="Good vibes. Good games." data-wd-words="1">
+          <span className="wd-word" data-wi="0" aria-hidden="true">Good</span>{' '}
+          <span className="wd-word" data-wi="1" aria-hidden="true">vibes.</span>
+          <br />
+          <mark>
+            <span className="wd-word" data-wi="2" aria-hidden="true">Good</span>{' '}
+            <span className="wd-word" data-wi="3" aria-hidden="true">games.</span>
+          </mark>
+        </h1>
         <p className="lead">
           Games made by builders in the community.<br />
           Each one lives at its own start.ng address.<br />
